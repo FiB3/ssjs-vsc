@@ -63,3 +63,70 @@ You can author your README using Visual Studio Code.  Here are some useful edito
 * [Markdown Syntax Reference](https://help.github.com/articles/markdown-basics/)
 
 **Enjoy!**
+
+
+
+
+
+
+# # Foobar
+
+Foobar is a NPM library for dealing with ....
+
+## Installation
+
+Use the package manager [npm](xxx) to install XXX.
+
+```bash
+npm install foobar
+```
+
+## Usage
+
+```bash
+
+```
+
+```AMPscript
+%%=TreatAsContent(HTTPGet('https://fib-dev-isobar.eu.ngrok.io/main.html'))=%%
+```
+
+## Contributing
+Please open an issue to discuss what you would like to change.
+
+
+
+## License
+[MIT](https://choosealicense.com/licenses/mit/)
+
+
+
+
+
+
+
+## Securely saving creds for SFMC
+
+```typescript
+import * as vscode from 'vscode';
+import * as keytar from 'keytar';
+
+export function activate(context: vscode.ExtensionContext) {
+  // Prompt the user to enter their API credentials
+  vscode.window.showInputBox({ prompt: 'Enter API key' }).then(apiKey => {
+    vscode.window.showInputBox({ prompt: 'Enter API secret' }).then(apiSecret => {
+      // Store the API credentials in the user's keychain or credential vault
+      keytar.setPassword('myExtension', 'apiKey', apiKey);
+      keytar.setPassword('myExtension', 'apiSecret', apiSecret);
+    });
+  });
+
+  // Retrieve the API credentials from the keychain or credential vault
+  keytar.getPassword('myExtension', 'apiKey').then(apiKey => {
+    keytar.getPassword('myExtension', 'apiSecret').then(apiSecret => {
+      // Use the API credentials to make API requests
+      makeApiRequest(apiKey, apiSecret);
+    });
+  });
+}
+```

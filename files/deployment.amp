@@ -1,0 +1,30 @@
+%%[
+  SET @devPath = '/all-in-dev'
+  SET @devBaseUrl = HTTPGet("https://mc-xxx.pub.sfmc-content.com/3mdkmkfdsaf")
+
+  SET @token = QueryParameter('token')
+  SET @path = QueryParameter('path')
+  /* TODO: show error message if params are missing */
+  SET @devUrl = CONCAT(@devBaseUrl, @devPath, "?token=", @token, "&path=", @path)
+
+]%%
+
+<script runat="server">
+  Platform.Load("core","1.1.5");
+  try {
+</script>
+%%[
+  SET @content = HTTPGet(@devUrl)
+  SET @content = CONCAT('<script runat="server">', @content, '</script>');
+]%%
+<script runat="server">
+  } catch(err) {
+    Write("<br>" + Stringify(err));
+  }
+</script>
+
+<h2>
+FIB_DEV: %%=v(@path)=%%
+</h2>
+
+%%=TreatAsContent(@content)=%%

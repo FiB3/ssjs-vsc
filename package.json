@@ -1,21 +1,50 @@
 {
   "name": "ssjs-vsc",
   "displayName": "SSJS Helper",
-  "description": "",
+  "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
   "version": "0.0.1",
+  "publisher": "Filip Bostik",
   "engines": {
-    "vscode": "^1.77.0"
+    "vscode": "^1.75.0"
   },
   "categories": [
+    "Programming Languages",
     "Other"
   ],
-  "activationEvents": [],
+  "activationEvents": [
+    "onCommand:expressServer.start"
+  ],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "ssjs-vsc.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "ssjs-vsc.start",
+        "title": "SSJS: Start"
+      },
+      {
+        "command": "ssjs-vsc.stop",
+        "title": "SSJS: Stop"
+      },
+      {
+        "command": "ssjs-vsc.set-config",
+        "title": "SSJS: Set Config"
+      }
+    ],
+    "languages": [
+      {
+        "id": "ssjs",
+        "aliases": ["SSJS"],
+        "extensions": [".ssjs"],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "ssjs",
+        "scopeName": "source.ssjs",
+        "path": "./syntaxes/ssjs.tmLanguage.json"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
@@ -23,14 +52,21 @@
     "test": "node ./test/runTest.js"
   },
   "devDependencies": {
-    "@types/vscode": "^1.77.0",
     "@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
+    "@types/vscode": "^1.77.0",
+    "@vscode/test-electron": "^2.3.0",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
-    "typescript": "^4.9.5",
-    "@vscode/test-electron": "^2.3.0"
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "moment": "^2.29.4",
+    "morgan": "^1.10.0",
+    "mustache": "^4.2.0"
   }
 }
