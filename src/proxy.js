@@ -16,7 +16,6 @@ let config;
 let server;
 
 exports.app = {
-  // server: undefined,
   running: false,
 
   host: 'http://127.0.0.1',
@@ -26,10 +25,10 @@ exports.app = {
     // SETUP:
     parseConfig(configObj);
 
-    this.host = 'http://127.0.0.1'// configObj.domain;
-    this.port = /*configObj.port ||*/ 4000;
+    // this.host = configObj.domain || this.host;
+    this.port = configObj.port || this.port;
 
-    const API_SERVICE_URL = "https://mcqh779j36zt3vg-882q0dpmyqg8.pub.sfmc-content.com";
+    const API_SERVICE_URL = "https://mcq-xxxx.pub.sfmc-content.com";
     const OAUTH_TOKEN = '';
 
     let app = express();
@@ -109,7 +108,7 @@ exports.app = {
     server.close(() => {
       console.log('Closed out remaining connections');
       this.running = false;
-    }).bind(this);
+    });
   }
 };
 

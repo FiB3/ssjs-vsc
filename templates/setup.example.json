@@ -3,9 +3,7 @@
   "port": 4000,
   "sfmc-domain": "",
   "dev-folder-path": "",
-  "files-to-template": [
-    "main.html"
-  ],
+  "files-to-template": [ ],
   "automate-version": true,
   "dev-tokens": {
     "token-name": "use {{Mustache}} syntax in your files to fill your dev files"
@@ -16,7 +14,7 @@
   "proxy-any-file": {
     "main-path": "/all-in-dev",
     "enabled": true,
-    "dev-token": "39smkmfksa-3c62-4d49-fmk8-f3fkmdfsfp68d" 
+    "dev-token": "{{dev-token-comes-here}}" 
   },
   "proxy-endpoints": [
     {

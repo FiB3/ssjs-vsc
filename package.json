@@ -26,8 +26,8 @@
         "title": "SSJS: Stop"
       },
       {
-        "command": "ssjs-vsc.set-config",
-        "title": "SSJS: Set Config"
+        "command": "ssjs-vsc.create-config",
+        "title": "SSJS: Create Config"
       }
     ],
     "languages": [

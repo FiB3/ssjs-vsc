@@ -5,30 +5,28 @@ module.exports = {
   /**
    * Save JS object to `json` file.
    * @param {string} fileName
-   * @param {*} json 
+   * @param {string} text 
    * @return true | error text
    */
-  save: function(fileName, json) {
-    fs.writeFile(fileName, JSON.stringify(json, null, 2), function(err) {
+  save: function(fileName, text) {
+    fs.writeFileSync(fileName, text, function(err) {
       if(err) {
-        return err;
+          return err;
       }
       return true;
     });
   },
 
   /**
-   * Load JS object from `json` file.
+   * Load JS object from text file.
    * @param {string} fileName
-   * @returns JS object | string with error
+   * @returns string | string with error
    */
   load: function(fileName) {
-    // console.log(fileName);
     try {
       const data = fs.readFileSync(fileName, 'utf8');
-      return JSON.parse(data);
+      return data;
     } catch (err) {
-      console.log(err);
       return `Error while reading file: ${fileName}: ${err}`;
     }
   }
