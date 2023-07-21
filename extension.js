@@ -32,8 +32,7 @@ async function activate(context) {
 	});
 
 	let updateSetup = vscode.commands.registerCommand('ssjs-vsc.update-config', async () => {
-		// TODO: update setup file with new creds:
-		// await createConfig(context);
+		await createConfig(context, true);
 	});
 
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
@@ -62,8 +61,8 @@ async function activate(context) {
 	context.subscriptions.push(deployAnyPath);
 }
 
-const createConfig = async function(context) {
-	let title = `Set up SFMC Environment`;
+const createConfig = async function(context, update) {
+	let title = update ? `Update SFMC Environment` : `Set up SFMC Environment`;
 	const subdomain = await vscode.window.showInputBox({
 		title: title,
 		prompt: `Enter SFMC Subdomain:`,
@@ -99,8 +98,14 @@ const createConfig = async function(context) {
 				vscode.window.showInformationMessage(`API Credentials validated!`);
 				// store credentials:
 				storeSfmcClientSecret(context, clientId, clientSecret);
-				// TODO: create setup file:
-				createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
+
+				if (update) {
+					// update setup file:
+					updateConfigFile(subdomain, clientId, mid);
+				} else {
+					// create setup file:
+					createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
+				}
 				
 				// TODO: Open the setup  file:
 				vscode.workspace.openTextDocument(getUserConfigPath()).then((doc) =>
@@ -135,6 +140,20 @@ const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
 	const setupFolder = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME);
 	folder.create(setupFolder);
 
+	json.save(getUserConfigPath(), configTemplate);
+	
+	vscode.workspace.openTextDocument(getUserConfigPath());
+}
+
+const updateConfigFile = function (subdomain, clientId, mid) {
+	// get current setup:
+	let configTemplate = json.load(getUserConfigPath()); // TODO: handle non-existing file
+	console.log(configTemplate);
+	// update values:
+	configTemplate["sfmc-domain"] = subdomain;
+	configTemplate["sfmc-client-id"] = clientId;
+	configTemplate["sfmc-mid"] = mid;
+	// save:
 	json.save(getUserConfigPath(), configTemplate);
 	
 	vscode.workspace.openTextDocument(getUserConfigPath());
