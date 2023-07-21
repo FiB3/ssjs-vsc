@@ -7,7 +7,8 @@ const Mustache = require('mustache');
 // const { exit } = require('process');
 
 // TODO: replace with auxi.file
-const textFile = require('./txtHandler');
+// const textFile = require('./txtHandler');
+const textFile = require('./auxi/file');
 const moment = require('moment');
 
 // no HTML escaping:
