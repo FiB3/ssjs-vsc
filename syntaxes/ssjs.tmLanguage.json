@@ -1,104 +1,12 @@
 {
-    "name": "SSJS",
-    "scopeName": "source.ssjs",
-    "fileTypes": ["ssjs"],
-    "patterns": [
-      {
-        "include": "#html"
-      },
-      {
-        "begin": "<script>",
-        "end": "</script>",
-        "patterns": [
-          {
-            "include": "#javascript"
-          }
-        ]
-      },
-      {
-        "begin": "<%",
-        "end": "%>",
-        "patterns": [
-          {
-            "include": "#third-lang"
-          }
-        ]
-      }
-    ],
-    "repository": {
-      "html": {
-        "patterns": [
-          {
-            "match": "<!DOCTYPE html>",
-            "name": "meta.tag.doctype.html"
-          },
-          {
-            "begin": "<",
-            "end": ">",
-            "patterns": [
-              {
-                "match": "\\b([a-z][\\w-]*)\\b",
-                "name": "entity.name.tag.html"
-              },
-              {
-                "match": "\\b([a-z][\\w-]*)\\b(\\s*)(=)(\\s*)(&quot;)(.*?)(&quot;)",
-                "captures": {
-                  "1": {
-                    "name": "entity.other.attribute-name.html"
-                  },
-                  "6": {
-                    "name": "string.attribute-value.html"
-                  }
-                }
-              }
-            ]
-          }
-        ]
-      },
-      "javascript": {
-        "patterns": [
-          {
-            "match": "\\b(function|var|let|const|if|else|for|while|do|switch|case|break|continue|return|throw|try|catch|finally)\\b",
-            "name": "keyword.control.js"
-          },
-          {
-            "match": "//.*?$",
-            "name": "comment.line.double-slash.js"
-          },
-          {
-            "match": "/\\*.*?\\*/",
-            "name": "comment.block.js"
-          },
-          {
-            "match": "(\\b\\d+\\b)|(\\b0[xX][\\dA-Fa-f]+\\b)|(\\b(\\d+\\.\\d*|\\.\\d+)([eE][-+]?\\d+)?\\b)",
-            "name": "constant.numeric.js"
-          },
-          {
-            "match": "(\\btrue\\b|\\bfalse\\b|null|undefined|NaN|Infinity)",
-            "name": "constant.language.js"
-          },
-          {
-            "match": "\\b[A-Z]\\w*\\b",
-            "name": "entity.name.type.class.js"
-          }
-        ]
-      },
-      "third-lang": {
-        "patterns": [
-          {
-            "match": "\\b(foo|bar|baz)\\b",
-            "name": "keyword.control.third-lang"
-          },
-          {
-            "match": "//.*?$",
-            "name": "comment.line.double-slash.third-lang"
-          },
-          {
-            "match": "/\\*.*?\\*/",
-            "name": "comment.block.third-lang"
-          }
-        ]
-      }
-    }
-  }
-  
+	"name": "SSJS",
+	"scopeName": "source.ssjs",
+  "version": "0.1",
+	"patterns": [
+		{
+			"include": "text.html.basic"
+		}
+	],
+	"repository": {
+	}
+}

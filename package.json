@@ -5,14 +5,16 @@
   "version": "0.0.1",
   "publisher": "Filip Bostik",
   "engines": {
-    "vscode": "^1.75.0"
+    "vscode": "^1.77.0"
   },
   "categories": [
     "Programming Languages",
+    "Formatters",
     "Other"
   ],
   "activationEvents": [
-    "onCommand:expressServer.start"
+    "onCommand:expressServer.start",
+    "onLanguage:ssjs"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -28,14 +30,27 @@
       {
         "command": "ssjs-vsc.create-config",
         "title": "SSJS: Create Config"
+      },
+      {
+        "command": "ssjs-vsc.update-config",
+        "title": "SSJS: Update API Credentials"
+      },
+      {
+        "command": "ssjs-vsc.deploy-any-path",
+        "title": "SSJS: Deploy Dev Page"
       }
     ],
     "languages": [
       {
         "id": "ssjs",
-        "aliases": ["SSJS"],
-        "extensions": [".ssjs"],
-        "configuration": "./language-configuration.json"
+        "aliases": [
+          "SSJS",
+          "ssjs"
+        ],
+        "extensions": [
+          ".ssjs"
+        ],
+        "configuration": "./syntaxes/language-configuration.json"
       }
     ],
     "grammars": [
@@ -44,12 +59,26 @@
         "scopeName": "source.ssjs",
         "path": "./syntaxes/ssjs.tmLanguage.json"
       }
+    ],
+    "snippets": [
+      {
+        "language": "ssjs",
+        "path": "./syntaxes/snippets.json"
+      }
     ]
   },
   "scripts": {
     "lint": "eslint .",
     "pretest": "npm run lint",
     "test": "node ./test/runTest.js"
+  },
+  "dependencies": {
+    "express": "^4.18.2",
+    "http-proxy-middleware": "^2.0.6",
+    "moment": "^2.29.4",
+    "morgan": "^1.10.0",
+    "mustache": "^4.2.0",
+    "sfmc-fuelsdk-node": "^2.4.0"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -61,12 +90,5 @@
     "glob": "^8.1.0",
     "mocha": "^10.2.0",
     "typescript": "^4.9.5"
-  },
-  "dependencies": {
-    "express": "^4.18.2",
-    "http-proxy-middleware": "^2.0.6",
-    "moment": "^2.29.4",
-    "morgan": "^1.10.0",
-    "mustache": "^4.2.0"
   }
 }

@@ -1,0 +1,5 @@
+{
+  "name": "My Custom Syntax Highlighter",
+  "scopeName": "source.ssjs",
+  "fileTypes": ["*.ssjs"]
+}

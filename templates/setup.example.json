@@ -1,7 +1,10 @@
 {
-  "domain": "https://public.domain.hosting.the.app.net",
+  "sfmc-domain": "{{sfmc-subdomain}}",
+  "sfmc-client-id": "{{package-client-id}}",
+  "sfmc-mid": "{{only-if-needed}}",
+  "public-domain": "{{publically-accessible-domain}}",
+
   "port": 4000,
-  "sfmc-domain": "",
   "dev-folder-path": "",
   "files-to-template": [ ],
   "automate-version": true,

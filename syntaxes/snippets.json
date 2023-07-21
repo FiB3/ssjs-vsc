@@ -1,0 +1,38 @@
+{
+	"script": {
+		"prefix": "<script",
+		"body": [
+			"<script runat=server language=\"JavaScript\" executioncontexttype=\"Post\" executioncontextname=test>",
+			"\t",
+			"</script>"
+		],
+		"description": "SSJS Block."
+	},
+	"Load": {
+		"prefix": "Platform.Load",
+		"body": [
+			"Platform.Load(\"core\", \"1.1.1\");"
+		],
+		"description": "Load Core Library."
+	},
+	"try-catch": {
+		"prefix": "try",
+		"body": [
+			"try {",
+			"  ",
+			"} catch (err) {",
+			"  ",
+			"}"
+		],
+		"description": "try catch"
+	},
+	"for-loop": {
+		"prefix": "for",
+		"body": [
+			"for (var i = 0; i < ${1:iteration_length}; i++) {",
+			"\t",
+			"}"
+		],
+		"description": "For loop"
+	}
+}

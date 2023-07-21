@@ -6,6 +6,7 @@ const morgan = require("morgan");
 const Mustache = require('mustache');
 // const { exit } = require('process');
 
+// TODO: replace with auxi.file
 const textFile = require('./txtHandler');
 const moment = require('moment');
 

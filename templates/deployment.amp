@@ -1,6 +1,6 @@
 %%[
-  SET @devPath = '/all-in-dev'
-  SET @devBaseUrl = HTTPGet("https://mc-xxx.pub.sfmc-content.com/3mdkmkfdsaf")
+  SET @devPath = '{{proxy-any-file.main-path}}'
+  SET @devBaseUrl = '{{public-domain}}'
 
   SET @token = QueryParameter('token')
   SET @path = QueryParameter('path')
