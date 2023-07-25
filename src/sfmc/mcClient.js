@@ -23,22 +23,46 @@ module.exports = class McClient {
 	/*
 		assetTypeId: webpage (205), json (182) ?
 	*/
-	async createAsset(name, content, assetTypeId, categoryId) {
+	async createAsset(name, content, assetTypeId) {
+		console.log('CREATE ASSET');
 		let body = {
 			"name": name,
-			"content": content,
+			// "content": content,
 			"assetType": {
 					"id": assetTypeId
 			},
-			// "status": {
-			// 		"id": 1,
-			// 		"name": "Draft"
-			// }
+			"version": 1,
+			"contentType": "text/html",
+			// "category": {
+			// 	"name": "Content Builder", // by default
+			// },
+			"meta": {
+				"globalStyles": {
+						"isLocked": false,
+						"body": {
+								"max-width": "1280px"
+						}
+				}
+			},
+			"views": {
+					"html": {
+							"thumbnail": {},
+							"content": content,
+							"meta": {},
+							"slots": {
+									"col1": {
+											"design": "<p style=\"font-family:arial;color:#ccc;font-size:11px;text-align:center;vertical-align:middle;font-weight:bold;padding:10px;margin:0;border:#ccc dashed 1px;\">Drop blocks or content here</p>",
+											"modelVersion": 2
+									}
+							},
+							"modelVersion": 2
+					}
+			},
+			"availableViews": [
+					"html"
+			]
 		};
-		if (categoryId) {
-			body.category.id = categoryId;
-		}
-
+		console.log('BODY:', body);
 		return this._post(`/asset/v1/content/assets`, body);
 	}
 
@@ -55,6 +79,7 @@ module.exports = class McClient {
 						statusMessage: data.res.statusMessage,
 						body: data.body
 					};
+					console.log(r);
 
 					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
 						resolve(r);

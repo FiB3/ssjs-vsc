@@ -34,5 +34,65 @@
 			"}"
 		],
 		"description": "For loop"
+	},
+	"Stringify": {
+		"prefix": "Stringify",
+		"body": [
+			"Platform.Function.Stringify(${1:object});"
+		],
+		"description": "Stringify JSON"
+	},
+	"Parse JSON": {
+		"prefix": "ParseJSON",
+		"body": [
+			"Platform.Function.ParseJSON(${1:json});"
+		],
+		"description": "Parse JSON"
+	},
+	"GUID": {
+		"prefix": "GUID",
+		"body": [
+			"Platform.Function.GUID();"
+		],
+		"description": "Returns a random GUID value for use as a unique identifier."
+	},
+	"GetValue": {
+		"prefix": "GetValue",
+		"body": [
+			"Platform.Variable.GetValue(${1:ampscriptVariableName});"
+		],
+		"description": "Get value from of AMPscript variable (use '@')."
+	},
+	"SetValue": {
+		"prefix": "SetValue",
+		"body": [
+			"Platform.Variable.SetValue(${1:ampscriptVariableName}, ${2:variableValue});"
+		],
+		"description": "Set value for AMPscript variable in the current script context."
+	},
+	"Attribute.GetValue": {
+		"prefix": "Attribute",
+		"body": [
+			"Attribute.GetValue(${1:attributeName});"
+		],
+		"description": "Get value from of an Attribute (string)."
+	},
+	"HttpRequest": {
+		"prefix": "HttpRequest",
+		"body": [
+			"var req = new Script.Util.HttpRequest(${1:url});",
+			"req.emptyContentHandling = 0;",
+			"req.retries = 2;",
+			"req.continueOnError = true;",
+			"req.setHeader(${2:headerName}, ${3:headerValue});",
+			"req.method = '${4:HttpMethod}';",
+			"req.postData = ${5:postData};",
+			"",
+			"var resp = req.send();",
+			"",
+			"resp.content + ''",
+			"resp.statusCode"
+		],
+		"description": "Run any HTTP Request including error handling."
 	}
 }

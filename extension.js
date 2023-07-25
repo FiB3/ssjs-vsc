@@ -4,16 +4,21 @@ const vscode = require('vscode');
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
+const Mustache = require('mustache');
 
 const { app } = require('./src/proxy');
 const jsonHandler = require('./src/auxi/json');
 const json = require('./src/auxi/json');
+const file = require('./src/auxi/file');
 const folder = require('./src/auxi/folder');
 const mcClient = require('./src/sfmc/mcClient');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
+const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 const SETUP_FOLDER_NAME = '.vscode';
 const SETUP_FILE_NAME = 'setup.json';
+
+Mustache.escape = function(text) {return text;};
 /**
  * This method is called when your extension is activated.
  * Your extension is activated the very first time the command is executed.
@@ -37,6 +42,7 @@ async function activate(context) {
 
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
 		// TODO: deploy a Cloud Page to Any Path
+		await deployAnyPathPage(context);
 	});
 
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
@@ -59,6 +65,31 @@ async function activate(context) {
 	context.subscriptions.push(createSetup);
 	context.subscriptions.push(updateSetup);
 	context.subscriptions.push(deployAnyPath);
+}
+
+const deployAnyPathPage = async function (context) {
+	// check setup file (existence, public-domain and it's setup, dev-token):
+
+	// load script from "templates/deployment.ssjs"
+	const templatePath = path.join(__dirname, DEPLOYMENT_TEMPLATE);
+	let deploymentTemplate = file.load(templatePath);
+
+	// template page, version, proxy-any-file.main-path, public-domain
+	var deployScript = Mustache.render(deploymentTemplate, {
+		"page": "TBD", // TODO: get from package file (VSCode Url)
+		"version": "0.0.2", // TODO: get from package file
+		"proxy-any-file_main-path": "/all-in-dev", // TODO: get from project setup.json (is it possible to keep ".")
+		"public-domain": "public-domain"  // TODO: get from project setup.json
+	});
+
+	// save into active editor (root) and open:
+	let deployPath = path.join(getUserWorkspacePath(), 'deployment.ssjs');
+	console.log('deployPath:', deployPath);
+	file.save(deployPath, deployScript);
+	vscode.workspace.openTextDocument(deployPath).then((doc) =>
+		vscode.window.showTextDocument(doc, {
+		})
+	);
 }
 
 const createConfig = async function(context, update) {
@@ -121,7 +152,6 @@ const createConfig = async function(context, update) {
 				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 			});
 }
-
 
 const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
 	// TODO: create a setup file from a ./files
