@@ -69,6 +69,19 @@ async function activate(context) {
 
 const deployAnyPathPage = async function (context) {
 	// check setup file (existence, public-domain and it's setup, dev-token):
+	let config = [];
+	try {
+		config = loadConfig();
+	} catch (err) {
+		vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
+	}
+	if (config['public-domain'] || config['proxy-any-file']?.['main-path']) {
+		vscode.window.showWarningMessage(`Some project stup is not filled - check your .vscode/setup.json file.`);
+	}
+
+	const packageJsonFile = path.join(__dirname, 'package.json');
+	let packageJson = json.load(packageJsonFile);
+	console.log(packageJson);
 
 	// load script from "templates/deployment.ssjs"
 	const templatePath = path.join(__dirname, DEPLOYMENT_TEMPLATE);
@@ -76,10 +89,10 @@ const deployAnyPathPage = async function (context) {
 
 	// template page, version, proxy-any-file.main-path, public-domain
 	var deployScript = Mustache.render(deploymentTemplate, {
-		"page": "TBD", // TODO: get from package file (VSCode Url)
-		"version": "0.0.2", // TODO: get from package file
-		"proxy-any-file_main-path": "/all-in-dev", // TODO: get from project setup.json (is it possible to keep ".")
-		"public-domain": "public-domain"  // TODO: get from project setup.json
+		"page": packageJson['repository']['url'], // TODO: get from package file (VSCode Url)
+		"version": packageJson['version'], // TODO: get from package file
+		"proxy-any-file_main-path": config['proxy-any-file']['main-path'], // TODO: get from project setup.json (is it possible to keep ".")
+		"public-domain": config['public-domain']  // TODO: get from project setup.json
 	});
 
 	// save into active editor (root) and open:
