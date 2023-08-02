@@ -13,12 +13,16 @@ const file = require('./src/auxi/file');
 const folder = require('./src/auxi/folder');
 const mcClient = require('./src/sfmc/mcClient');
 
+const statusBar = require('./src/statusBar');
+
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 const SETUP_FOLDER_NAME = '.vscode';
 const SETUP_FILE_NAME = 'setup.json';
 
+// let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
+
 /**
  * This method is called when your extension is activated.
  * Your extension is activated the very first time the command is executed.
@@ -59,6 +63,8 @@ async function activate(context) {
 			console.log("SSJS Beautifying running.");
 		},
 	});
+
+	statusBar.create(context);
 
 	context.subscriptions.push(serverStart);
 	context.subscriptions.push(serverStop);
@@ -213,6 +219,7 @@ const startServer = function () {
 	} else {
 		vscode.window.showInformationMessage(`SSJS Server already running: ${app.host}:${app.port}`);
 	}
+	statusBar.setStart(`${app.host}:${app.port}`);
 };
 
 const stopServer = function () {
@@ -223,6 +230,7 @@ const stopServer = function () {
 	} else {
 		vscode.window.showInformationMessage(`SSJS Server not active.`);
 	}
+	statusBar.setDeactivated();
 };
 
 // This method is called when your extension is deactivated
