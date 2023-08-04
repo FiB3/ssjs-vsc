@@ -1,13 +1,11 @@
 {
-  "sfmc-domain": "{{sfmc-subdomain}}",
-  "sfmc-client-id": "{{package-client-id}}",
-  "sfmc-mid": "{{only-if-needed}}",
-  "public-domain": "{{publically-accessible-domain}}",
+  "sfmc-domain": "<< sfmc-subdomain from AUTH URL: https://mc-subdomain.auth.marketingcloudapis.com/ >>",
+  "sfmc-client-id": "<< client-id of installed package >>",
+  "sfmc-mid": "<< optional: only if MID is needed >>",
+  "public-domain": "<< publically accessible domain, e.g. NGROK forwarding domain >>",
 
   "port": 4000,
   "dev-folder-path": "",
-  "files-to-template": [ ],
-  "automate-version": true,
   "dev-tokens": {
     "token-name": "use {{Mustache}} syntax in your files to fill your dev files"
   },
@@ -17,13 +15,6 @@
   "proxy-any-file": {
     "main-path": "/all-in-dev",
     "enabled": true,
-    "dev-token": "{{dev-token-comes-here}}" 
-  },
-  "proxy-endpoints": [
-    {
-      "path": "path/to/proxy",
-      "targetOverride": "https://override-server.here",
-      "pathRewrite": "/proxy/path/with"
-    }
-  ]
+    "dev-token": "<< dev-token-comes-here >>" 
+  }
 }

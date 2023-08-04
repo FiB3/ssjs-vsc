@@ -17,6 +17,7 @@
 		"url": "TODO: GIT REPO COMES HERE!"
 	},
 	"icon": "images/logo.png",
+  "license": "to be defined",
   "activationEvents": [
     "onCommand:expressServer.start",
     "onLanguage:ssjs"

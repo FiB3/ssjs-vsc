@@ -18,6 +18,7 @@ module.exports = {
 	},
 
 	setStart(fqdn) {
+		this.fqdn = fqdn;
 		this.setMessage(`SSJS Active`, `SSJS Server running on: ${fqdn}`);
 		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.debuggingBackground');
 		this.statusBarItem.show();

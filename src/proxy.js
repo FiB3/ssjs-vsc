@@ -68,35 +68,6 @@ exports.app = {
       console.error(`Any-proxy not set.`);
     }
 
-
-    // // Proxy endpoints:
-    // if (configObj['proxy-endpoints']) {
-    //   configObj['proxy-endpoints'].forEach((endpoint) => {
-    //     if (!endpoint.path) {
-    //       throw "'path' not defined for endpoint!"
-    //     }
-    //     console.log(`PATH: "${endpoint.path}" =>`);
-  
-    //     app.use(endpoint.path, createProxyMiddleware({
-    //       target: endpoint.targetOverride || API_SERVICE_URL,
-    //       changeOrigin: true,
-    //       headers: {
-    //         'Authorization': `Bearer ${OAUTH_TOKEN}`
-    //       },
-    //       pathRewrite: (path, req) => {
-    //         console.log(`rewrite path: ${path}.`);
-    //         const nPath = path.replace(endpoint.path, endpoint.pathRewrite);
-    //         return nPath;
-    //       },
-    //     })
-    //     )
-    //   });
-    // } else {
-    //   console.log(`No Endpoints to proxy.`);
-    // }
-
-    // app.use(templateFiles, express.static(config.publicPath));
-
     server = app.listen(this.port, () => {
       console.log(`Server listening on: localhost:${this.port}`);
       console.log(`Proxied to: ${this.host}`);
@@ -124,35 +95,22 @@ function getTemplatePath (pth) {
   } 
 }
 
-function templateOneFile(pth) {
+/**
+ * Get Templated file.
+ * @param {string} pth path to the file
+ * @param {boolean} isDev true: for testing / false: for deployment
+ * @returns 
+ */
+function templateOneFile(pth, isDev) {
   const htmlTemplate = textFile.load(pth);
 
   const view = {
-    ...config.devTokens,
-    VERSION: config.automateVersion ? getSsjsVersion() : config.devTokens.VERSION
+    ...config.devTokens
+    // , VERSION: getSsjsVersion(config.devTokens.VERSION)
   };
     
   var html = Mustache.render(htmlTemplate, view);
   return html;
-}
-
-function templateFiles(req, res, next) {
-  const htmlTemplate = textFile.load(path.join(config.publicPath, req.path));
-
-  
-
-  if (config.filesToTemplate.includes(req.path)) {
-
-    const view = {
-      ...config.devTokens,
-      VERSION: config.automateVersion ? getSsjsVersion() : config.devTokens.VERSION
-    };
-    
-    var html = Mustache.render(htmlTemplate, view);
-    res.send(200, html);
-  } else {
-    next();
-  }  
 }
 
 function parseConfig(configObj) {
@@ -179,10 +137,12 @@ function parseConfig(configObj) {
   config.prodTokens = Object.keys(configObj['prod-tokens'])
       ? configObj['prod-tokens']
       : {};
-  
-  config.automateVersion = configObj['automate-version'] === true;
 }
 
 function getSsjsVersion() {
-  return 'V.' + moment().format('DD:MM:YYYY-HH:m:s');
+  // TODO: needs to be improved
+  // when deploying - set date, when previewing set timestamp??
+  return config.automateVersion
+      ? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
+      : '';
 }
