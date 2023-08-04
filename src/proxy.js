@@ -1,13 +1,9 @@
 var fs = require('fs');
 var path = require('path');
 var express = require('express');
-// const { createProxyMiddleware } = require('http-proxy-middleware');
 const morgan = require("morgan");
 const Mustache = require('mustache');
-// const { exit } = require('process');
 
-// TODO: replace with auxi.file
-// const textFile = require('./txtHandler');
 const textFile = require('./auxi/file');
 const moment = require('moment');
 
@@ -16,6 +12,8 @@ Mustache.escape = function(text) {return text;};
 
 let config;
 let server;
+
+let anyPathToken;
 
 exports.app = {
   running: false,
@@ -30,38 +28,26 @@ exports.app = {
     // this.host = configObj.domain || this.host;
     this.port = configObj.port || this.port;
 
-    const API_SERVICE_URL = "https://mcq-xxxx.pub.sfmc-content.com";
-    const OAUTH_TOKEN = '';
-
     let app = express();
     app.use(morgan('dev'));
 
-
     if (configObj['proxy-any-file']?.enabled) {
-      const tkn = configObj['proxy-any-file']['dev-token'];
-      console.log(`Any-proxy URL: ${configObj['proxy-any-file']['main-path']}, TOKEN: '${tkn}'`);
+      anyPathToken = configObj['proxy-any-file']['dev-token'];
+      console.log(`Any-proxy URL: ${configObj['proxy-any-file']['main-path']}, TOKEN: '${anyPathToken}'`);
 
-      app.use(configObj['proxy-any-file']['main-path'], (req, res, next) => {
-        // tkn
-        if (req.query?.token === tkn) {
-          if (req.query?.path) {
-            let pth = getTemplatePath(req.query.path);
-            let html = templateOneFile(pth);
-            if (!pth) {
-              console.error('Any-proxy path invalid:', req.query?.path);
-              res.status(404).send('Path not valid.');
-            } else {
-              // res.send(200, html);
-              res.status(200).send(html);
-            }
+      app.use(configObj['proxy-any-file']['main-path'], anyPathSecurity, (req, res, next) => {
+        if (req.query?.path) {
+          let pth = getTemplatePath(req.query.path);
+          let html = templateOneFile(pth);
+          if (!pth) {
+            console.error('Any-proxy path invalid:', req.query?.path);
+            res.status(404).send('Path not valid.');
           } else {
-            console.error('Any-proxy path not set:', req.query?.path);
-            res.status(404).send('Path not set.');
+            res.status(200).send(html);
           }
         } else {
-          console.info('TKN:', req.query);
-          console.error('Any-proxy token not valid');
-          res.status(401).send('Not Authrorised');
+          console.error('Any-proxy path not set:', req.query?.path);
+          res.status(404).send('Path not set.');
         }
       });
     } else {
@@ -84,6 +70,22 @@ exports.app = {
     });
   }
 };
+
+/**
+ * Handle authentication of any path.
+ * @param {object} req 
+ * @param {object} res 
+ * @param {function} next called in case request passes validation.
+ */
+function anyPathSecurity (req, res, next) {
+  if (req.query?.token === anyPathToken) {
+    next();
+  } else {
+    console.error('Any-proxy token not valid');
+    console.info('TKN:', req.query);
+    res.status(401).send('Not Authrorised');
+  }
+}
 
 function getTemplatePath (pth) {
   const p = path.join(config.publicPath, pth);
