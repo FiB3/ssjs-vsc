@@ -18,7 +18,7 @@ const statusBar = require('./src/statusBar');
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 const SETUP_FOLDER_NAME = '.vscode';
-const SETUP_FILE_NAME = 'setup.json';
+const SETUP_FILE_NAME = 'ssjs-setup.json';
 
 // let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
@@ -82,7 +82,7 @@ const deployAnyPathPage = async function (context) {
 		vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
 	}
 	if (config['public-domain'] || config['proxy-any-file']?.['main-path']) {
-		vscode.window.showWarningMessage(`Some project stup is not filled - check your .vscode/setup.json file.`);
+		vscode.window.showWarningMessage(`Some project stup is not filled - check your .vscode/ssjs-setup.json file.`);
 	}
 
 	const packageJsonFile = path.join(__dirname, 'package.json');
@@ -97,8 +97,8 @@ const deployAnyPathPage = async function (context) {
 	var deployScript = Mustache.render(deploymentTemplate, {
 		"page": packageJson['repository']['url'], // TODO: get from package file (VSCode Url)
 		"version": packageJson['version'], // TODO: get from package file
-		"proxy-any-file_main-path": config['proxy-any-file']['main-path'], // TODO: get from project setup.json (is it possible to keep ".")
-		"public-domain": config['public-domain']  // TODO: get from project setup.json
+		"proxy-any-file_main-path": config['proxy-any-file']['main-path'], // TODO: get from project ssjs-setup.json (is it possible to keep ".")
+		"public-domain": config['public-domain']  // TODO: get from project ssjs-setup.json
 	});
 
 	// save into active editor (root) and open:
@@ -163,7 +163,7 @@ const createConfig = async function(context, update) {
 					})
 				);
 				// TODO: Show message that hints the create any-file Cloud Page:
-				vscode.window.showInformationMessage(`Setup created: ./vscode/setup.json.`);
+				vscode.window.showInformationMessage(`Setup created: ./vscode/ssjs-setup.json.`);
 			})
 			.catch((err) => {
 				console.log('ERR', err);

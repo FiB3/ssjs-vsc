@@ -1,7 +1,7 @@
 <!-- 
   FOLLOWING STEPS SHOW HOW TO DEPLOY DEV SCRIPT TO YOUR SFMC ENVIRONMENT:
     1) Ensure, that your environment is publically accessible (e.g. by NGROK)
-    2) Your publically accessible domain needs to be set in your setup file (.vscode/setup.json => "public-domain")
+    2) Your publically accessible domain needs to be set in your setup file (.vscode/ssjs-setup.json => "public-domain")
     3) Create a new Cloud Page in your SFMC Instance.
     4) Paste deployment script from this file into your Cloud Page (this comment is not required).
     5) Save & Publish your Cloud Page.
@@ -10,7 +10,7 @@
     
   Any script in your environment can now be accessed via this Cloud Page:
     Don't forget to add "dev-token" and path to your file:
-    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<setup.json dev-token>>&path=<<relative path of developed script>>
+    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<ssjs-setup.json dev-token>>&path=<<relative path of developed script>>
  -->
 
 <!-- DEPLOYMENT SCRIPT FOLLOWS: -->
