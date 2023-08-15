@@ -7,9 +7,11 @@
   "port": 4000,
   "dev-folder-path": "",
   "dev-tokens": {
+    "IS_PROD": "true",
     "token-name": "use {{Mustache}} syntax in your files to fill your dev files"
   },
   "prod-tokens": {
+    "IS_PROD": "false",
     "token-name": "use {{Mustache}} syntax in your files to fill your prod files"
   },
   "proxy-any-file": {
