@@ -6,7 +6,7 @@ From syntax highlight to easier testing  and deployment.
 ## Features
 
 - Run local Server that can be accessed from SFMC's Cloud Pages.
-- Help with deployment of resources for development. 
+- Help with deployment of resources for development.
 - Syntax highlight.
 - SSJS Snippets.
 
@@ -14,7 +14,7 @@ From syntax highlight to easier testing  and deployment.
 
 ### Extension Settings
 
-Not Applicable yet
+Settings is currently done per project via `./vscode/ssjs-setup.json` file.
 
 ### Project Setup
 
@@ -22,7 +22,8 @@ You can start using this extension for basic features right away. However, if yo
 
 Prerequisites:
 - Server-to-Server API Integration Installed package. This will later provide access to automations and assets.
-- NGROK or similar service to allow SFMC to access your local computer - don't forget to get a publically accessible URL.
+- Tunneling tool (NGROK, Expose, Cloudflare tunnels/Loophole) to allow SFMC to access your local computer - don't forget to get a publically accessible URL. BEWARE: some of the services (including NGROK) cannot be used freely for commercial purposes.
+Some of these even have VS Code extensions.
 - Project is always created in a new folder.
 
 1) Open your project folder.
@@ -30,7 +31,7 @@ Prerequisites:
 3) Finish setting up your setup file. `public domain` sets your.
 4) Run `Deploy Dev Page` command that will help you to deploy your Dev environment in Cloud Page.
 5) `Start` command enables your local environment.
-6) Make your environmet accessible from internet (start NGROK).
+6) Make your environmet accessible from internet (start your tunneling tool).
 
 ## Developing
 
