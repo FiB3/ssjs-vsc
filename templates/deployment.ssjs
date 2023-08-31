@@ -38,6 +38,9 @@
     req.retries = 2;
     req.continueOnError = true;
 
+    /* TODO: Add Basic Auth */
+    req.setHeader("ssjs-authorization", "{{basic-encrypted-secret}}");
+
     var response = req.send();
 
     if (response.statusCode + '' === '200' || response.statusCode + '' === '304') {

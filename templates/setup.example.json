@@ -17,6 +17,9 @@
   "proxy-any-file": {
     "main-path": "/all-in-dev",
     "enabled": true,
-    "dev-token": "<< dev-token-comes-here >>" 
+    "use-token": true,
+    "dev-token": "<< dev-token-comes-here >>",
+    "auth-username": "<< dev-username-comes-here >>",
+    "auth-password": "<< dev-password-comes-here >>"
   }
 }

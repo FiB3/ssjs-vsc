@@ -13,8 +13,6 @@ Mustache.escape = function(text) {return text;};
 let config;
 let server;
 
-let anyPathToken;
-
 exports.app = {
   running: false,
 
@@ -32,22 +30,15 @@ exports.app = {
     app.use(morgan('dev'));
 
     if (configObj['proxy-any-file']?.enabled) {
-      anyPathToken = configObj['proxy-any-file']['dev-token'];
-      console.log(`Any-proxy URL: ${configObj['proxy-any-file']['main-path']}, TOKEN: '${anyPathToken}'`);
+      console.log(`Any-proxy URL: ${configObj['proxy-any-file']['main-path']}, TOKEN: '${config.anyPathToken}'`);
 
-      app.use(configObj['proxy-any-file']['main-path'], anyPathSecurity, (req, res, next) => {
-        if (req.query?.path) {
-          let pth = getTemplatePath(req.query.path);
+      app.use(configObj['proxy-any-file']['main-path'], checkPathSecurity, checkResourcePath, (req, res, next) => {
+        let pth = req.query?.path;
+        if (pth) {
           let html = templateOneFile(pth);
-          if (!pth) {
-            console.error('Any-proxy path invalid:', req.query?.path);
-            res.status(404).send('Path not valid.');
-          } else {
-            res.status(200).send(html);
-          }
+          res.status(200).send(html);
         } else {
-          console.error('Any-proxy path not set:', req.query?.path);
-          res.status(404).send('Path not set.');
+          throw("checkResourcePath() not used!")
         }
       });
     } else {
@@ -77,24 +68,63 @@ exports.app = {
  * @param {object} res 
  * @param {function} next called in case request passes validation.
  */
-function anyPathSecurity (req, res, next) {
-  if (req.query?.token === anyPathToken) {
-    next();
+function checkPathSecurity(req, res, next) {
+  // TODO: error handling!
+  let passOk = false;
+  try {
+    const authHeader = req.headers['ssjs-authorization'];
+    const encodedCredentials = authHeader.split(' ')[1];
+    const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
+    var [username, password] = decodedCredentials.split(':');
+
+    passOk = username === config.authUser && password === config.authPassword;
+  } catch (err) {
+    console.error(err);
+  }
+
+  if (passOk) {
+    // check if token is also used:
+    if (config.useToken !== false) {
+      if (req.query?.token === config.anyPathToken) {
+        next();
+      } else {
+        console.error('Any-proxy token not valid');
+        console.info('TKN:', req.query);
+        send401Response(res, 'Not Authorised by token.');
+      }
+    } else {
+      next();
+    }
   } else {
-    console.error('Any-proxy token not valid');
-    console.info('TKN:', req.query);
-    res.status(401).send('Not Authrorised');
+    console.error('Basic AUTH not valid!');
+    send401Response(res, 'Not Authorised by Path.');
   }
 }
 
-function getTemplatePath (pth) {
-  const p = path.join(config.publicPath, pth);
+function checkResourcePath(req, res, next) {
+  let queryPath = req.query?.path;
+  if (queryPath) {
+    let p;
+    if(path.isAbsolute(queryPath)) {
+      p = queryPath;
+    } else {
+      p = path.join(config.publicPath, req.query.path);
+    }
 
-  if (fs.existsSync(p) && p.startsWith(config.publicPath)) {
-    return p;
+    if (fs.existsSync(p) && p.startsWith(config.publicPath)) {
+      // path OK:
+      console.log('checkResourcePath: OK');
+      req.query.path = p;
+      next();
+    } else {
+      // TODO: Path NOK
+      console.error('Any-proxy path invalid (1):', p);
+      send404Response(res, queryPath, 'Path not valid.');
+    }
   } else {
-    return false;
-  } 
+    console.error('Any-proxy path not set...');
+    send404Response(res, 'none', 'Path not set.');
+  }
 }
 
 /**
@@ -118,10 +148,11 @@ function templateOneFile(pth, isDev) {
 function parseConfig(configObj) {
   config = {};
   let publicPath = configObj['dev-folder-path'] ? configObj['dev-folder-path'] : './';
-
+  // TODO: ensure this is either set or set for current path?
   config.publicPath = publicPath.startsWith('\/')
       ? publicPath
       : path.join(configObj.projectPath, publicPath);
+  console.log(`PUBLIC PATH: "${config.publicPath}".`);
 
   let filesToTemplate = Array.isArray(configObj['files-to-template'])
         ? configObj['files-to-template']
@@ -136,8 +167,22 @@ function parseConfig(configObj) {
       : {};
   
   // TODO: not finished yet
+  config.useToken = configObj['proxy-any-file']['use-token'];
+  config.anyPathToken = configObj['proxy-any-file']['dev-token'];
+  config.authUser = configObj['proxy-any-file']['auth-username'];
+  config.authPassword = configObj['proxy-any-file']['auth-password'];
+
+
+
   config.prodTokens = Object.keys(configObj['prod-tokens'])
       ? configObj['prod-tokens']
+      : {};
+  
+  config.devTokens = Object.keys(configObj['dev-tokens'])
+      ? configObj['dev-tokens']
+      : {};
+  config.devTokens = Object.keys(configObj['dev-tokens'])
+      ? configObj['dev-tokens']
       : {};
 }
 
@@ -147,4 +192,40 @@ function getSsjsVersion() {
   return config.automateVersion
       ? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
       : '';
+}
+
+function send401Response(res, message, sendJson=true) {
+  sendErrorResponse(res, 401, {
+    message
+  }, sendJson);
+}
+
+function send404Response(res, path, message, sendJson=true) {
+  sendErrorResponse(res, 404, {
+    message,
+    path
+  }, sendJson);
+}
+
+/**
+ * Send Error Response - JSON or Page.
+ * @param {Object} res Response Object
+ * @param {Number} httpStatus Error HTML status to render
+ * @param {Object} renderView Mustache View
+ * @param {Boolean=true} sendJson true for JSON, false for  HTML
+ */
+function sendErrorResponse(res, httpStatus, renderView, sendJson) {
+  // console.log(`===== ${httpStatus} =====`);
+  if (sendJson !== false) {
+    // TODO: JSON reply
+    res.status(httpStatus).send({
+      httpStatus: httpStatus,
+      ...renderView
+    });
+  } else {
+    const pth = path.join(__dirname, `../templates/${httpStatus}.html`);
+    const htmlTemplate = textFile.load(pth);
+    var html = Mustache.render(htmlTemplate, renderView);
+    res.status(httpStatus).send(html);
+  }
 }

@@ -5,6 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const Mustache = require('mustache');
+const generator = require('generate-password');
 
 const { app } = require('./src/proxy');
 const jsonHandler = require('./src/auxi/json');
@@ -74,6 +75,11 @@ async function activate(context) {
 }
 
 const deployAnyPathPage = async function (context) {
+	function generateBasicAuthHeader(username, password) {
+		const credentials = `${username}:${password}`;
+		const encodedCredentials = Buffer.from(credentials, 'utf-8').toString('base64');
+		return `Basic ${encodedCredentials}`;
+	}
 	// check setup file (existence, public-domain and it's setup, dev-token):
 	let config = [];
 	try {
@@ -98,7 +104,8 @@ const deployAnyPathPage = async function (context) {
 		"page": packageJson['repository']['url'], // TODO: get from package file (VSCode Url)
 		"version": packageJson['version'], // TODO: get from package file
 		"proxy-any-file_main-path": config['proxy-any-file']['main-path'], // TODO: get from project ssjs-setup.json (is it possible to keep ".")
-		"public-domain": config['public-domain']  // TODO: get from project ssjs-setup.json
+		"public-domain": config['public-domain'],  // TODO: get from project ssjs-setup.json,
+		"basic-encrypted-secret": generateBasicAuthHeader(config['proxy-any-file']['auth-username'], config['proxy-any-file']['auth-password'])
 	});
 
 	// save into active editor (root) and open:
@@ -184,6 +191,9 @@ const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
 	configTemplate["sfmc-client-id"] = clientId;
 	configTemplate["sfmc-mid"] = mid;
 	configTemplate["public-domain"] = publicDomain;
+	// security:
+	configTemplate["proxy-any-file"]["auth-username"] = "user";
+	configTemplate["proxy-any-file"]["auth-password"] = generator.generate({ length: 16, numbers: true });
 	configTemplate["proxy-any-file"]["dev-token"] = uuidv4();
 	
 	const setupFolder = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME);
