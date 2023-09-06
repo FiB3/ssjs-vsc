@@ -27,7 +27,10 @@ module.exports = {
 			const data = fs.readFileSync(fileName, 'utf8');
 			return JSON.parse(data);
 		} catch (err) {
-			return `Error while reading file: ${fileName}: ${err}`;
+			return {
+				message: `Error while reading file: ${fileName}: ${err}`,
+				error: true
+			};
 		}
 	}
 }

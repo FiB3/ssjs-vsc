@@ -149,6 +149,7 @@ function parseConfig(configObj) {
   config = {};
   let publicPath = configObj['dev-folder-path'] ? configObj['dev-folder-path'] : './';
   // TODO: ensure this is either set or set for current path?
+  console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', configObj.projectPath, ',', publicPath);
   config.publicPath = publicPath.startsWith('\/')
       ? publicPath
       : path.join(configObj.projectPath, publicPath);
@@ -200,10 +201,10 @@ function send401Response(res, message, sendJson=true) {
   }, sendJson);
 }
 
-function send404Response(res, path, message, sendJson=true) {
+function send404Response(res, pth, message, sendJson=true) {
   sendErrorResponse(res, 404, {
     message,
-    path
+    pth
   }, sendJson);
 }
 

@@ -33,7 +33,7 @@ Some of these even have VS Code extensions.
 5) `Start` command enables your local environment.
 6) Make your environmet accessible from internet (start your tunneling tool).
 
-## Developing
+## Development
 
 Once your SSJS is Active and Cloud Page published, all you need to do is to open it. Do not forget to add two query parameters:
 - `token`: ("dev-token" from setup file)
@@ -46,7 +46,7 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to open
 - `SSJS: Create Config`: Setup your project - must be run before starting server. Have your SFMC Server-to-Servre credentials ready.
 - `SSJS: Update API Credentials`: Update API Credentials of your SFMC instance.
 - `SSJS: Deploy Dev Page`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
-
+ 
 ## Known Issues
 
 Development still in progress.

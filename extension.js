@@ -9,7 +9,6 @@ const generator = require('generate-password');
 
 const { app } = require('./src/proxy');
 const jsonHandler = require('./src/auxi/json');
-const json = require('./src/auxi/json');
 const file = require('./src/auxi/file');
 const folder = require('./src/auxi/folder');
 const mcClient = require('./src/sfmc/mcClient');
@@ -92,7 +91,7 @@ const deployAnyPathPage = async function (context) {
 	}
 
 	const packageJsonFile = path.join(__dirname, 'package.json');
-	let packageJson = json.load(packageJsonFile);
+	let packageJson = jsonHandler.load(packageJsonFile);
 	console.log(packageJson);
 
 	// load script from "templates/deployment.ssjs"
@@ -185,7 +184,7 @@ const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
 	// const configPath = getUserWorkspacePath();
 	const templatePath = path.join(__dirname, SETUP_TEMPLATE);
 
-	let configTemplate = json.load(templatePath);
+	let configTemplate = jsonHandler.load(templatePath);
 	console.log(configTemplate);
 	configTemplate["sfmc-domain"] = subdomain;
 	configTemplate["sfmc-client-id"] = clientId;
@@ -199,21 +198,21 @@ const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
 	const setupFolder = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME);
 	folder.create(setupFolder);
 
-	json.save(getUserConfigPath(), configTemplate);
+	jsonHandler.save(getUserConfigPath(), configTemplate);
 	
 	vscode.workspace.openTextDocument(getUserConfigPath());
 }
 
 const updateConfigFile = function (subdomain, clientId, mid) {
 	// get current setup:
-	let configTemplate = json.load(getUserConfigPath()); // TODO: handle non-existing file
+	let configTemplate = jsonHandler.load(getUserConfigPath()); // TODO: handle non-existing file
 	console.log(configTemplate);
 	// update values:
 	configTemplate["sfmc-domain"] = subdomain;
 	configTemplate["sfmc-client-id"] = clientId;
 	configTemplate["sfmc-mid"] = mid;
 	// save:
-	json.save(getUserConfigPath(), configTemplate);
+	jsonHandler.save(getUserConfigPath(), configTemplate);
 	
 	vscode.workspace.openTextDocument(getUserConfigPath());
 }
@@ -273,12 +272,20 @@ function loadConfig() {
 	const configPath = getUserConfigPath();
 	const config = jsonHandler.load(configPath);
 	// TODO: error if config is not yet deployed!
+	if (config.error) {
+		throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
+	}
 	config.projectPath = getUserWorkspacePath();
 	return config;
 }
 
 const getUserConfigPath = function () {
-	const pth = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME, SETUP_FILE_NAME);
+	let pth;
+	try {
+		pth = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME, SETUP_FILE_NAME);
+	} catch (err) {
+		console.log(`PATH NOT SET!`);
+	}
 	return pth;
 }
 
