@@ -19,7 +19,8 @@
   "icon": "images/logo.png",
   "license": "to be defined",
   "activationEvents": [
-    "onCommand:expressServer.start"
+    "onCommand:expressServer.start",
+    "onLanguage:ssjs"
   ],
   "main": "./extension.js",
   "contributes": {

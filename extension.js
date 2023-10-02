@@ -10,18 +10,18 @@ const generator = require('generate-password');
 const { app } = require('./src/proxy');
 const jsonHandler = require('./src/auxi/json');
 const file = require('./src/auxi/file');
-const folder = require('./src/auxi/folder');
 const mcClient = require('./src/sfmc/mcClient');
+const Config = require('./src/config');
 
 const statusBar = require('./src/statusBar');
 
-const SETUP_TEMPLATE = './templates/setup.example.json';
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
-const SETUP_FOLDER_NAME = '.vscode';
-const SETUP_FILE_NAME = 'ssjs-setup.json';
 
 // let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
+
+let config;
+let watcher;
 
 /**
  * This method is called when your extension is activated.
@@ -30,6 +30,16 @@ Mustache.escape = function(text) {return text;};
  */
 async function activate(context) {
 	console.log('Congratulations, your extension "ssjs-vsc" is now active!');
+	config = new Config(context);
+
+	watcher = fs.watchFile('.vscode/ssjs-setup.json', (curr, prev) => {
+		console.log('Change:', curr, prev);
+		if (curr.mtime !== prev.mtime) {
+			// File has been modified
+			vscode.window.showInformationMessage(`File ${SETUP_FILE_NAME} has been modified.`);
+		}
+	});
+	
 	// Start server:
 	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', startServer);
 	// Stop server:
@@ -37,16 +47,16 @@ async function activate(context) {
 	
 	// Create setup file:
 	let createSetup = vscode.commands.registerCommand('ssjs-vsc.create-config', async () => {
-		await createConfig(context);
+		await createConfig();
 	});
 
 	let updateSetup = vscode.commands.registerCommand('ssjs-vsc.update-config', async () => {
-		await createConfig(context, true);
+		await createConfig(true);
 	});
 
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
 		// TODO: deploy a Cloud Page to Any Path
-		await deployAnyPathPage(context);
+		await deployAnyPathPage();
 	});
 
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
@@ -73,21 +83,21 @@ async function activate(context) {
 	context.subscriptions.push(deployAnyPath);
 }
 
-const deployAnyPathPage = async function (context) {
+const deployAnyPathPage = async function () {
 	function generateBasicAuthHeader(username, password) {
 		const credentials = `${username}:${password}`;
 		const encodedCredentials = Buffer.from(credentials, 'utf-8').toString('base64');
 		return `Basic ${encodedCredentials}`;
 	}
 	// check setup file (existence, public-domain and it's setup, dev-token):
-	let config = [];
+	let configData = [];
 	try {
-		config = loadConfig();
+		configData = config.loadConfig();
 	} catch (err) {
 		vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
 	}
-	if (config['public-domain'] || config['proxy-any-file']?.['main-path']) {
-		vscode.window.showWarningMessage(`Some project stup is not filled - check your .vscode/ssjs-setup.json file.`);
+	if (configData['public-domain'] || configData['proxy-any-file']?.['main-path']) {
+		vscode.window.showWarningMessage(`Some project setup is not filled - check your .vscode/ssjs-setup.json file.`);
 	}
 
 	const packageJsonFile = path.join(__dirname, 'package.json');
@@ -102,13 +112,13 @@ const deployAnyPathPage = async function (context) {
 	var deployScript = Mustache.render(deploymentTemplate, {
 		"page": packageJson['repository']['url'], // TODO: get from package file (VSCode Url)
 		"version": packageJson['version'], // TODO: get from package file
-		"proxy-any-file_main-path": config['proxy-any-file']['main-path'], // TODO: get from project ssjs-setup.json (is it possible to keep ".")
-		"public-domain": config['public-domain'],  // TODO: get from project ssjs-setup.json,
-		"basic-encrypted-secret": generateBasicAuthHeader(config['proxy-any-file']['auth-username'], config['proxy-any-file']['auth-password'])
+		"proxy-any-file_main-path": configData['proxy-any-file']['main-path'], // TODO: get from project ssjs-setup.json (is it possible to keep ".")
+		"public-domain": configData['public-domain'],  // TODO: get from project ssjs-setup.json,
+		"basic-encrypted-secret": generateBasicAuthHeader(configData['proxy-any-file']['auth-username'], configData['proxy-any-file']['auth-password'])
 	});
 
 	// save into active editor (root) and open:
-	let deployPath = path.join(getUserWorkspacePath(), 'deployment.ssjs');
+	let deployPath = path.join(config.getUserWorkspacePath(), 'deployment.ssjs');
 	console.log('deployPath:', deployPath);
 	file.save(deployPath, deployScript);
 	vscode.workspace.openTextDocument(deployPath).then((doc) =>
@@ -117,7 +127,7 @@ const deployAnyPathPage = async function (context) {
 	);
 }
 
-const createConfig = async function(context, update) {
+const createConfig = async function(update) {
 	let title = update ? `Update SFMC Environment` : `Set up SFMC Environment`;
 	const subdomain = await vscode.window.showInputBox({
 		title: title,
@@ -153,18 +163,19 @@ const createConfig = async function(context, update) {
 				console.log('DATA', data);
 				vscode.window.showInformationMessage(`API Credentials validated!`);
 				// store credentials:
-				storeSfmcClientSecret(context, clientId, clientSecret);
+				config.storeSfmcClientSecret(clientId, clientSecret);
 
 				if (update) {
 					// update setup file:
-					updateConfigFile(subdomain, clientId, mid);
+					config.updateConfigFile(subdomain, clientId, mid);
 				} else {
 					// create setup file:
-					createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
+					// maybe use some confirming dialog??
+					config.createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
 				}
 				
 				// TODO: Open the setup  file:
-				vscode.workspace.openTextDocument(getUserConfigPath()).then((doc) =>
+				vscode.workspace.openTextDocument(config.getUserConfigPath()).then((doc) =>
 					vscode.window.showTextDocument(doc, {
 					})
 				);
@@ -178,51 +189,12 @@ const createConfig = async function(context, update) {
 			});
 }
 
-const createConfigFile = function (subdomain, clientId, mid, publicDomain) {
-	// TODO: create a setup file from a ./files
-	// maybe use some confirming dialog??
-	// const configPath = getUserWorkspacePath();
-	const templatePath = path.join(__dirname, SETUP_TEMPLATE);
-
-	let configTemplate = jsonHandler.load(templatePath);
-	console.log(configTemplate);
-	configTemplate["sfmc-domain"] = subdomain;
-	configTemplate["sfmc-client-id"] = clientId;
-	configTemplate["sfmc-mid"] = mid;
-	configTemplate["public-domain"] = publicDomain;
-	// security:
-	configTemplate["proxy-any-file"]["auth-username"] = "user";
-	configTemplate["proxy-any-file"]["auth-password"] = generator.generate({ length: 16, numbers: true });
-	configTemplate["proxy-any-file"]["dev-token"] = uuidv4();
-	
-	const setupFolder = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME);
-	folder.create(setupFolder);
-
-	jsonHandler.save(getUserConfigPath(), configTemplate);
-	
-	vscode.workspace.openTextDocument(getUserConfigPath());
-}
-
-const updateConfigFile = function (subdomain, clientId, mid) {
-	// get current setup:
-	let configTemplate = jsonHandler.load(getUserConfigPath()); // TODO: handle non-existing file
-	console.log(configTemplate);
-	// update values:
-	configTemplate["sfmc-domain"] = subdomain;
-	configTemplate["sfmc-client-id"] = clientId;
-	configTemplate["sfmc-mid"] = mid;
-	// save:
-	jsonHandler.save(getUserConfigPath(), configTemplate);
-	
-	vscode.workspace.openTextDocument(getUserConfigPath());
-}
-
 const startServer = function () {
-	const config = loadConfig();
+	const configData = config.loadConfig();
 
 	// The code you place here will be executed every time your command is executed
 	if (!app.running) {
-		app.build(config);
+		app.build(configData);
 		// Display a message box to the user
 		vscode.window.showInformationMessage(`SSJS Server started on: ${app.host}:${app.port}`);
 	} else {
@@ -246,52 +218,6 @@ const stopServer = function () {
 function deactivate() {
 	console.log(`Deactivating extension!`);
 	stopServer();
-}
-
-async function getSfmcInstanceData(context) {
-	const config = loadConfig();
-
-	const subdomain = config['sfmc-domain'];
-	const clientId = config['sfmc-client-id'];
-	const mid = config['sfmc-mid'];
-	let clientSecret = await context.secrets.get(`ssjs-vsc.${clientId}`);
-	return {
-		subdomain,
-		clientId,
-		mid,
-		clientSecret
-	};
-}
-
-async function storeSfmcClientSecret(context, clientId, clientSecret) {
-	await context.secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
-	console.log(`Credentials stored.`);
-}
-
-function loadConfig() {
-	const configPath = getUserConfigPath();
-	const config = jsonHandler.load(configPath);
-	// TODO: error if config is not yet deployed!
-	if (config.error) {
-		throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
-	}
-	config.projectPath = getUserWorkspacePath();
-	return config;
-}
-
-const getUserConfigPath = function () {
-	let pth;
-	try {
-		pth = path.join(getUserWorkspacePath(), SETUP_FOLDER_NAME, SETUP_FILE_NAME);
-	} catch (err) {
-		console.log(`PATH NOT SET!`);
-	}
-	return pth;
-}
-
-const getUserWorkspacePath = function () {
-	// TODO: improve with e.g.: workspace.workspaceFolders
-	return vscode.workspace.rootPath;
 }
 
 module.exports = {
