@@ -16,6 +16,8 @@ module.exports = class Config {
 		this.config = {};
 
 		// this.runWatch();
+		let preferences = vscode.workspace.getConfiguration('ssjs-vsc');
+		this.codeProvider = preferences.codeProvider;
 	}
 
 	getAnyMainPath() {
@@ -29,7 +31,8 @@ module.exports = class Config {
 		const subdomain = config['sfmc-domain'];
 		const clientId = config['sfmc-client-id'];
 		const mid = config['sfmc-mid'];
-		let clientSecret = await context.secrets.get(`ssjs-vsc.${clientId}`);
+		let clientSecret = await this.context.secrets.get(`ssjs-vsc.${clientId}`);
+
 		return {
 			subdomain,
 			clientId,

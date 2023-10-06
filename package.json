@@ -26,6 +26,10 @@
   "contributes": {
     "commands": [
       {
+        "command": "ssjs-vsc.upload-script",
+        "title": "SSJS: Upload Script"
+      },
+      {
         "command": "ssjs-vsc.start",
         "title": "SSJS: Start"
       },
@@ -46,6 +50,22 @@
         "title": "SSJS: Deploy Dev Page"
       }
     ],
+    "configuration": {
+      "title": "SSJS Manager",
+      "properties": {
+        "ssjs-vsc.codeProvider": {
+          "type": "string",
+          "default": "Asset",
+          "enum": [ "None", "Asset", "Server" ],
+          "description": "Specifies the folder path containing the tsserver and lib*.d.ts files to use.",
+          "enumDescriptions": [
+            "Code is not provided from VSCode to SFMC.",
+            "Asset - Code is provided using Content Block. Slower but more secure.",
+            "Server - Code is server using local sever. Faster, but requires reverse tunneling."
+          ]
+        }
+      }
+    },
     "languages": [
       {
         "id": "ssjs",

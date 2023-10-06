@@ -29,5 +29,14 @@ module.exports = {
     } catch (err) {
       return `Error while reading file: ${fileName}: ${err}`;
     }
+  },
+
+  exists: function(fileName) {
+    try {
+      const stats = fs.statSync(fileName);
+      return stats.isFile();
+    } catch (err) {
+      return false;
+    }
   }
 }

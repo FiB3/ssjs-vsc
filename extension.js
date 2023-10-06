@@ -8,10 +8,11 @@ const Mustache = require('mustache');
 const generator = require('generate-password');
 
 const { app } = require('./src/proxy');
-const jsonHandler = require('./src/auxi/json');
-const file = require('./src/auxi/file');
 const mcClient = require('./src/sfmc/mcClient');
 const Config = require('./src/config');
+const AssetCodeProvider = require('./src/assetCodeProvider');
+const jsonHandler = require('./src/auxi/json');
+const file = require('./src/auxi/file');
 
 const statusBar = require('./src/statusBar');
 
@@ -21,7 +22,6 @@ const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 Mustache.escape = function(text) {return text;};
 
 let config;
-let watcher;
 
 /**
  * This method is called when your extension is activated.
@@ -30,16 +30,41 @@ let watcher;
  */
 async function activate(context) {
 	console.log('Congratulations, your extension "ssjs-vsc" is now active!');
+
 	config = new Config(context);
 
-	watcher = fs.watchFile('.vscode/ssjs-setup.json', (curr, prev) => {
-		console.log('Change:', curr, prev);
-		if (curr.mtime !== prev.mtime) {
-			// File has been modified
-			vscode.window.showInformationMessage(`File ${SETUP_FILE_NAME} has been modified.`);
-		}
-	});
+	if (config.codeProvider === 'Asset') {
+		let acp = new AssetCodeProvider(config);
+		await acp.initMcClient();
+
+		let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
+			const activeTextEditor = vscode.window.activeTextEditor;
+
+			if (activeTextEditor) {
+				// Get the URI (Uniform Resource Identifier) of the currently open file
+				const fileUri = activeTextEditor.document.uri;
+				// Convert the URI to a file path
+				const filePath = fileUri.fsPath;
+
+				if (acp.assetExists(filePath)) {
+					await acp.updateCode(filePath);
+				} else {
+					await acp.createNewBlock(filePath);
+				}
+			} else {
+				vscode.window.showErrorMessage('No file is currently open.');
+			}
+		});
+
+		context.subscriptions.push(scriptUpload);
+	} else if (config.codeProvider === 'Server') {
+
+	} else {
+
+	}
 	
+	// Start server:
+
 	// Start server:
 	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', startServer);
 	// Stop server:

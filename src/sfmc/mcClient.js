@@ -94,6 +94,34 @@ module.exports = class McClient {
 		});
 	}
 
+	async _patch(uri, body) {
+		return new Promise((resolve, reject) => {
+			this.client.RestClient.patch({
+					uri,
+					body,
+					json: true
+				})
+				.then((data) => {
+					let r = {
+						statusCode: data.res.statusCode,
+						statusMessage: data.res.statusMessage,
+						body: data.body
+					};
+					console.log(r);
+
+					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
+						resolve(r);
+					} else {
+						reject(r);
+					}
+				})
+				.catch((err) => {
+					console.error(`POST ${uri}: ${JSON.stringify(err)}`);
+					reject(err);
+				});
+		});
+	}
+
 	async _get(uri, qs) {
 		return new Promise((resolve, reject) => {
 			this.client.RestClient.get({
