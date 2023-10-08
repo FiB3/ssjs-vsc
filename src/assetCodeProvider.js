@@ -2,13 +2,11 @@ const vscode = require('vscode');
 var fs = require('fs');
 var path = require('path');
 
-const Mustache = require('mustache');
-
 const mcClient = require('./sfmc/mcClient');
+
+const { template } = require('./template')
 const file = require('./auxi/file');
 const json = require('./auxi/json');
-
-Mustache.escape = function(text) {return text;};
 
 module.exports = class AssetCodeProvider {
 
@@ -50,9 +48,8 @@ module.exports = class AssetCodeProvider {
 		// get metadata:
 		let metaPath = this.getBlockMetaFile(filePath);
 		let meta = json.load(metaPath);
-		// grab only the stuff to use:
-		let fileText = file.load(filePath);
-		// TODO: template:
+		// get templated file:
+		let fileText = template.runOneFile(filePath, this.config, true);
 
 		// 
 		let asset = {
@@ -101,12 +98,11 @@ module.exports = class AssetCodeProvider {
 	}
 
 	getAssetReqData(filePath) {
-		// get the file
-		let fileText = file.load(filePath);
+		// get templated file:
+		let fileText = template.runOneFile(filePath, this.config, true);
+		// get asset folder in MC:
 		this.folderId = this.config.getAssetFolderId();
-		// TODO: template:
-
-
+		
 		// prepare minimal asset:
 		let asset = {
 			name: this.getBlockName(filePath),

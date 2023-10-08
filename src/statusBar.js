@@ -30,9 +30,9 @@ module.exports = {
 		if (Config.isServerProvider()) {
 			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
 		} else if (Config.isAssetProvider()) {
-			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+			this.setMessage(`SSJS Not Active`, `Not possible to deploy.`);
 		} else {
-			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+			this.setMessage(`SSJS Not Active`, `No Code Provider Selected.`);
 		}
 		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.offlineBackground');
 	},

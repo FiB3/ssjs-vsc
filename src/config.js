@@ -14,6 +14,9 @@ module.exports = class Config {
 		this.context = context;
 
 		this.config = {};
+		
+		this.loadConfig();
+		this.parseConfig(this.config);
 
 		// this.runWatch();
 		this.codeProvider = Config.getCodeProvider();
@@ -21,6 +24,28 @@ module.exports = class Config {
 
 	getAnyMainPath() {
 		
+	}
+
+	getTokens(isDev = true) {
+		console.log(this.config);
+		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
+		return Object.keys(this.config[tokensKey]) ? this.config[tokensKey] : {};
+	}
+
+	parseConfig(configObj) {
+		let publicPath = configObj['dev-folder-path'] ? configObj['dev-folder-path'] : './';
+		// TODO: ensure this is either set or set for current path?
+		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', configObj.projectPath, ',', publicPath);
+		this.config.publicPath = publicPath.startsWith('\/')
+				? publicPath
+				: path.join(configObj.projectPath, publicPath);
+		console.log(`PUBLIC PATH: "${this.config.publicPath}".`);
+		
+		// TODO: not finished yet
+		this.config.useToken = configObj['proxy-any-file']['use-token'];
+		this.config.anyPathToken = configObj['proxy-any-file']['dev-token'];
+		this.config.authUser = configObj['proxy-any-file']['auth-username'];
+		this.config.authPassword = configObj['proxy-any-file']['auth-password'];
 	}
 
 
