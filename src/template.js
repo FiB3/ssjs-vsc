@@ -17,7 +17,6 @@ exports.template = {
 		const htmlTemplate = textFile.load(pth);
 
 		const tokens = config.getTokens(isDev);
-		console.log('TOKENS:',tokens);
 
 		const view = {
 			...tokens

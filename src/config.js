@@ -48,7 +48,6 @@ module.exports = class Config {
 		this.config.authPassword = configObj['proxy-any-file']['auth-password'];
 	}
 
-
 	async getSfmcInstanceData() {
 		const config = this.loadConfig();
 	
