@@ -16,8 +16,7 @@ module.exports = class Config {
 		this.config = {};
 
 		// this.runWatch();
-		let preferences = vscode.workspace.getConfiguration('ssjs-vsc');
-		this.codeProvider = preferences.codeProvider;
+		this.codeProvider = Config.getCodeProvider();
 	}
 
 	getAnyMainPath() {
@@ -81,6 +80,24 @@ module.exports = class Config {
 		
 		vscode.workspace.openTextDocument(this.getUserConfigPath());
 	}
+
+	getAssetFolderId() {
+		console.log(`FOLDER ID: ${this.config?.['asset-provider']?.['folder-id']}.`);
+		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
+		// if (!this.config?.['asset-provider']?.['folder-id']) {
+		// 	return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
+		// } else {
+		// 	return false;
+		// }
+	}
+
+	setAssetFolderId(id) {
+		if (!this.config['asset-provider']) this.config['asset-provider'] = {};
+		this.config['asset-provider']['folder-id'] = id;
+		// get current setup:
+		jsonHandler.save(this.getUserConfigPath(), this.config);
+		vscode.workspace.openTextDocument(this.getUserConfigPath());
+	}
 	
 	loadConfig() {
 		const configPath = this.getUserConfigPath();
@@ -108,6 +125,22 @@ module.exports = class Config {
 	getUserWorkspacePath () {
 		// TODO: improve with e.g.: workspace.workspaceFolders
 		return vscode.workspace.rootPath;
+	}
+
+	static isAssetProvider() {
+		return Config.getCodeProvider() === 'Asset';
+	}
+
+	static isServerProvider() {
+		return Config.getCodeProvider() === 'Server';
+	}
+
+	static isNoneProvider() {
+		return Config.getCodeProvider() === 'None';
+	}
+
+	static getCodeProvider() {
+		return vscode.workspace.getConfiguration('ssjs-vsc').get('codeProvider');
 	}
 
 	runWatch() {

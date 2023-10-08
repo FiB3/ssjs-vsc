@@ -1,5 +1,7 @@
 const vscode = require('vscode');
 
+const Config = require('./config');
+
 module.exports = {
 
 	create(context) {
@@ -9,9 +11,9 @@ module.exports = {
 	},
 
 	setMessage(text, tooltip) {
-	this.statusBarItem.text = text ? text : `SSJS Server`;
-	this.statusBarItem.tooltip = tooltip ? tooltip : ``;
-	this.statusBarItem.show();
+		this.statusBarItem.text = text ? text : `SSJS Manager`;
+		this.statusBarItem.tooltip = tooltip ? tooltip : ``;
+		this.statusBarItem.show();
 	},
 
 	setEmpty() {
@@ -25,7 +27,13 @@ module.exports = {
 	},
 
 	setDeactivated() {
-		this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+		if (Config.isServerProvider()) {
+			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+		} else if (Config.isAssetProvider()) {
+			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+		} else {
+			this.setMessage(`SSJS Not Active`, `SSJS Server not running.`);
+		}
 		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.offlineBackground');
 	},
 
@@ -34,5 +42,5 @@ module.exports = {
 		this.statusBarItem.tooltip = error;
 		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.errorBackground');
 		this.statusBarItem.show();
-	},
+	}
 };

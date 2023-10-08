@@ -2,9 +2,10 @@
   "sfmc-domain": "<< sfmc-subdomain from AUTH URL: https://mc-subdomain.auth.marketingcloudapis.com/ >>",
   "sfmc-client-id": "<< client-id of installed package >>",
   "sfmc-mid": "<< optional: only if MID is needed >>",
-  "public-domain": "<< publically accessible domain, e.g. NGROK forwarding domain >>",
 
+  "public-domain": "<< publically accessible domain, e.g. NGROK forwarding domain >>",
   "port": 4000,
+
   "dev-folder-path": "",
   "dev-tokens": {
     "IS_PROD": "true",
@@ -21,5 +22,9 @@
     "dev-token": "<< dev-token-comes-here >>",
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
+  },
+
+  "asset-provider": {
+    "folder-id": 0
   }
 }

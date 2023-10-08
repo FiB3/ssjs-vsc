@@ -66,6 +66,59 @@ module.exports = class McClient {
 		return this._post(`/asset/v1/content/assets`, body);
 	}
 
+	async createAssetFolder(name, parentId = 0) {
+		let b = {
+			name: name,
+			parentId: parentId
+		};
+		return await this._post('/asset/v1/content/categories', b);
+	}
+
+	async getAssetFolder(folderName) {
+		let folders = await this.getAssetFolders();
+		
+		let filtered = folders.filter((fldr) => {
+			return fldr.name === folderName;
+		});
+		return filtered ? filtered[0] : false;
+	}
+
+	async getAssetFolders() {
+		const allItems = [];
+    let page = 1;
+		let qs = {
+			'$page': 1,
+			'$pageSize': 500
+		};
+
+    while (true) {
+			try {
+				const r = await this._get(`/asset/v1/content/categories`, qs);
+				if (r.statusCode !== 200) {
+					break;
+				}
+				const result = r.body;
+				if (!result || result.items?.length === 0) {
+					console.log('No Result!');
+					break;
+				}
+				allItems.push(...result.items);
+				// If the current page is the last page, exit the loop
+				if (result.page >= Math.ceil(result.count / result.pageSize)) {
+					break;
+				}
+
+				// Increment the page number for the next request
+				page++;
+			} catch (error) {
+				// Handle errors, e.g., network errors or other exceptions
+				console.error('Error retrieving items:', error);
+				break; // Exit the loop on error
+			}
+    }
+    return allItems;
+	}
+
 	async _post(uri, body) {
 		return new Promise((resolve, reject) => {
 			this.client.RestClient.post({

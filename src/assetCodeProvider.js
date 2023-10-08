@@ -15,9 +15,14 @@ module.exports = class AssetCodeProvider {
 	constructor(config) {
 		this.config = config;
 
-		this.folderId = 460715; // TODO: use from storage
+		this.folderId;
+		this.mc = null;
 	}
 
+	/**
+	 * Create New Dev Asset Block based on File.
+	 * @param {string} filePath path of the ssjs file.
+	 */
 	async createNewBlock(filePath) {
 		let asset = this.getAssetReqData(filePath);
 
@@ -37,6 +42,10 @@ module.exports = class AssetCodeProvider {
 				});
 	}
 
+	/**
+	 * Update Dev Asset Block  based on File.
+	 * @param {string} filePath path of the ssjs file.
+	 */
 	async updateCode(filePath) {
 		// get metadata:
 		let metaPath = this.getBlockMetaFile(filePath);
@@ -65,9 +74,36 @@ module.exports = class AssetCodeProvider {
 				});
 	}
 
+	/**
+	 * Create new Dev Folder for Content Blocks.
+	 * Store the data in the Config.
+	 * @param {string} folderName 
+	 */
+	async createFolder(folderName, parentFolderName) {
+		// TODO: implement
+		// TODO: update this.folderId
+		let parent = await this.getFolder(parentFolderName);
+		if (!parent) {
+			return false;
+		}
+
+		let r = await this.mc.createAssetFolder(folderName, parent.id);
+		return r;
+	}
+
+	/**
+	 * Get info about Dev Folder for Content Blocks.
+	 * Store the data in the Config.
+	 * @param {string} folderName 
+	 */
+	async getFolder(folderName) {
+		return await this.mc.getAssetFolder(folderName);
+	}
+
 	getAssetReqData(filePath) {
 		// get the file
 		let fileText = file.load(filePath);
+		this.folderId = this.config.getAssetFolderId();
 		// TODO: template:
 
 
@@ -102,7 +138,7 @@ module.exports = class AssetCodeProvider {
 
 	async initMcClient() {
 		let c = await this.config.getSfmcInstanceData();
-		console.log('Config:', c);
+		// console.log('Config:', c);
 		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
 	}
 }

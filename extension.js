@@ -21,6 +21,7 @@ const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 // let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
 
+let acp;
 let config;
 
 /**
@@ -31,39 +32,19 @@ let config;
 async function activate(context) {
 	console.log('Congratulations, your extension "ssjs-vsc" is now active!');
 
+	// Watch for changes in settings
+	vscode.workspace.onDidChangeConfiguration((event) => {
+		if (event.affectsConfiguration('ssjs-vsc.codeProvider')) {
+			pickCodeProvider();
+		}
+	});
+
 	config = new Config(context);
 
-	if (config.codeProvider === 'Asset') {
-		let acp = new AssetCodeProvider(config);
-		await acp.initMcClient();
+	pickCodeProvider();
 
-		let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
-			const activeTextEditor = vscode.window.activeTextEditor;
-
-			if (activeTextEditor) {
-				// Get the URI (Uniform Resource Identifier) of the currently open file
-				const fileUri = activeTextEditor.document.uri;
-				// Convert the URI to a file path
-				const filePath = fileUri.fsPath;
-
-				if (acp.assetExists(filePath)) {
-					await acp.updateCode(filePath);
-				} else {
-					await acp.createNewBlock(filePath);
-				}
-			} else {
-				vscode.window.showErrorMessage('No file is currently open.');
-			}
-		});
-
-		context.subscriptions.push(scriptUpload);
-	} else if (config.codeProvider === 'Server') {
-
-	} else {
-
-	}
-	
-	// Start server:
+	// update script:
+	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', uploadScript);
 
 	// Start server:
 	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', startServer);
@@ -99,13 +80,46 @@ async function activate(context) {
 		},
 	});
 
-	statusBar.create(context);
+	statusBar.create(context, config);
 
+	context.subscriptions.push(scriptUpload);
 	context.subscriptions.push(serverStart);
 	context.subscriptions.push(serverStop);
 	context.subscriptions.push(createSetup);
 	context.subscriptions.push(updateSetup);
 	context.subscriptions.push(deployAnyPath);
+}
+
+const activateAssetProvider = async function() {
+	acp = new AssetCodeProvider(config);
+	await acp.initMcClient();
+}
+
+const activateServerProvider = async function() {
+	
+}
+
+const deactivateProviders = async function() {
+	// stop server
+
+	// change statusBar (hide)
+	
+}
+
+const pickCodeProvider = async function() {
+	// Handle the setting change here
+	const codeProvider = Config.getCodeProvider();
+	await deactivateProviders();
+
+	if (codeProvider === 'Asset') {
+		vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
+		activateAssetProvider();
+	} else if (codeProvider === 'Server') {
+		vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
+		activateServerProvider();
+	} else {
+		vscode.window.showWarningMessage(`Code Providers switched off!`);
+	}
 }
 
 const deployAnyPathPage = async function () {
@@ -212,6 +226,63 @@ const createConfig = async function(update) {
 				// TODO: show error message:
 				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 			});
+}
+
+const uploadScript = async function () {
+	if (Config.isAssetProvider()) {
+		const activeTextEditor = vscode.window.activeTextEditor;
+
+		if (activeTextEditor) {
+			// Get the URI (Uniform Resource Identifier) of the currently open file
+			const fileUri = activeTextEditor.document.uri;
+			// Convert the URI to a file path
+			const filePath = fileUri.fsPath;
+
+			// TODO: try to get folder ID:
+			// if not existing, run dialog:
+			if (!config.getAssetFolderId()) {
+				console.log(`No Folder ID`);
+				const assetProviderTitle = `Asset Provider Folder`;
+				const folderName = await vscode.window.showInputBox({
+					title: assetProviderTitle,
+					prompt: `Enter Folder Name for Dev Assets:`,
+					ignoreFocusOut: true
+				});
+
+				const parentFolderName = await vscode.window.showInputBox({
+					title: assetProviderTitle,
+					prompt: `Enter Parent Folder Name for Dev Assets:`,
+					ignoreFocusOut: true
+				});
+
+				let f = await acp.createFolder(folderName, parentFolderName);
+
+				if (!f) {
+					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);
+				} else {
+					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
+					console.log(f);
+					config.setAssetFolderId(f.body.id);
+				}
+			} else {
+				console.log(`Found Folder ID`);
+			}
+
+			if (acp.assetExists(filePath)) {
+				let r = await acp.updateCode(filePath);
+				console.log(r);
+				vscode.window.showInformationMessage(`Asset uploaded.`);
+			} else {
+				let r = await acp.createNewBlock(filePath);
+				console.log(r);
+				vscode.window.showInformationMessage(`Asset created.`);
+			}
+		} else {
+			vscode.window.showErrorMessage('No file is currently open.');
+		}
+	} else {
+		vscode.window.showWarningMessage(`Code Providers switched off!`);
+	}
 }
 
 const startServer = function () {
