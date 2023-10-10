@@ -10,7 +10,11 @@ const generator = require('generate-password');
 const { app } = require('./src/proxy');
 const mcClient = require('./src/sfmc/mcClient');
 const Config = require('./src/config');
+
+const BaseCodeProvider = require('./src/baseCodeProvider');
 const AssetCodeProvider = require('./src/assetCodeProvider');
+const ServerCodeProvider = require('./src/serverCodeProvider');
+
 const jsonHandler = require('./src/auxi/json');
 const file = require('./src/auxi/file');
 
@@ -21,7 +25,7 @@ const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 // let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
 
-let acp;
+let provider;
 let config;
 
 /**
@@ -44,12 +48,21 @@ async function activate(context) {
 	pickCodeProvider();
 
 	// update script:
-	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', uploadScript);
+	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
+		// uploadScript();
+		await provider.uploadScript();
+	});
 
 	// Start server:
-	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', startServer);
+	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', async () => {
+		await startServer();
+		// await provider.startServer();
+	});
 	// Stop server:
-	let serverStop = vscode.commands.registerCommand('ssjs-vsc.stop', stopServer);
+	let serverStop = vscode.commands.registerCommand('ssjs-vsc.stop', async () => {
+		await stopServer();
+		// await provider.stopServer();
+	});
 	
 	// Create setup file:
 	let createSetup = vscode.commands.registerCommand('ssjs-vsc.create-config', async () => {
@@ -63,6 +76,7 @@ async function activate(context) {
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
 		// TODO: deploy a Cloud Page to Any Path
 		await deployAnyPathPage();
+		// await provider.deployAnyScript();
 	});
 
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
@@ -91,19 +105,19 @@ async function activate(context) {
 }
 
 const activateAssetProvider = async function() {
-	acp = new AssetCodeProvider(config);
-	await acp.initMcClient();
+	provider = new AssetCodeProvider(config);
+	await provider.init();
 }
 
 const activateServerProvider = async function() {
-	
+	provider = new ServerCodeProvider(config);
+	await provider.init();
 }
 
 const deactivateProviders = async function() {
+	provider = new BaseCodeProvider(config);
 	// stop server
-
-	// change statusBar (hide)
-	
+	// stopServer();
 }
 
 const pickCodeProvider = async function() {
@@ -227,63 +241,63 @@ const createConfig = async function(update) {
 				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 			});
 }
+461061
+// const uploadScript = async function () {
+// 	// if (Config.isAssetProvider()) {
+// 		const activeTextEditor = vscode.window.activeTextEditor;
 
-const uploadScript = async function () {
-	if (Config.isAssetProvider()) {
-		const activeTextEditor = vscode.window.activeTextEditor;
+// 		if (activeTextEditor) {
+// 			// Get the URI (Uniform Resource Identifier) of the currently open file
+// 			const fileUri = activeTextEditor.document.uri;
+// 			// Convert the URI to a file path
+// 			const filePath = fileUri.fsPath;
 
-		if (activeTextEditor) {
-			// Get the URI (Uniform Resource Identifier) of the currently open file
-			const fileUri = activeTextEditor.document.uri;
-			// Convert the URI to a file path
-			const filePath = fileUri.fsPath;
+// 			// TODO: try to get folder ID:
+// 			// if not existing, run dialog:
+// 			if (!config.getAssetFolderId()) {
+// 				console.log(`No Folder ID`);
+// 				const assetProviderTitle = `Asset Provider Folder`;
+// 				const folderName = await vscode.window.showInputBox({
+// 					title: assetProviderTitle,
+// 					prompt: `Enter Folder Name for Dev Assets:`,
+// 					ignoreFocusOut: true
+// 				});
 
-			// TODO: try to get folder ID:
-			// if not existing, run dialog:
-			if (!config.getAssetFolderId()) {
-				console.log(`No Folder ID`);
-				const assetProviderTitle = `Asset Provider Folder`;
-				const folderName = await vscode.window.showInputBox({
-					title: assetProviderTitle,
-					prompt: `Enter Folder Name for Dev Assets:`,
-					ignoreFocusOut: true
-				});
+// 				const parentFolderName = await vscode.window.showInputBox({
+// 					title: assetProviderTitle,
+// 					prompt: `Enter Parent Folder Name for Dev Assets:`,
+// 					ignoreFocusOut: true
+// 				});
 
-				const parentFolderName = await vscode.window.showInputBox({
-					title: assetProviderTitle,
-					prompt: `Enter Parent Folder Name for Dev Assets:`,
-					ignoreFocusOut: true
-				});
+// 				let f = await provider.createFolder(folderName, parentFolderName);
 
-				let f = await acp.createFolder(folderName, parentFolderName);
+// 				if (!f) {
+// 					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);
+// 				} else {
+// 					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
+// 					console.log(f);
+// 					config.setAssetFolderId(f.body.id);
+// 				}
+// 			} else {
+// 				console.log(`Found Folder ID`);
+// 			}
 
-				if (!f) {
-					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);
-				} else {
-					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
-					console.log(f);
-					config.setAssetFolderId(f.body.id);
-				}
-			} else {
-				console.log(`Found Folder ID`);
-			}
-
-			if (acp.assetExists(filePath)) {
-				let r = await acp.updateCode(filePath);
-				console.log(r);
-				vscode.window.showInformationMessage(`Asset uploaded.`);
-			} else {
-				let r = await acp.createNewBlock(filePath);
-				console.log(r);
-				vscode.window.showInformationMessage(`Asset created.`);
-			}
-		} else {
-			vscode.window.showErrorMessage('No file is currently open.');
-		}
-	} else {
-		vscode.window.showWarningMessage(`Code Providers switched off!`);
-	}
-}
+// 			if (provider.assetExists(filePath)) {
+// 				let r = await provider.updateCode(filePath);
+// 				console.log(r);
+// 				vscode.window.showInformationMessage(`Asset uploaded.`);
+// 			} else {
+// 				let r = await provider.createNewBlock(filePath);
+// 				console.log(r);
+// 				vscode.window.showInformationMessage(`Asset created.`);
+// 			}
+// 		} else {
+// 			vscode.window.showErrorMessage('No file is currently open.');
+// 		}
+// 	// } else {
+// 	// 	vscode.window.showWarningMessage(`Code Providers switched off!`);
+// 	// }
+// }
 
 const startServer = function () {
 	const configData = config.loadConfig();

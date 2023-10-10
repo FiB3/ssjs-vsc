@@ -2,19 +2,81 @@ const vscode = require('vscode');
 var fs = require('fs');
 var path = require('path');
 
+const BaseCodeProvider = require('./baseCodeProvider');
 const mcClient = require('./sfmc/mcClient');
 
 const { template } = require('./template')
 const file = require('./auxi/file');
 const json = require('./auxi/json');
 
-module.exports = class AssetCodeProvider {
+module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 	constructor(config) {
-		this.config = config;
+		super(config);
 
 		this.folderId;
 		this.mc = null;
+	}
+
+	async init() {
+		let c = await this.config.getSfmcInstanceData();
+		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
+	}
+
+	async uploadScript() {
+		const activeTextEditor = vscode.window.activeTextEditor;
+
+		if (activeTextEditor) {
+			// Get the URI (Uniform Resource Identifier) of the currently open file
+			const fileUri = activeTextEditor.document.uri;
+			// Convert the URI to a file path
+			const filePath = fileUri.fsPath;
+			// TODO: try to get folder ID:
+			// if not existing, run dialog:
+			if (!this.config.getAssetFolderId()) {
+				console.log(`No Folder ID`);
+				const assetProviderTitle = `Asset Provider Folder`;
+				const folderName = await vscode.window.showInputBox({
+					title: assetProviderTitle,
+					prompt: `Enter Folder Name for Dev Assets:`,
+					ignoreFocusOut: true
+				});
+
+				const parentFolderName = await vscode.window.showInputBox({
+					title: assetProviderTitle,
+					prompt: `Enter Parent Folder Name for Dev Assets:`,
+					ignoreFocusOut: true
+				});
+
+				let f = await this.createFolder(folderName, parentFolderName);
+
+				if (!f) {
+					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);
+				} else {
+					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
+					console.log(f);
+					this.config.setAssetFolderId(f.body.id);
+				}
+			} else {
+				console.log(`Found Folder ID`);
+			}
+
+			if (this.assetExists(filePath)) {
+				let r = await this.updateCode(filePath);
+				console.log(r);
+				vscode.window.showInformationMessage(`Asset uploaded.`);
+			} else {
+				let r = await this.createNewBlock(filePath);
+				console.log(r);
+				vscode.window.showInformationMessage(`Asset created.`);
+			}
+		} else {
+			vscode.window.showErrorMessage('No file is currently open.');
+		}
+	}
+
+	async deployAnyScript() {
+		vscode.window.showWarningMessage(`Asset Provider Test!`);
 	}
 
 	/**
@@ -132,9 +194,9 @@ module.exports = class AssetCodeProvider {
 		return `${fName}-ssjs-vsc`;
 	}
 
-	async initMcClient() {
-		let c = await this.config.getSfmcInstanceData();
-		// console.log('Config:', c);
-		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
-	}
+	// async initMcClient() {
+	// 	let c = await this.config.getSfmcInstanceData();
+	// 	console.log('Config:', c);
+	// 	this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
+	// }
 }
