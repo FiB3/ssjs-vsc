@@ -3,21 +3,25 @@ const ET_Client = require('sfmc-fuelsdk-node');
 module.exports = class McClient {
 	
 	constructor(subdomain, clientId, clientSecret, mid) {
+		let clientSetup = {
+			origin: `https://${subdomain}.rest.marketingcloudapis.com`,
+			authOrigin: `https://${subdomain}.auth.marketingcloudapis.com`,
+			soapOrigin: `https://${subdomain}.soap.marketingcloudapis.com/Service.asmx`,
+			authOptions: {
+				authVersion: 2
+			}
+		};
+		if (mid) {
+			clientSetup.authOptions.accountId = mid;
+		}
+
 		this.client = new ET_Client(
 				clientId,
 				clientSecret,
 				null,
-				{
-					origin: `https://${subdomain}.rest.marketingcloudapis.com`,
-					authOrigin: `https://${subdomain}.auth.marketingcloudapis.com`,
-					soapOrigin: `https://${subdomain}.soap.marketingcloudapis.com/Service.asmx`,
-					authOptions: {
-						authVersion: 2
-					}
-		});
-		if (mid) {
-			this.client.authOptions.accountId = mid;
-		}
+				clientSetup
+		);
+
 	}
 
 	/*
