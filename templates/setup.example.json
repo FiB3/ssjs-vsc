@@ -25,6 +25,8 @@
   },
 
   "asset-provider": {
+    "use-token": true,
+    "dev-token": "<< dev-token-comes-here >>",
     "folder-id": 0
   }
 }

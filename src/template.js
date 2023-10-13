@@ -7,13 +7,31 @@ const textFile = require('./auxi/file');
 Mustache.escape = function(text) {return text;};
 
 exports.template = {
+	
 	/**
 	 * Get Templated file.
 	 * @param {string} pth path to the file
 	 * @param {boolean} isDev true: for testing / false: for deployment
 	 * @returns 
 	 */
-	runOneFile: function(pth, config, isDev = true) {
+	runFile: function(pth, tokens) {
+		const templateFile = textFile.load(pth);
+
+		const view = {
+			...tokens
+		};
+			
+		var resulting = Mustache.render(templateFile, view);
+		return resulting;
+	},
+
+	/**
+	 * Get Templated Script file.
+	 * @param {string} pth path to the file
+	 * @param {boolean} isDev true: for testing / false: for deployment
+	 * @returns 
+	 */
+	runScriptFile: function(pth, config, isDev = true) {
 		const htmlTemplate = textFile.load(pth);
 
 		const tokens = config.getTokens(isDev);

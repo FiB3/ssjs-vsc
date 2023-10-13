@@ -10,10 +10,11 @@ const SETUP_FILE_NAME = '.vscode/ssjs-setup.json';
 
 module.exports = class Config {
 
-	constructor(context) {
+	constructor(context, sourcePath) {
 		this.context = context;
 
 		this.config = {};
+		this.sourcePath = sourcePath;
 		
 		this.loadConfig();
 		this.parseConfig(this.config);
@@ -23,13 +24,30 @@ module.exports = class Config {
 	}
 
 	getAnyMainPath() {
-		
 	}
 
 	getTokens(isDev = true) {
 		console.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
 		return Object.keys(this.config[tokensKey]) ? this.config[tokensKey] : {};
+	}
+
+	getDevPageToken() {
+		if (Config.isServerProvider()) {
+			if (this.config?.['proxy-any-file']?.['use-token'] && this.config?.['proxy-any-file']?.['dev-token']) {
+				return this.config['proxy-any-file']['dev-token'] || false;
+			} else {
+				return false;
+			}
+		} else if (Config.isAssetProvider()) {
+			if (this.config?.['asset-provider']?.['use-token'] && this.config?.['asset-provider']?.['dev-token']) {
+				return this.config['asset-provider']['dev-token'] || false;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
 	}
 
 	parseConfig(configObj) {
@@ -128,6 +146,7 @@ module.exports = class Config {
 		const config = jsonHandler.load(configPath);
 		// TODO: error if config is not yet deployed!
 		if (config.error) {
+			console.log(`Config.loadCofig()`, config);
 			throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
 		}
 		config.projectPath = this.getUserWorkspacePath();
@@ -165,6 +184,16 @@ module.exports = class Config {
 
 	static getCodeProvider() {
 		return vscode.workspace.getConfiguration('ssjs-vsc').get('codeProvider');
+	}
+
+	getPackageJsonData() {
+		const packageJsonFile = path.join(this.sourcePath, './package.json');
+		let packageJson = jsonHandler.load(packageJsonFile);
+
+		return {
+			"repository": packageJson?.['repository']?.['url'] ? packageJson['repository']['url'] : 'https://github.com/FiB3',
+			"version": packageJson?.['version'] ? packageJson['version'] : 'v?.?.?'
+		};
 	}
 
 	runWatch() {

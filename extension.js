@@ -35,7 +35,7 @@ let config;
  */
 async function activate(context) {
 	console.log('Congratulations, your extension "ssjs-vsc" is now active!');
-
+	
 	// Watch for changes in settings
 	vscode.workspace.onDidChangeConfiguration((event) => {
 		if (event.affectsConfiguration('ssjs-vsc.codeProvider')) {
@@ -43,7 +43,7 @@ async function activate(context) {
 		}
 	});
 
-	config = new Config(context);
+	config = new Config(context, __dirname);
 
 	pickCodeProvider();
 
@@ -75,8 +75,8 @@ async function activate(context) {
 
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
 		// TODO: deploy a Cloud Page to Any Path
-		await deployAnyPathPage();
-		// await provider.deployAnyScript();
+		// await deployAnyPathPage();
+		await provider.deployAnyScript();
 	});
 
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {

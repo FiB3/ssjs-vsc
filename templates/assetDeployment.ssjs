@@ -1,17 +1,20 @@
 <!-- TODO: change -->
 <!-- 
   FOLLOWING STEPS SHOW HOW TO DEPLOY DEV SCRIPT TO YOUR SFMC ENVIRONMENT:
-    1) Ensure, that your environment is publically accessible (e.g. by NGROK)
-    2) Your publically accessible domain needs to be set in your setup file (.vscode/ssjs-setup.json => "public-domain")
-    3) Create a new Cloud Page in your SFMC Instance.
-    4) Paste deployment script from this file into your Cloud Page (this comment is not required).
-    5) Save & Publish your Cloud Page.
+    - valid only for Asset Provider!
+
+    1) Setup the extension (Create Config)
+    2) Create a new Cloud Page in your SFMC Instance.
+    3) Paste deployment script from this file into your Cloud Page (comments are not required).
+    4) Save & Publish your Cloud Page.
 
   You are done!
+
+  To access any of your scripts just run the "Upload Script" command.
     
   Any script in your environment can now be accessed via this Cloud Page:
     Don't forget to add "dev-token" and path to your file:
-    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<ssjs-setup.json dev-token>>&path=<<relative path of developed script>>
+    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<ssjs-setup.json asset-provider dev-token>>&path=<<asset.id>>
  -->
 
 <!-- DEPLOYMENT SCRIPT FOLLOWS: -->
@@ -24,11 +27,12 @@
    */
   Platform.Load("core","1.1.5");
   try {
+    var tokenEnabled = {{tokenEnabled}};
     var tokenDefault = '{{token}}';
 
     var token = Request.GetQueryStringParameter("token"); // TODO: option to disable
 
-    if (token && token === tokenDefault) {
+    if (!tokenEnabled || (tokenEnabled && token && token === tokenDefault)) {
       // TODO: ensure that the param is provided and is OK?
       var assetId = Request.GetQueryStringParameter("asset-id");
       Variable.SetValue("id", assetId);
@@ -44,6 +48,7 @@
 %%[ IF @authenticated == TRUE THEN ]%%
   %%=ContentBlockByID(v(@id))=%%
 %%[ ELSE ]%%
+  <!-- To use in Text Resource, remove the HTML Tags and HTML Comments. -->
   <h3>401</h3>
   <p>Not authenticated.</p>
 %%[ ENDIF ]%%

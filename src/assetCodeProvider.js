@@ -1,13 +1,17 @@
 const vscode = require('vscode');
-var fs = require('fs');
 var path = require('path');
 
 const BaseCodeProvider = require('./baseCodeProvider');
+const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 
-const { template } = require('./template')
+const { template } = require('./template');
 const file = require('./auxi/file');
 const json = require('./auxi/json');
+
+const DEPLOYMENT_TEMPLATE = './templates/assetDeployment.ssjs';
+const DEPLOYED_NAME = 'deployment.ssjs';
+const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
@@ -31,7 +35,11 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			const fileUri = activeTextEditor.document.uri;
 			// Convert the URI to a file path
 			const filePath = fileUri.fsPath;
-			// TODO: try to get folder ID:
+			// TODO: file type check:
+			if (!USABLE_EXT.includes(path.extname(filePath))) {
+				vscode.window.showWarningMessage(`Extension ${path.extname(filePath)} is not allowed for deployment!`);
+				return;
+			}
 			// if not existing, run dialog:
 			if (!this.config.getAssetFolderId()) {
 				console.log(`No Folder ID`);
@@ -76,7 +84,35 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async deployAnyScript() {
-		vscode.window.showWarningMessage(`Asset Provider Test!`);
+		// check setup file (existence, public-domain and it's setup, dev-token):
+		let configData = [];
+		try {
+			configData = this.config.loadConfig();
+		} catch (err) {
+			vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
+		}
+		// if (configData['public-domain'] || configData['proxy-any-file']?.['main-path']) {
+		// 	vscode.window.showWarningMessage(`Some project setup is not filled - check your .vscode/ssjs-setup.json file.`);
+		// }
+
+		const packageData = this.config.getPackageJsonData();
+		const tkn = this.config.getDevPageToken();
+		const templatePath = path.join(this.config.sourcePath, DEPLOYMENT_TEMPLATE);
+
+		const deployScript = template.runFile(templatePath, {
+			"page": packageData['repository'],
+			"version": `v${packageData['version']}`,
+			"tokenEnabled": tkn ? true : false,
+			"token": tkn
+		});
+
+		// save into active editor (root) and open:
+		let deployPath = path.join(this.config.getUserWorkspacePath(), DEPLOYED_NAME);
+		file.save(deployPath, deployScript);
+		vscode.workspace.openTextDocument(deployPath).then((doc) =>
+			vscode.window.showTextDocument(doc, {
+			})
+		);
 	}
 
 	/**
@@ -111,7 +147,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		let metaPath = this.getBlockMetaFile(filePath);
 		let meta = json.load(metaPath);
 		// get templated file:
-		let fileText = template.runOneFile(filePath, this.config, true);
+		let fileText = template.runScriptFile(filePath, this.config, true);
 
 		// 
 		let asset = {
@@ -161,7 +197,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 	getAssetReqData(filePath) {
 		// get templated file:
-		let fileText = template.runOneFile(filePath, this.config, true);
+		let fileText = template.runScriptFile(filePath, this.config, true);
 		// get asset folder in MC:
 		this.folderId = this.config.getAssetFolderId();
 		
