@@ -205,4 +205,26 @@ module.exports = class McClient {
 				});
 		});
 	}
+
+	static extractSubdomain(fqdn) {
+		if (typeof(fqdn) === 'string') {
+			fqdn = fqdn.trim();
+			if (fqdn.substring(0, 8) === 'https://') {
+				const subdomainRegex = /^https?:\/\/([a-zA-Z0-9.-]+)\.(auth|rest|soap).*/i;
+
+				const match = fqdn.match(subdomainRegex);
+				if (match && match[1]) {
+						return match[1];
+				} else {
+						return fqdn;
+				}
+			} else if (fqdn.substring(0, 2) === 'mc' && fqdn.length > 15) {
+				return fqdn;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 }

@@ -3,8 +3,6 @@
 const vscode = require('vscode');
 const Mustache = require('mustache');
 
-// const { app } = require('./src/proxy');
-const mcClient = require('./src/sfmc/mcClient');
 const Config = require('./src/config');
 
 const BaseCodeProvider = require('./src/baseCodeProvider');
@@ -12,6 +10,7 @@ const AssetCodeProvider = require('./src/assetCodeProvider');
 const ServerCodeProvider = require('./src/serverCodeProvider');
 
 const statusBar = require('./src/statusBar');
+const McClient = require('./src/sfmc/mcClient');
 
 // let myStatusBarItem;
 Mustache.escape = function(text) {return text;};
@@ -127,18 +126,25 @@ const pickCodeProvider = async function() {
 
 const createConfig = async function(update) {
 	let title = update ? `Update SFMC Environment` : `Set up SFMC Environment`;
-	const subdomain = await vscode.window.showInputBox({
+	let subdomain = await vscode.window.showInputBox({
 		title: title,
-		prompt: `Enter SFMC Subdomain:`,
+		prompt: `Enter SFMC Auth domain:`,
 		ignoreFocusOut: true
 	});
 	// TODO: ensure that FQDN can be used too
+	subdomain = McClient.extractSubdomain(subdomain);
+	if (!subdomain) {
+		vscode.window.showErrorMessage(`Use valid subdomain or Auth domain.`);
+		return;
+	}
+	console.log(`Subdomain: ${subdomain}.`);
 
 	const clientId = await vscode.window.showInputBox({
 		title: title,
 		prompt: `Server-to-server Client ID:`,
 		ignoreFocusOut: true
 	});
+	if (!clientId) { return; }
 
 	const clientSecret = await vscode.window.showInputBox({
 		title: title,
@@ -146,6 +152,7 @@ const createConfig = async function(update) {
 		ignoreFocusOut: true,
 		password: true
 	});
+	if (!clientSecret) { return; }
 
 	const mid = await vscode.window.showInputBox({
 		title: title,
@@ -154,7 +161,7 @@ const createConfig = async function(update) {
 	});
 	
 	// TODO: test login
-	let mc = new mcClient(subdomain, clientId, clientSecret, mid);
+	let mc = new McClient(subdomain, clientId, clientSecret, mid);
 
 	await mc._get(`/platform/v1/configcontext`)
 			.then((data) => {
