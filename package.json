@@ -48,6 +48,10 @@
       {
         "command": "ssjs-vsc.deploy-any-path",
         "title": "SSJS: Deploy Dev Page"
+      },
+      {
+        "command": "ssjs-vsc.getUrl",
+        "title": "SSJS: Get Dev PATH"
       }
     ],
     "configuration": {

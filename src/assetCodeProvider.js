@@ -36,7 +36,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			// Convert the URI to a file path
 			const filePath = fileUri.fsPath;
 			// TODO: file type check:
-			if (!USABLE_EXT.includes(path.extname(filePath))) {
+			if (USABLE_EXT.includes(path.extname(filePath))) {
 				vscode.window.showWarningMessage(`Extension ${path.extname(filePath)} is not allowed for deployment!`);
 				return;
 			}
@@ -113,6 +113,29 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			vscode.window.showTextDocument(doc, {
 			})
 		);
+	}
+
+	async getDevUrl() {
+		const activeTextEditor = vscode.window.activeTextEditor;
+
+		if (activeTextEditor) {
+			// Get the URI (Uniform Resource Identifier) of the currently open file
+			const fileUri = activeTextEditor.document.uri;
+			// Convert the URI to a file path
+			const filePath = fileUri.fsPath;
+			// TODO: file type check:
+			if (USABLE_EXT.includes(path.extname(filePath))) {
+				let meta = json.load(this.getBlockMetaFile(filePath));
+				let id = meta.id;
+				let tkn = this.config.getDevPageToken();
+				let u = tkn ? `?token=${tkn}&asset-id=${id}` : `?asset-id=${id}`;
+				vscode.env.clipboard.writeText(u);
+			} else {
+				vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
+			}
+		} else {
+			vscode.window.showErrorMessage('No file is currently open.');
+		}
 	}
 
 	/**

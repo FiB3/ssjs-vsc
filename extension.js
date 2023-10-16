@@ -66,6 +66,10 @@ async function activate(context) {
 	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
 		await provider.deployAnyScript();
 	});
+	
+	let getScriptUrl = vscode.commands.registerCommand('ssjs-vsc.getUrl', async () => {
+		await provider.getDevUrl();
+	});
 
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
 		/**
@@ -88,6 +92,7 @@ async function activate(context) {
 	context.subscriptions.push(createSetup);
 	context.subscriptions.push(updateSetup);
 	context.subscriptions.push(deployAnyPath);
+	context.subscriptions.push(getScriptUrl);
 }
 
 const activateAssetProvider = async function() {
