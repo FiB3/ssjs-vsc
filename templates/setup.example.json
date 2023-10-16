@@ -23,7 +23,6 @@
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
   },
-
   "asset-provider": {
     "use-token": true,
     "dev-token": "<< dev-token-comes-here >>",

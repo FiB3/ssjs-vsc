@@ -72,12 +72,14 @@ function checkPathSecurity(req, res, next) {
   // TODO: error handling!
   let passOk = false;
   try {
-    const authHeader = req.headers['ssjs-authorization'];
-    const encodedCredentials = authHeader.split(' ')[1];
-    const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
-    var [username, password] = decodedCredentials.split(':');
-
-    passOk = username === config.authUser && password === config.authPassword;
+    const authHeader = req.headers?.['ssjs-authorization'];
+    if (authHeader && authHeader.split(' ')) {
+      const encodedCredentials = authHeader.split(' ')[1];
+      const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
+      var [username, password] = decodedCredentials.split(':');
+  
+      passOk = username === config.authUser && password === config.authPassword;
+    }
   } catch (err) {
     console.error(err);
   }

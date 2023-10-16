@@ -4,12 +4,15 @@ const Config = require('./config');
 
 module.exports = class BaseCodeProvider {
 
-	constructor(config) {
+	constructor(config, statusBar) {
 		this.config = config;
+		this.statusBar = statusBar;
 	}
 
 	async init() {
+	}
 
+	async deactivate() {
 	}
 
 	async deployAnyScript() {
@@ -25,6 +28,10 @@ module.exports = class BaseCodeProvider {
 	}
 
 	async stopServer() {
+		this._checkCommand();
+	}
+
+	async getDevUrl() {
 		this._checkCommand();
 	}
 

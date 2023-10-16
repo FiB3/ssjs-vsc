@@ -4,6 +4,7 @@ var path = require('path');
 const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
 
+const { app } = require('./proxy');
 const { template } = require('./template');
 const file = require('./auxi/file');
 
@@ -61,10 +62,29 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async startServer() {
-		vscode.window.showWarningMessage(`Code Providers switched off!`);
+		// vscode.window.showWarningMessage(`Code Providers switched off!`);
+		const configData = this.config.loadConfig();
+
+		// The code you place here will be executed every time your command is executed
+		if (!app.running) {
+			app.build(configData);
+			// Display a message box to the user
+			vscode.window.showInformationMessage(`SSJS Server started on: ${app.host}:${app.port}`);
+		} else {
+			vscode.window.showInformationMessage(`SSJS Server already running: ${app.host}:${app.port}`);
+		}
+		// statusBar.setStart(`${app.host}:${app.port}`);
 	}
 
 	async stopServer() {
-		vscode.window.showWarningMessage(`Code Providers switched off!`);
+		// vscode.window.showWarningMessage(`Code Providers switched off!`);
+		console.log(`Attempting to stop the SSJS Server.`);
+		if (app.running) {
+			app.close();
+			vscode.window.showInformationMessage(`SSJS Server stopped.`);
+		} else {
+			vscode.window.showInformationMessage(`SSJS Server not active.`);
+		}
+		// statusBar.setDeactivated();
 	}
 }
