@@ -14,12 +14,12 @@ const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
-	constructor(config) {
-		super(config);
+	constructor(config, statusBar) {
+		super(config, statusBar);
 	}
 
 	async init() {
-
+		this.statusBar.setEnabled();
 	}
 
 	async deployAnyScript() {
@@ -74,7 +74,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		} else {
 			vscode.window.showInformationMessage(`SSJS Server already running: ${app.host}:${app.port}`);
 		}
-		// statusBar.setStart(`${app.host}:${app.port}`);
+		this.statusBar.setStart(`${app.host}:${app.port}`);
 	}
 
 	async stopServer() {
@@ -86,7 +86,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		} else {
 			vscode.window.showInformationMessage(`SSJS Server not active.`);
 		}
-		// statusBar.setDeactivated();
+		this.statusBar.setDeactivated();
 	}
 
 	async getDevUrl() {

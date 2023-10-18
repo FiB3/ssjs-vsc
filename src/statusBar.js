@@ -19,9 +19,27 @@ module.exports = {
 	setEmpty() {
 	},
 
+	setEnabled() {
+		if (Config.isServerProvider()) {
+			this.setMessage(`SSJS Active`, `SSJS Server ready.`);
+		} else if (Config.isAssetProvider()) {
+			this.setMessage(`SSJS Connected`, `Script upload enabled.`);
+		} else {
+			this.setMessage(`SSJS file`, `SSJS Supported File.`);
+		}
+		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.debuggingBackground');
+		this.statusBarItem.show();
+	},
+
 	setStart(fqdn) {
-		this.fqdn = fqdn;
-		this.setMessage(`SSJS Active`, `SSJS Server running on: ${fqdn}`);
+		if (Config.isServerProvider()) {
+			this.fqdn = fqdn;
+			this.setMessage(`SSJS Active`, `SSJS Server running on: ${fqdn}`);
+		} else if (Config.isAssetProvider()) {
+			this.setMessage(`SSJS Connected`, `Script upload enabled.`);
+		} else {
+			this.setMessage(`SSJS file`, `SSJS Supported File.`);
+		}
 		this.statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.debuggingBackground');
 		this.statusBarItem.show();
 	},

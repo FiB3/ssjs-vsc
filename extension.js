@@ -114,6 +114,7 @@ const activateServerProvider = async function() {
 
 const deactivateProviders = async function() {
 	provider = new BaseCodeProvider(config, statusBar);
+	await provider.init();
 }
 
 const pickCodeProvider = async function() {

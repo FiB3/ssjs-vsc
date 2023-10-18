@@ -15,16 +15,18 @@ const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
-	constructor(config) {
-		super(config);
+	constructor(config, statusBar) {
+		super(config, statusBar)
 
 		this.folderId;
 		this.mc = null;
 	}
 
 	async init() {
+		this.statusBar.setEnabled();
 		let c = await this.config.getSfmcInstanceData();
 		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
+
 	}
 
 	async uploadScript() {

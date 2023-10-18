@@ -10,6 +10,7 @@ module.exports = class BaseCodeProvider {
 	}
 
 	async init() {
+		this.statusBar.setEnabled();
 	}
 
 	async deactivate() {
