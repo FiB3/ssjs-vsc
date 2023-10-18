@@ -170,6 +170,14 @@ module.exports = class Config {
 		return vscode.workspace.rootPath;
 	}
 
+	/**
+	 * Is passed language ID allowed?
+	 */
+	static isLanguageAllowed(langId) {
+		console.log(`LanguageID: "${langId}".`);
+		return ['ssjs', 'html', 'ampscript'].includes(langId);
+	}
+
 	static isAssetProvider() {
 		return Config.getCodeProvider() === 'Asset';
 	}
@@ -184,6 +192,10 @@ module.exports = class Config {
 
 	static getCodeProvider() {
 		return vscode.workspace.getConfiguration('ssjs-vsc').get('codeProvider');
+	}
+
+	static isAutoSaveEnabled() {
+		return vscode.workspace.getConfiguration('ssjs-vsc').get('autoSave') ?? false;
 	}
 
 	getPackageJsonData() {

@@ -36,7 +36,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			// Convert the URI to a file path
 			const filePath = fileUri.fsPath;
 			// TODO: file type check:
-			if (USABLE_EXT.includes(path.extname(filePath))) {
+			if (!USABLE_EXT.includes(path.extname(filePath))) {
 				vscode.window.showWarningMessage(`Extension ${path.extname(filePath)} is not allowed for deployment!`);
 				return;
 			}
@@ -79,7 +79,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				vscode.window.showInformationMessage(`Asset created.`);
 			}
 		} else {
-			vscode.window.showErrorMessage('No file is currently open.');
+			console.log('No file is currently open.');
+			// vscode.window.showErrorMessage('No file is currently open.');
 		}
 	}
 

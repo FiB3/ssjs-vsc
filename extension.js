@@ -70,6 +70,12 @@ async function activate(context) {
 		await provider.getDevUrl();
 	});
 
+	let onSaveFile = vscode.workspace.onDidSaveTextDocument(async () => {
+		if (Config.isAutoSaveEnabled()) {
+			await provider.uploadScript();
+		}
+	});
+
 	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
 		/**
 		 * Provide formatting edits for a whole document.
@@ -86,6 +92,8 @@ async function activate(context) {
 	});
 
 	context.subscriptions.push(scriptUpload);
+	context.subscriptions.push(onSaveFile);
+
 	context.subscriptions.push(serverStart);
 	context.subscriptions.push(serverStop);
 	context.subscriptions.push(createSetup);

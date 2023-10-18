@@ -67,6 +67,11 @@
             "Asset - Code is provided using Content Block. Slower but more secure.",
             "Server - Code is server using local sever. Faster, but requires reverse tunneling."
           ]
+        },
+        "ssjs-vsc.autoSave": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Upload script automatically when using Asset Provider?"
         }
       }
     },
