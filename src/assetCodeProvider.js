@@ -77,7 +77,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				vscode.window.showInformationMessage(`Asset uploaded.`);
 			} else {
 				let r = await this.createNewBlock(filePath);
-				console.log(r);
+				// console.log(r);
 				vscode.window.showInformationMessage(`Asset created.`);
 			}
 		} else {
@@ -158,7 +158,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 					json.save(p, data.body);
 				})
 				.catch((err) => {
-					console.log('ERR', err);
+					console.error('Create Asset ERR:', err);
+					asset.content = '<<script>>';
+					console.debug('Asset data:', asset);
 					// TODO: show error message:
 					vscode.window.showErrorMessage(`Error on creating Dev Asset.`);
 				});
@@ -189,7 +191,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 					json.save(p, data.body);
 				})
 				.catch((err) => {
-					console.log('ERR', err);
+					console.error('Patch Asset ERR:', err);
+					asset.content = '<<script>>';
+					console.debug('Asset data:', asset);
 					// TODO: show error message:
 					vscode.window.showErrorMessage(`Error on updating Dev Asset.`);
 				});
@@ -248,7 +252,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	getBlockMetaFile(filePath) {
-		return path.join(path.dirname(filePath), `${this.getBlockName(filePath)}.json`);
+		return path.join(path.dirname(filePath), `.${this.getBlockName(filePath)}.json`);
 	}
 
 	getBlockName(filePath) {
