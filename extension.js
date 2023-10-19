@@ -70,8 +70,10 @@ async function activate(context) {
 		await provider.getDevUrl();
 	});
 
-	let onSaveFile = vscode.workspace.onDidSaveTextDocument(async () => {
-		if (Config.isAutoSaveEnabled()) {
+	let onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
+		if (Config.isConfigFile(textDocument.uri.fsPath)) {
+			config.loadConfig();
+		} else if (Config.isAutoSaveEnabled()) {
 			await provider.uploadScript();
 		}
 	});
@@ -140,7 +142,7 @@ const createConfig = async function(update) {
 		prompt: `Enter SFMC Auth domain:`,
 		ignoreFocusOut: true
 	});
-	// TODO: ensure that FQDN can be used too
+	// ensure that FQDN can be used too
 	subdomain = McClient.extractSubdomain(subdomain);
 	if (!subdomain) {
 		vscode.window.showErrorMessage(`Use valid subdomain or Auth domain.`);
@@ -169,7 +171,6 @@ const createConfig = async function(update) {
 		ignoreFocusOut: true
 	});
 	
-	// TODO: test login
 	let mc = new McClient(subdomain, clientId, clientSecret, mid);
 
 	await mc._get(`/platform/v1/configcontext`)
@@ -182,23 +183,24 @@ const createConfig = async function(update) {
 				if (update) {
 					// update setup file:
 					config.updateConfigFile(subdomain, clientId, mid);
+					config.loadConfig();
 				} else {
 					// create setup file:
 					// maybe use some confirming dialog??
 					config.createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
 				}
 				
-				// TODO: Open the setup  file:
+				// Open the setup  file:
 				vscode.workspace.openTextDocument(config.getUserConfigPath()).then((doc) =>
 					vscode.window.showTextDocument(doc, {
 					})
 				);
-				// TODO: Show message that hints the create any-file Cloud Page:
+				// Show message that hints the create any-file Cloud Page:
 				vscode.window.showInformationMessage(`Setup created: ./vscode/ssjs-setup.json.`);
 			})
 			.catch((err) => {
 				console.log('ERR', err);
-				// TODO: show error message:
+				// Show error message:
 				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 			});
 }

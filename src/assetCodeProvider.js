@@ -87,17 +87,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async deployAnyScript() {
-		// check setup file (existence, public-domain and it's setup, dev-token):
-		let configData = [];
-		try {
-			configData = this.config.loadConfig();
-		} catch (err) {
-			vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
-		}
-		// if (configData['public-domain'] || configData['proxy-any-file']?.['main-path']) {
-		// 	vscode.window.showWarningMessage(`Some project setup is not filled - check your .vscode/ssjs-setup.json file.`);
-		// }
-
 		const packageData = this.config.getPackageJsonData();
 		const tkn = this.config.getDevPageToken();
 		const templatePath = path.join(this.config.sourcePath, DEPLOYMENT_TEMPLATE);

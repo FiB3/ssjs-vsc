@@ -141,11 +141,6 @@ module.exports = class Config {
 	getAssetFolderId() {
 		console.log(`FOLDER ID: ${this.config?.['asset-provider']?.['folder-id']}.`);
 		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
-		// if (!this.config?.['asset-provider']?.['folder-id']) {
-		// 	return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
-		// } else {
-		// 	return false;
-		// }
 	}
 
 	setAssetFolderId(id) {
@@ -163,6 +158,8 @@ module.exports = class Config {
 		if (config.error) {
 			console.log(`Config.loadCofig()`, config);
 			throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
+		} else {
+			console.log(`Config Reloaded.`);
 		}
 		this.config = config;
 
@@ -227,29 +224,7 @@ module.exports = class Config {
 		};
 	}
 
-	runWatch() {
-		// this.watcher = fs.watchFile(SETUP_FILE_NAME, (curr, prev) => {
-		// 	console.log('Change:', curr, prev);
-		// 	if (curr.mtime !== prev.mtime) {
-		// 		// File has been modified
-		// 		vscode.window.showInformationMessage(`File ${SETUP_FILE_NAME} has been modified.`);
-		// 	}
-		// });
-
-		// https://code.visualstudio.com/api/references/vscode-api#FileSystemWatcher
-		// this.watcher = vscode.workspace.createFileSystemWatcher(SETUP_FILE_NAME);
-		// this.watcher.onDidChange(uri => { 
-		// 	console.log('Change:', uri);
-		// 	vscode.window.showInformationMessage(`File ${uri} has been modified.`);
-		// });
-
-		// let watcher;
-		// watcher = fs.watchFile('.vscode/ssjs-setup.json', (curr, prev) => {
-		// 	console.log('Change:', curr, prev);
-		// 	if (curr.mtime !== prev.mtime) {
-		// 		// File has been modified
-		// 		vscode.window.showInformationMessage(`File ${SETUP_FILE_NAME} has been modified.`);
-		// 	}
-		// });
+	static isConfigFile(fileName) {
+		return fileName.endsWith(SETUP_FILE_NAME);		
 	}
 }
