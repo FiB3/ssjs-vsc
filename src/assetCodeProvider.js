@@ -73,7 +73,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 			if (this.assetExists(filePath)) {
 				let r = await this.updateCode(filePath);
-				console.log(r);
+				// console.log(r);
 				vscode.window.showInformationMessage(`Asset uploaded.`);
 			} else {
 				let r = await this.createNewBlock(filePath);
@@ -151,11 +151,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		// create the asset:
 		await this.mc._post(`/asset/v1/assets/`, asset)
 				.then((data) => {
-					console.log('DATA', data);
-					// add the file path to the asset json??
-					// save the json with details as name.ssjs-vsc.json
-					const p = this.getBlockMetaFile(filePath);
-					json.save(p, data.body);
+					// console.log('DATA', data);
+					this.saveAssetFile(filePath, data);
 				})
 				.catch((err) => {
 					console.error('Create Asset ERR:', err);
@@ -184,11 +181,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 		await this.mc._patch(`/asset/v1/assets/${meta.id}`, asset)
 				.then((data) => {
-					console.log('DATA', data);
-					// add the file path to the asset json??
-					// save the json with details as name.ssjs-vsc.json
-					const p = this.getBlockMetaFile(filePath);
-					json.save(p, data.body);
+					// console.log('DATA', data);
+					this.saveAssetFile(filePath, data);
 				})
 				.catch((err) => {
 					console.error('Patch Asset ERR:', err);
@@ -245,6 +239,19 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		return asset;
 	}
 
+	saveAssetFile(filePath, reqData) {
+		let dt = {};
+		dt.id = reqData.body.id;
+		dt.name = reqData.body.name;
+		dt.assetType = reqData.body.assetType;
+		dt.category = reqData.body.category;
+		dt.enterpriseId = reqData.body.enterpriseId;
+		dt.id = reqData.body.id;
+
+		const p = this.getBlockMetaFile(filePath);
+		json.save(p, dt);
+	}
+
 	assetExists(filePath) {
 		const p = this.getBlockMetaFile(filePath);
 		console.log(`assetExists:`, p, '. exists?', file.exists(p));
@@ -259,10 +266,4 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		let fName = path.basename(filePath);
 		return `${fName}-ssjs-vsc`;
 	}
-
-	// async initMcClient() {
-	// 	let c = await this.config.getSfmcInstanceData();
-	// 	console.log('Config:', c);
-	// 	this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
-	// }
 }

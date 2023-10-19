@@ -1,4 +1,4 @@
-# SSJS Manager for VS Code
+# SSJS Manager
 
 This extension streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.
 From syntax highlight to easier testing  and deployment.
