@@ -2,13 +2,11 @@ var fs = require('fs');
 var path = require('path');
 var express = require('express');
 const morgan = require("morgan");
-const Mustache = require('mustache');
-
-const textFile = require('./auxi/file');
 const moment = require('moment');
 
-// no HTML escaping:
-Mustache.escape = function(text) {return text;};
+const { template } = require('./template');
+const Config = require('./config');
+const textFile = require('./auxi/file');
 
 let config;
 let server;
@@ -16,26 +14,27 @@ let server;
 exports.app = {
   running: false,
 
-  host: 'http://127.0.0.1',
+  host: 'http://localhost',
   port: 4000,
 
-  build: function(configObj) {
-    // SETUP:
-    parseConfig(configObj);
+  build: function(configRef) {
+    config = configRef;
 
-    // this.host = configObj.domain || this.host;
-    this.port = configObj.port || this.port;
+    // SETUP:
+    config.loadConfig();
+
+    this.port = config.getHostPort();
 
     let app = express();
     app.use(morgan('dev'));
 
-    if (configObj['proxy-any-file']?.enabled) {
-      console.log(`Any-proxy URL: ${configObj['proxy-any-file']['main-path']}, TOKEN: '${config.anyPathToken}'`);
+    if (config.anyPathEnabled()) {
+      console.log(`Any-proxy URL: ${config.getAnyMainPath()}, TOKEN: '${config.getDevPageToken()}'`);
 
-      app.use(configObj['proxy-any-file']['main-path'], checkPathSecurity, checkResourcePath, (req, res, next) => {
+      app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res, next) => {
         let pth = req.query?.path;
         if (pth) {
-          let html = templateOneFile(pth);
+          let html = template.runScriptFile(pth, config, isDev = true);
           res.status(200).send(html);
         } else {
           throw("checkResourcePath() not used!")
@@ -76,9 +75,10 @@ function checkPathSecurity(req, res, next) {
     if (authHeader && authHeader.split(' ')) {
       const encodedCredentials = authHeader.split(' ')[1];
       const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
-      var [username, password] = decodedCredentials.split(':');
-  
-      passOk = username === config.authUser && password === config.authPassword;
+      const [username, password] = decodedCredentials.split(':');
+      const { anyUser, anyPassword } = config.getBasicAuth();
+      
+      passOk = username === anyUser && password === anyPassword;
     }
   } catch (err) {
     console.error(err);
@@ -86,8 +86,8 @@ function checkPathSecurity(req, res, next) {
 
   if (passOk) {
     // check if token is also used:
-    if (config.useToken !== false) {
-      if (req.query?.token === config.anyPathToken) {
+    if (config.getDevPageToken() !== false) {
+      if (req.query?.token === config.getDevPageToken()) {
         next();
       } else {
         console.error('Any-proxy token not valid');
@@ -105,19 +105,25 @@ function checkPathSecurity(req, res, next) {
 
 function checkResourcePath(req, res, next) {
   let queryPath = req.query?.path;
+  let publicPath = config.getPublicPath();
   if (queryPath) {
     let p;
     if(path.isAbsolute(queryPath)) {
       p = queryPath;
     } else {
-      p = path.join(config.publicPath, req.query.path);
+      p = path.join(publicPath, req.query.path);
     }
 
-    if (fs.existsSync(p) && p.startsWith(config.publicPath)) {
-      // path OK:
-      console.log('checkResourcePath: OK');
-      req.query.path = p;
-      next();
+    if (fs.existsSync(p) && p.startsWith(publicPath)) {
+      if (Config.isFileTypeAllowed(p)) {
+        // path OK:
+        console.log('checkResourcePath: OK');
+        req.query.path = p;
+        next();
+      } else {
+        console.error('Any-proxy path invalid (2):', p);
+        send401Response(res, 'File type not allowed.');
+      }
     } else {
       // TODO: Path NOK
       console.error('Any-proxy path invalid (1):', p);
@@ -129,74 +135,6 @@ function checkResourcePath(req, res, next) {
   }
 }
 
-/**
- * Get Templated file.
- * @param {string} pth path to the file
- * @param {boolean} isDev true: for testing / false: for deployment
- * @returns 
- */
-function templateOneFile(pth, isDev) {
-  const htmlTemplate = textFile.load(pth);
-
-  const view = {
-    ...config.devTokens
-    // , VERSION: getSsjsVersion(config.devTokens.VERSION)
-  };
-    
-  var html = Mustache.render(htmlTemplate, view);
-  return html;
-}
-
-function parseConfig(configObj) {
-  config = {};
-  let publicPath = configObj['dev-folder-path'] ? configObj['dev-folder-path'] : './';
-  // TODO: ensure this is either set or set for current path?
-  console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', configObj.projectPath, ',', publicPath);
-  config.publicPath = publicPath.startsWith('\/')
-      ? publicPath
-      : path.join(configObj.projectPath, publicPath);
-  console.log(`PUBLIC PATH: "${config.publicPath}".`);
-
-  let filesToTemplate = Array.isArray(configObj['files-to-template'])
-        ? configObj['files-to-template']
-        : [];
-  filesToTemplate.forEach(function(part, index) {
-    this[index] = this[index].startsWith('/') ? this[index] : '/' + this[index];
-  }, filesToTemplate);
-  config.filesToTemplate = filesToTemplate;
-  
-  config.devTokens = Object.keys(configObj['dev-tokens'])
-      ? configObj['dev-tokens']
-      : {};
-  
-  // TODO: not finished yet
-  config.useToken = configObj['proxy-any-file']['use-token'];
-  config.anyPathToken = configObj['proxy-any-file']['dev-token'];
-  config.authUser = configObj['proxy-any-file']['auth-username'];
-  config.authPassword = configObj['proxy-any-file']['auth-password'];
-
-
-
-  config.prodTokens = Object.keys(configObj['prod-tokens'])
-      ? configObj['prod-tokens']
-      : {};
-  
-  config.devTokens = Object.keys(configObj['dev-tokens'])
-      ? configObj['dev-tokens']
-      : {};
-  config.devTokens = Object.keys(configObj['dev-tokens'])
-      ? configObj['dev-tokens']
-      : {};
-}
-
-function getSsjsVersion() {
-  // TODO: needs to be improved
-  // when deploying - set date, when previewing set timestamp??
-  return config.automateVersion
-      ? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
-      : '';
-}
-
 function send401Response(res, message, sendJson=true) {
   sendErrorResponse(res, 401, {
     message
@@ -206,7 +144,7 @@ function send401Response(res, message, sendJson=true) {
 function send404Response(res, pth, message, sendJson=true) {
   sendErrorResponse(res, 404, {
     message,
-    pth
+    path: pth,
   }, sendJson);
 }
 

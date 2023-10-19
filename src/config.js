@@ -8,6 +8,9 @@ const folder = require('./auxi/folder');
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FILE_NAME = '.vscode/ssjs-setup.json';
 
+const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
+const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
+
 module.exports = class Config {
 
 	constructor(context, sourcePath) {
@@ -17,13 +20,34 @@ module.exports = class Config {
 		this.sourcePath = sourcePath;
 		
 		this.loadConfig();
-		this.parseConfig(this.config);
 
 		// this.runWatch();
 		this.codeProvider = Config.getCodeProvider();
 	}
 
+	getHostPort() {
+		return this.config.port || 4000;
+	}
+
+	anyPathEnabled() {
+		return this.config['proxy-any-file']?.enabled ? this.config['proxy-any-file'].enabled : false;
+	}
+
 	getAnyMainPath() {
+		return this.config['proxy-any-file']['main-path'];
+	}
+
+	getPublicPath() {
+		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
+		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', this.getUserWorkspacePath(), ',', publicPath);
+		
+		publicPath = publicPath.startsWith('\/')
+				? publicPath
+				: path.join(this.getUserWorkspacePath(), publicPath);
+		
+		console.log(`PUBLIC PATH: "${publicPath}".`);
+		
+		return publicPath;
 	}
 
 	getTokens(isDev = true) {
@@ -50,20 +74,11 @@ module.exports = class Config {
 		}
 	}
 
-	parseConfig(configObj) {
-		let publicPath = configObj['dev-folder-path'] ? configObj['dev-folder-path'] : './';
-		// TODO: ensure this is either set or set for current path?
-		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', configObj.projectPath, ',', publicPath);
-		this.config.publicPath = publicPath.startsWith('\/')
-				? publicPath
-				: path.join(configObj.projectPath, publicPath);
-		console.log(`PUBLIC PATH: "${this.config.publicPath}".`);
-		
-		// TODO: not finished yet
-		this.config.useToken = configObj['proxy-any-file']['use-token'];
-		this.config.anyPathToken = configObj['proxy-any-file']['dev-token'];
-		this.config.authUser = configObj['proxy-any-file']['auth-username'];
-		this.config.authPassword = configObj['proxy-any-file']['auth-password'];
+	getBasicAuth() {
+		return {
+			anyUser: this.config['proxy-any-file']['auth-username'],
+			anyPassword: this.config['proxy-any-file']['auth-password']
+		};
 	}
 
 	async getSfmcInstanceData() {
@@ -149,7 +164,6 @@ module.exports = class Config {
 			console.log(`Config.loadCofig()`, config);
 			throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
 		}
-		config.projectPath = this.getUserWorkspacePath();
 		this.config = config;
 
 		return config;
@@ -175,7 +189,12 @@ module.exports = class Config {
 	 */
 	static isLanguageAllowed(langId) {
 		console.log(`LanguageID: "${langId}".`);
-		return ['ssjs', 'html', 'ampscript'].includes(langId);
+		return USABLE_LANG_IDS.includes(langId);
+	}
+
+	static isFileTypeAllowed(filePath) {
+		console.log(`File extname: "${path.extname(filePath)}".`);
+		return USABLE_EXT.includes(path.extname(filePath));
 	}
 
 	static isAssetProvider() {
