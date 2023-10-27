@@ -3,7 +3,7 @@
   "sfmc-client-id": "<< client-id of installed package >>",
   "sfmc-mid": "<< optional: only if MID is needed >>",
 
-  "public-domain": "<< publically accessible domain, e.g. NGROK forwarding domain >>",
+  "public-domain": "<< publicly accessible domain, e.g. NGROK forwarding domain >>",
   "port": 4000,
 
   "dev-folder-path": "",
@@ -26,6 +26,8 @@
   "asset-provider": {
     "use-token": true,
     "dev-token": "<< dev-token-comes-here >>",
-    "folder-id": 0
-  }
+    "folder-id": 0,
+    "folder": "<< asset-folder >>"
+  },
+  "extension-version": "0.0.0"
 }

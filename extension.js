@@ -1,7 +1,6 @@
 // The module 'vscode' contains the VS Code extensibility API
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-const Mustache = require('mustache');
 
 const Config = require('./src/config');
 
@@ -12,9 +11,6 @@ const ServerCodeProvider = require('./src/serverCodeProvider');
 const statusBar = require('./src/statusBar');
 const McClient = require('./src/sfmc/mcClient');
 
-// let myStatusBarItem;
-Mustache.escape = function(text) {return text;};
-
 let provider;
 let config;
 
@@ -24,7 +20,7 @@ let config;
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	console.log('Congratulations, your extension "ssjs-vsc" is now active!');
+	console.log('"ssjs-vsc" is starting!');
 	
 	statusBar.create(context, config);
 
@@ -37,7 +33,16 @@ async function activate(context) {
 
 	config = new Config(context, __dirname);
 
-	pickCodeProvider();
+	if (!Config.configFileExists()) {
+		console.log(`Setup file does not exists.`);
+		// const config = vscode.workspace.getConfiguration('ssjs-vsc');
+		// config.update('codeProvider', 'None');
+		deactivateProviders({}, statusBar);
+		vscode.window.showInformationMessage(`No setup file found. Run 'Create Config' command to create it.`);
+	} else {
+		config.loadConfig();
+		pickCodeProvider();
+	}
 
 	// update script:
 	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
@@ -187,7 +192,7 @@ const createConfig = async function(update) {
 				} else {
 					// create setup file:
 					// maybe use some confirming dialog??
-					config.createConfigFile(subdomain, clientId, mid, "{{your-publically-accessible-domain}}");
+					config.createConfigFile(subdomain, clientId, mid, "{{your-publicly-accessible-domain}}");
 				}
 				
 				// Open the setup  file:
@@ -197,6 +202,8 @@ const createConfig = async function(update) {
 				);
 				// Show message that hints the create any-file Cloud Page:
 				vscode.window.showInformationMessage(`Setup created: ./vscode/ssjs-setup.json.`);
+
+				pickCodeProvider();
 			})
 			.catch((err) => {
 				console.log('ERR', err);

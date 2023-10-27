@@ -1,11 +1,14 @@
 const vscode = require('vscode');
 const path = require('path');
-const fs = require('fs');
+
+const generator = require('generate-password');
 
 const jsonHandler = require('./auxi/json'); // TODO: change to `json` only
+const file = require('./auxi/file');
 const folder = require('./auxi/folder');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
+const SETUP_FOLDER_NAME = '.vscode';
 const SETUP_FILE_NAME = '.vscode/ssjs-setup.json';
 
 const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
@@ -18,11 +21,6 @@ module.exports = class Config {
 
 		this.config = {};
 		this.sourcePath = sourcePath;
-		
-		this.loadConfig();
-
-		// this.runWatch();
-		this.codeProvider = Config.getCodeProvider();
 	}
 
 	getHostPort() {
@@ -103,7 +101,7 @@ module.exports = class Config {
 	}
 
 	createConfigFile(subdomain, clientId, mid, publicDomain) {
-		const templatePath = path.join(__dirname, SETUP_TEMPLATE);
+		const templatePath = path.join(this.sourcePath, SETUP_TEMPLATE);
 	
 		let configTemplate = jsonHandler.load(templatePath);
 		console.log(configTemplate);
@@ -112,9 +110,14 @@ module.exports = class Config {
 		configTemplate["sfmc-mid"] = mid;
 		configTemplate["public-domain"] = publicDomain;
 		// security:
+		console.log(`createConfigFile():`, configTemplate);
 		configTemplate["proxy-any-file"]["auth-username"] = "user";
 		configTemplate["proxy-any-file"]["auth-password"] = generator.generate({ length: 16, numbers: true });
-		configTemplate["proxy-any-file"]["dev-token"] = uuidv4();
+		configTemplate["proxy-any-file"]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
+
+		configTemplate["asset-provider"]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
+
+		configTemplate["extension-version"] = this.getPackageJsonData().version;
 		
 		const setupFolder = path.join(this.getUserWorkspacePath(), SETUP_FOLDER_NAME);
 		folder.create(setupFolder);
@@ -132,6 +135,8 @@ module.exports = class Config {
 		configTemplate["sfmc-domain"] = subdomain;
 		configTemplate["sfmc-client-id"] = clientId;
 		configTemplate["sfmc-mid"] = mid;
+
+		configTemplate["extension-version"] = this.getPackageJsonData().version;
 		// save:
 		jsonHandler.save(this.getUserConfigPath(), configTemplate);
 		
@@ -177,6 +182,25 @@ module.exports = class Config {
 	}
 	
 	getUserWorkspacePath () {
+		// TODO: improve with e.g.: workspace.workspaceFolders
+		return vscode.workspace.rootPath;
+	}
+
+	static configFileExists() {
+		return file.exists(Config.getUserConfigPathStatic());
+	}
+
+	static getUserConfigPathStatic() {
+		let pth;
+		try {
+			pth = path.join(Config.getUserWorkspacePathStatic(), SETUP_FILE_NAME);
+		} catch (err) {
+			console.log(`PATH NOT SET! Data:`, Config.getUserWorkspacePathStatic(), SETUP_FILE_NAME);
+		}
+		return pth;
+	}
+
+	static getUserWorkspacePathStatic () {
 		// TODO: improve with e.g.: workspace.workspaceFolders
 		return vscode.workspace.rootPath;
 	}

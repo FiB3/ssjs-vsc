@@ -59,6 +59,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				});
 
 				let f = await this.createFolder(folderName, parentFolderName);
+				console.log(`Create Folder:`, f);
 
 				if (!f) {
 					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);

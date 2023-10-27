@@ -18,7 +18,7 @@ Project wide settings is currently done per project via `./vscode/ssjs-setup.jso
 
 ### Project Setup
 
-You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page developmet, you need to pick a Code provider:
+You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to pick a Code provider:
 
 - Asset Provider (default): uses API to deploy your script on demand or save. More secure but requires an Installed Package.
 - Server Provider: uses local server that provides your scripts via HTTPS. Reverse tunneling tool required (NGROK, Expose...). Less secure, but fast. Script runs only when you need it. Installed package needed only for the setup.
@@ -34,7 +34,7 @@ On Asset Provider, the dev asset folder is created on the first script deploymen
 For server provider:
 
 5) `Start` command enables your local environment.
-6) Make your environmet accessible from internet (start your tunneling tool).
+6) Make your environment accessible from internet (start your tunneling tool).
 
 ## Development
 
@@ -46,7 +46,7 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to open
 - `SSJS: Get Dev PATH` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server
 - `SSJS: Stop`: Stop DEV Server
-- `SSJS: Create Config`: Setup your project - must be run before starting server. Have your SFMC Server-to-Servre credentials ready.
+- `SSJS: Create Config`: Setup your project - must be run before starting server. Have your SFMC Server-to-Serve credentials ready.
 - `SSJS: Update API Credentials`: Update API Credentials of your SFMC instance.
 - `SSJS: Deploy Dev Page`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
 
@@ -61,4 +61,4 @@ Alpha release.
 ## Release Notes
 
 ### 0.1.0
-Initial version: Asset and Server providers, some snippets and sytax highlight.
+Initial version: Asset and Server providers, some snippets and syntax highlight.
