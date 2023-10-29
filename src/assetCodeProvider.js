@@ -59,27 +59,21 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				});
 
 				let f = await this.createFolder(folderName, parentFolderName);
-				console.log(`Create Folder:`, f);
 
 				if (!f) {
-					vscode.window.showWarningMessage(`Error when creating Folder for Dev Assets!`);
+					return;
 				} else {
 					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
-					console.log(f);
-					this.config.setAssetFolderId(f.body.id);
+					this.config.setAssetFolderId(f.body.id, `${parentFolderName} > ${folderName}`);
 				}
 			} else {
 				console.log(`Found Folder ID`);
 			}
 
 			if (this.assetExists(filePath)) {
-				let r = await this.updateCode(filePath);
-				// console.log(r);
-				vscode.window.showInformationMessage(`Asset uploaded.`);
+				await this.updateCode(filePath);
 			} else {
-				let r = await this.createNewBlock(filePath);
-				// console.log(r);
-				vscode.window.showInformationMessage(`Asset created.`);
+				await this.createNewBlock(filePath);
 			}
 		} else {
 			console.log('No file is currently open.');
@@ -143,13 +137,15 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				.then((data) => {
 					// console.log('DATA', data);
 					this.saveAssetFile(filePath, data);
+					vscode.window.showInformationMessage(`Asset created.`);
 				})
 				.catch((err) => {
 					console.error('Create Asset ERR:', err);
 					asset.content = '<<script>>';
 					console.debug('Asset data:', asset);
 					// TODO: show error message:
-					vscode.window.showErrorMessage(`Error on creating Dev Asset.`);
+					let m = this.mc.parseRestError(err);
+					vscode.window.showErrorMessage(`Error on creating Asset! \n${m}`);
 				});
 	}
 
@@ -164,22 +160,22 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		// get templated file:
 		let fileText = template.runScriptFile(filePath, this.config, true);
 
-		// 
 		let asset = {
 			content: fileText
 		};
 
 		await this.mc._patch(`/asset/v1/assets/${meta.id}`, asset)
 				.then((data) => {
-					// console.log('DATA', data);
 					this.saveAssetFile(filePath, data);
+					vscode.window.showInformationMessage(`Asset uploaded.`);
 				})
 				.catch((err) => {
 					console.error('Patch Asset ERR:', err);
 					asset.content = '<<script>>';
 					console.debug('Asset data:', asset);
 					// TODO: show error message:
-					vscode.window.showErrorMessage(`Error on updating Dev Asset.`);
+					let m = this.mc.parseRestError(err);
+					vscode.window.showErrorMessage(`Error on updating Dev Asset. \n${m}`);
 				});
 	}
 
@@ -189,14 +185,21 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 * @param {string} folderName 
 	 */
 	async createFolder(folderName, parentFolderName) {
-		// TODO: implement
-		// TODO: update this.folderId
 		let parent = await this.getFolder(parentFolderName);
 		if (!parent) {
+			vscode.window.showWarningMessage(`Parent Folder not found!`);
 			return false;
 		}
 
-		let r = await this.mc.createAssetFolder(folderName, parent.id);
+		let r;
+		try {
+			r = await this.mc.createAssetFolder(folderName, parent.id);
+		} catch (err) {
+			console.log(`Error on creating Asset folder:`, err);
+			let m = this.mc.parseRestError(err);
+			vscode.window.showWarningMessage(`Could not create Content Builder Folder! \n${m}`);
+			return false;
+		} 
 		return r;
 	}
 

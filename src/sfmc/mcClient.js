@@ -136,7 +136,7 @@ module.exports = class McClient {
 						statusMessage: data.res.statusMessage,
 						body: data.body
 					};
-					console.log(r);
+					console.log(`MC._post:`, r);
 
 					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
 						resolve(r);
@@ -204,6 +204,26 @@ module.exports = class McClient {
 					reject(err);
 				});
 		});
+	}
+
+	parseRestError(err) {
+		/* 
+			{ message: 'Category already exists with name: FiBDev under parentId: 460715', errorcode: 118090, documentation: ''}
+			{ message: 'Request contained some validation errors.', errorcode: 10006, documentation: '',
+					validationErrors: [
+						{
+							message: 'Asset names within a category and asset type must be unique. test1.ssjs-ssjs-vsc is already taken. Suggested name: test1.ssjs-ssjs-vsc (1)',
+						errorcode: 118039, documentation: ''}
+					]
+			}
+		*/
+		if (err.body?.validationErrors?.length) {
+			const ve = err.body.validationErrors[0];
+			return ve?.message ? ve.message : JSON.stringify(ve);
+		} else if (err.body?.message) {
+			return err.body.message;
+		}
+		return JSON.stringify(err);
 	}
 
 	static extractSubdomain(fqdn) {

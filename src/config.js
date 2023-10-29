@@ -148,9 +148,10 @@ module.exports = class Config {
 		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
 	}
 
-	setAssetFolderId(id) {
+	setAssetFolderId(id, folderName) {
 		if (!this.config['asset-provider']) this.config['asset-provider'] = {};
 		this.config['asset-provider']['folder-id'] = id;
+		this.config['asset-provider']['folder'] = folderName;
 		// get current setup:
 		jsonHandler.save(this.getUserConfigPath(), this.config);
 		vscode.workspace.openTextDocument(this.getUserConfigPath());
