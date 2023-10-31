@@ -19,10 +19,12 @@
 # in the templates via {{ site.myvariable }}.
 
 title: SSJS Manager
-email: filip.bostik@gmail.com
+author: Filip Bostik
+
 description: >- # this means to ignore newlines until "baseurl:"
-  Dev tools, syntax highlighting and prettifier for SSJS files.
+  Dev tools for SFMC Server Side Javascript
 github_username:  FiB3
+linkedin_username: filipbostik
 
 # Build settings
 theme: minima

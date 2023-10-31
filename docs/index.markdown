@@ -4,3 +4,7 @@
 
 layout: home
 ---
+
+Visual Studio Code extension to streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.
+
+Basically your SSJS IDE for SFMC.

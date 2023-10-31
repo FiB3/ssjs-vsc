@@ -4,15 +4,14 @@ title: About
 permalink: /about/
 ---
 
-This is the base Jekyll theme. You can find out more info about customizing your Jekyll theme, as well as basic Jekyll usage documentation at [jekyllrb.com](https://jekyllrb.com/)
+This extension streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.
+From syntax highlight to easier testing  and deployment.
 
-You can find the source code for Minima at GitHub:
-[jekyll][jekyll-organization] /
-[minima](https://github.com/jekyll/minima)
+Long story short... make VSCode into SSJS IDE!
 
-You can find the source code for Jekyll at GitHub:
-[jekyll][jekyll-organization] /
-[jekyll](https://github.com/jekyll/jekyll)
+### Deployment options
 
+This extension allows you to develop the code in 2 main ways:
 
-[jekyll-organization]: https://github.com/jekyll
+- **Asset Provider** (default): uses API to deploy your script on demand or save. More secure but requires an Installed Package.
+- **Server Provider**: uses local server that provides your scripts via HTTPS. Reverse tunneling tool required (NGROK, Expose...). Less secure, but fast. Script runs only when you need it. Installed package needed only for the setup.
