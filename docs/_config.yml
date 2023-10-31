@@ -22,8 +22,6 @@ title: SSJS Manager
 email: filip.bostik@gmail.com
 description: >- # this means to ignore newlines until "baseurl:"
   Dev tools, syntax highlighting and prettifier for SSJS files.
-baseurl: "" # the subpath of your site, e.g. /blog
-url: "" # the base hostname & protocol for your site, e.g. http://example.com
 github_username:  FiB3
 
 # Build settings
