@@ -26,7 +26,7 @@ description: >- # this means to ignore newlines until "baseurl:"
 github_username:  FiB3
 linkedin_username: filipbostik
 
-BASE_PATH : /ssjs-vsc
+baseurl : /ssjs-vsc
 
 # Build settings
 theme: minima
