@@ -3,7 +3,10 @@
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
   "version": "0.1.0",
-  "publisher": "Filip Bostik",
+  "publisher": "FiB",
+	"author": {
+		"name": "filipbostik"
+	},
   "engines": {
     "vscode": "^1.77.0"
   },
