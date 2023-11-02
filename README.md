@@ -9,6 +9,9 @@ From syntax highlight to easier testing  and deployment.
 - Syntax highlight.
 - SSJS Snippets.
 
+[More information here.](https://fib3.github.io/ssjs-vsc/)
+
+
 ## Settings
 
 ### Extension Settings
@@ -18,27 +21,28 @@ Project wide settings is currently done per project via `./vscode/ssjs-setup.jso
 
 ### Project Setup
 
-You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to pick a Code provider:
+You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to set a Code Provider.
 
-- Asset Provider (default): uses API to deploy your script on demand or save. More secure but requires an Installed Package.
-- Server Provider: uses local server that provides your scripts via HTTPS. Reverse tunneling tool required (NGROK, Expose...). Less secure, but fast. Script runs only when you need it. Installed package needed only for the setup.
-- None.
+- Asset Provider (default): uses API to deploy your script on demand or save.
+- Server Provider: uses local web server that provides your scripts via HTTPS. Reverse tunneling tool required (NGROK, Expose...).
+- None: disable code integration.
 
-1) Open your project folder.
-2) Run `Create Config` command to create your setup file and store API credentials (these are kept safe in Keychain)
-3) Finish setting up your setup file.
-4) Run `Deploy Dev Page` command that will help you to deploy your Dev environment in Cloud Page.
+**Setup Cheatsheet:**
+1) Run `Create Config` command to create your setup file (and store SFMC Credentials safely).
+2) Finish setting up your setup file.
+3) Run `Deploy Dev Page` command that will help you to deploy your Dev environment in Cloud Page.
 
 On Asset Provider, the dev asset folder is created on the first script deployment.
 
 For server provider:
 
-5) `Start` command enables your local environment.
-6) Make your environment accessible from internet (start your tunneling tool).
+1) `Start` command enables your local environment.
+2) Make your environment accessible from internet (start your tunneling tool).
 
 ## Development
 
-Once your SSJS is Active and Cloud Page published, all you need to do is to open it. Open your Cloud Page (Resources will work too) and append query parameters you get by running `Get Dev PATH` command.
+Once your SSJS is Active and Cloud Page published, all you need to do is to open it. Open your Cloud Page or Text Resources.  
+Then append query parameters you get by running `Get Dev PATH` command.
 
 ## Commands
 
@@ -46,7 +50,7 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to open
 - `SSJS: Get Dev PATH` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server
 - `SSJS: Stop`: Stop DEV Server
-- `SSJS: Create Config`: Setup your project - must be run before starting server. Have your SFMC Server-to-Serve credentials ready.
+- `SSJS: Create Config`: Setup your project - must be run before starting server.
 - `SSJS: Update API Credentials`: Update API Credentials of your SFMC instance.
 - `SSJS: Deploy Dev Page`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
 
@@ -56,9 +60,5 @@ Alpha release.
 
 - Format Document upcoming.
 - No check of Content Folder existence.
-- Generic error message on API calls.
-
-## Release Notes
-
-### 0.1.0
-Initial version: Asset and Server providers, some snippets and syntax highlight.
+- Some API failures won't return the problem.
+- Asset provider automatically deploys any `.ssjs`, `.html`, `.amp` file.

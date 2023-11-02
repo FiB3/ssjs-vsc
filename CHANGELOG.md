@@ -4,6 +4,13 @@ All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
-## [Unreleased]
+## [0.1.0] - 2023-11-02
 
-- Initial release
+Initial release.
+
+### Added
+- SSJS Language,
+- Asset and Server providers,
+- Key storage in OS keychain,
+- syntax highlight,
+- some snippet.
