@@ -25,8 +25,10 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	async init() {
 		this.statusBar.setEnabled();
 		let c = await this.config.getSfmcInstanceData();
+		if (!c) {
+			vscode.window.showWarningMessage(`We could not obtain your API Client Secret. If you have set your credentials already, try updating VSCode and the extension. You can also try disable and enable the extension.`);
+		}
 		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
-
 	}
 
 	async uploadScript() {

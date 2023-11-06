@@ -1,7 +1,7 @@
 # SSJS Manager
 
-This extension streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.
-From syntax highlight to easier testing  and deployment.
+Simplifies & speeds up Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.
+From syntax highlight to rapid testing and deployment.
 
 ## Features
 
@@ -10,7 +10,6 @@ From syntax highlight to easier testing  and deployment.
 - SSJS Snippets.
 
 [More information here.](https://fib3.github.io/ssjs-vsc/)
-
 
 ## Settings
 
@@ -56,9 +55,11 @@ Then append query parameters you get by running `Get Dev PATH` command.
 
 ## Known Issues
 
-Alpha release.
+Alpha release - some errors may appear.  
+In such case, let me know on my GitHub! (issues page).
 
 - Format Document upcoming.
 - No check of Content Folder existence.
 - Some API failures won't return the problem.
 - Asset provider automatically deploys any `.ssjs`, `.html`, `.amp` file.
+- Client Secret not loading when VSCode is not up to date. Update your VSCode to fix.

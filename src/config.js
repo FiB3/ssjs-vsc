@@ -86,6 +86,10 @@ module.exports = class Config {
 		const clientId = config['sfmc-client-id'];
 		const mid = config['sfmc-mid'];
 		let clientSecret = await this.context.secrets.get(`ssjs-vsc.${clientId}`);
+		if (!clientSecret) {
+			console.log(`Loading secret failed for: "${`ssjs-vsc.${clientId}`}".`);
+			return false;
+		}
 
 		return {
 			subdomain,

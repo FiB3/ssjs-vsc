@@ -5,3 +5,7 @@ node_modules
 *.vsix
 
 TODO.md
+
+test.ssjs
+
+versions/
