@@ -9,7 +9,10 @@ From syntax highlight to rapid testing and deployment.
 - Syntax highlight.
 - SSJS Snippets.
 
-[More information here.](https://fib3.github.io/ssjs-vsc/)
+![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
+
+### [Complete Guide](https://fib3.github.io/ssjs-vsc/)
+[Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
 
 ## Settings
 
@@ -27,7 +30,7 @@ You can start using this extension for basic features right away. However in ord
 - None: disable code integration.
 
 **Setup Cheatsheet:**
-1) Run `Create Config` command to create your setup file (and store SFMC Credentials safely).
+1) Run `Create Config` command withing VSCode to create your setup file (and store SFMC Credentials safely).
 2) Finish setting up your setup file.
 3) Run `Deploy Dev Page` command that will help you to deploy your Dev environment in Cloud Page.
 
@@ -44,6 +47,8 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to open
 Then append query parameters you get by running `Get Dev PATH` command.
 
 ## Commands
+
+To be run using `Ctrl` + `Shift` + `P`.
 
 - `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically.
 - `SSJS: Get Dev PATH` - get query parameters to run your script.

@@ -37,11 +37,11 @@ module.exports = class Config {
 
 	getPublicPath() {
 		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
-		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', this.getUserWorkspacePath(), ',', publicPath);
+		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
 		
 		publicPath = publicPath.startsWith('\/')
 				? publicPath
-				: path.join(this.getUserWorkspacePath(), publicPath);
+				: path.join(Config.getUserWorkspacePath(), publicPath);
 		
 		console.log(`PUBLIC PATH: "${publicPath}".`);
 		
@@ -123,17 +123,17 @@ module.exports = class Config {
 
 		configTemplate["extension-version"] = this.getPackageJsonData().version;
 		
-		const setupFolder = path.join(this.getUserWorkspacePath(), SETUP_FOLDER_NAME);
+		const setupFolder = path.join(Config.getUserWorkspacePath(), SETUP_FOLDER_NAME);
 		folder.create(setupFolder);
 	
-		jsonHandler.save(this.getUserConfigPath(), configTemplate);
+		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
 		
-		vscode.workspace.openTextDocument(this.getUserConfigPath());
+		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 
 	updateConfigFile(subdomain, clientId, mid) {
 		// get current setup:
-		let configTemplate = jsonHandler.load(this.getUserConfigPath()); // TODO: handle non-existing file
+		let configTemplate = jsonHandler.load(Config.getUserConfigPath()); // TODO: handle non-existing file
 		console.log(configTemplate);
 		// update values:
 		configTemplate["sfmc-domain"] = subdomain;
@@ -142,9 +142,9 @@ module.exports = class Config {
 
 		configTemplate["extension-version"] = this.getPackageJsonData().version;
 		// save:
-		jsonHandler.save(this.getUserConfigPath(), configTemplate);
+		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
 		
-		vscode.workspace.openTextDocument(this.getUserConfigPath());
+		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 
 	getAssetFolderId() {
@@ -157,12 +157,12 @@ module.exports = class Config {
 		this.config['asset-provider']['folder-id'] = id;
 		this.config['asset-provider']['folder'] = folderName;
 		// get current setup:
-		jsonHandler.save(this.getUserConfigPath(), this.config);
-		vscode.workspace.openTextDocument(this.getUserConfigPath());
+		jsonHandler.save(Config.getUserConfigPath(), this.config);
+		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 	
 	loadConfig() {
-		const configPath = this.getUserConfigPath();
+		const configPath = Config.getUserConfigPath();
 		const config = jsonHandler.load(configPath);
 		// TODO: error if config is not yet deployed!
 		if (config.error) {
@@ -175,37 +175,22 @@ module.exports = class Config {
 
 		return config;
 	}
-	
-	getUserConfigPath() {
-		let pth;
-		try {
-			pth = path.join(this.getUserWorkspacePath(), SETUP_FILE_NAME);
-		} catch (err) {
-			console.log(`PATH NOT SET! Data:`, this.getUserWorkspacePath(), SETUP_FILE_NAME);
-		}
-		return pth;
-	}
-	
-	getUserWorkspacePath () {
-		// TODO: improve with e.g.: workspace.workspaceFolders
-		return vscode.workspace.rootPath;
-	}
 
 	static configFileExists() {
-		return file.exists(Config.getUserConfigPathStatic());
+		return file.exists(Config.getUserConfigPath());
 	}
 
-	static getUserConfigPathStatic() {
+	static getUserConfigPath() {
 		let pth;
 		try {
-			pth = path.join(Config.getUserWorkspacePathStatic(), SETUP_FILE_NAME);
+			pth = path.join(Config.getUserWorkspacePath(), SETUP_FILE_NAME);
 		} catch (err) {
-			console.log(`PATH NOT SET! Data:`, Config.getUserWorkspacePathStatic(), SETUP_FILE_NAME);
+			console.log(`PATH NOT SET! Data:`, Config.getUserWorkspacePath(), SETUP_FILE_NAME);
 		}
 		return pth;
 	}
 
-	static getUserWorkspacePathStatic () {
+	static getUserWorkspacePath() {
 		// TODO: improve with e.g.: workspace.workspaceFolders
 		return vscode.workspace.rootPath;
 	}

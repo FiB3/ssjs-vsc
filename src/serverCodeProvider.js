@@ -54,7 +54,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		});
 	
 		// save into active editor (root) and open:
-		let deployPath = path.join(this.config.getUserWorkspacePath(), DEPLOYED_NAME);
+		let deployPath = path.join(Config.getUserWorkspacePath(), DEPLOYED_NAME);
 		file.save(deployPath, deployScript);
 		vscode.workspace.openTextDocument(deployPath).then((doc) =>
 			vscode.window.showTextDocument(doc, {
@@ -95,7 +95,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 			const filePath = fileUri.fsPath;
 			// TODO: file type check:
 			if (USABLE_EXT.includes(path.extname(filePath))) {
-				let pth = path.relative(this.config.getUserWorkspacePath(), filePath);
+				let pth = path.relative(Config.getUserWorkspacePath(), filePath);
 
 				let tkn = this.config.getDevPageToken();
 				let u = tkn ? `?token=${tkn}&path=${pth}` : `?path=${pth}`;

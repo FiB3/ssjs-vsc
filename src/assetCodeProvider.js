@@ -96,7 +96,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		});
 
 		// save into active editor (root) and open:
-		let deployPath = path.join(this.config.getUserWorkspacePath(), DEPLOYED_NAME);
+		let deployPath = path.join(Config.getUserWorkspacePath(), DEPLOYED_NAME);
 		file.save(deployPath, deployScript);
 		vscode.workspace.openTextDocument(deployPath).then((doc) =>
 			vscode.window.showTextDocument(doc, {

@@ -26,11 +26,12 @@
     "url": "https://github.com/FiB3/ssjs-vsc"
   },
   "icon": "images/logo.png",
-  "license": "to be defined",
+  "license": "MIT",
   "activationEvents": [
     "onCommand:expressServer.start",
     "onLanguage:ssjs",
-    "onLanguage:AMPscript"
+    "onLanguage:AMPscript",
+		"onLanguage:ampscript"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -145,7 +146,6 @@
     "@vscode/test-electron": "^2.3.0",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
-    "mocha": "^10.2.0",
-    "typescript": "^4.9.5"
+    "mocha": "^10.2.0"
   }
 }

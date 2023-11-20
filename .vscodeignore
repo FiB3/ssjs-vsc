@@ -13,4 +13,6 @@ vsc-extension-quickstart.md
 *.vsix
 TODO.md
 
+images/*.gif
+
 # node_modules
