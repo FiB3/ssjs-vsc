@@ -9,6 +9,8 @@ From syntax highlight to easier testing  and deployment.
 
 Long story short... make VSCode into SSJS IDE!
 
+![Usage of the Extension]({{ site.baseurl }}/assets/img/ssjs-vsc-demo1.1.gif)
+
 #### Deployment options
 
 This extension allows you to develop the code in 2 main ways:

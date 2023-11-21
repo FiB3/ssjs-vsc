@@ -15,7 +15,8 @@ Like syntax highlight, code snippets (and in future document formatting) is avai
 
 **To develop:**
 
-Asset provider can deploy any file automatically or by `SSJS: Upload Script` command (Content Builder folder is set on first file deployment). In the future release, the file will have to be initially deployed by `Upload Script` command before auto-deploy will work.
+Asset provider can deploy any file automatically or by `SSJS: Upload Script` command (Content Builder folder is set on first file deployment).
+Since `v0.1.2`, the file has to be initially deployed by `Upload Script` command before auto-deploy will work.
 
 Server provider needs to be on by running `SSJS: Start` and stopped by `SSJS: Stop` command.
 
