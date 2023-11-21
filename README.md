@@ -50,7 +50,7 @@ Then append query parameters you get by running `Get Dev PATH` command.
 
 To be run using `Ctrl` + `Shift` + `P`.
 
-- `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically.
+- `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically, but first upload needs to be done manually.
 - `SSJS: Get Dev PATH` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server
 - `SSJS: Stop`: Stop DEV Server
