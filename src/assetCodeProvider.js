@@ -31,7 +31,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
 	}
 
-	async uploadScript() {
+	async uploadScript(autoUpload) {
 		const activeTextEditor = vscode.window.activeTextEditor;
 
 		if (activeTextEditor) {
@@ -41,7 +41,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			const filePath = fileUri.fsPath;
 			// TODO: file type check:
 			if (!USABLE_EXT.includes(path.extname(filePath))) {
-				vscode.window.showWarningMessage(`Extension ${path.extname(filePath)} is not allowed for deployment!`);
+				if (!autoUpload) {
+					vscode.window.showWarningMessage(`File type ${path.extname(filePath)} is not allowed for deployment!`);
+				}
 				return;
 			}
 			// if not existing, run dialog:
@@ -74,8 +76,10 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 			if (this.assetExists(filePath)) {
 				await this.updateCode(filePath);
-			} else {
+			} else if (!autoUpload) {
 				await this.createNewBlock(filePath);
+			} else {
+				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
 		} else {
 			console.log('No file is currently open.');

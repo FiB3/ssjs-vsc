@@ -79,7 +79,7 @@ async function activate(context) {
 		if (Config.isConfigFile(textDocument.uri.fsPath)) {
 			config.loadConfig();
 		} else if (Config.isAutoSaveEnabled()) {
-			await provider.uploadScript();
+			await provider.uploadScript(true);
 		}
 	});
 
@@ -172,7 +172,7 @@ const createConfig = async function(update) {
 
 	const mid = await vscode.window.showInputBox({
 		title: title,
-		prompt: `Business Unit MID (optional):`,
+		prompt: `Business Unit MID (if needed):`,
 		ignoreFocusOut: true
 	});
 	
