@@ -25,6 +25,8 @@ Project wide settings is currently done per project via `./vscode/ssjs-setup.jso
 
 You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to set a Code Provider.
 
+You can see a guide using `SSJS: Show Setup Walkthrough` command for the default functionality. It takes just five minutes.
+
 - Asset Provider (default): uses API to deploy your script on demand or save.
 - Server Provider: uses local web server that provides your scripts via HTTPS. Reverse tunneling tool required (NGROK, Expose...).
 - None: disable code integration.
@@ -50,6 +52,7 @@ Then append query parameters you get by running `Get Dev PATH` command.
 
 To be run using `Ctrl` + `Shift` + `P`.
 
+- `SSJS: Show Setup Walkthrough` - Shows a guide on how to setup the extension.
 - `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically, but first upload needs to be done manually.
 - `SSJS: Get Dev PATH` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server

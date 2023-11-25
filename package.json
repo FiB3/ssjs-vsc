@@ -63,6 +63,10 @@
       {
         "command": "ssjs-vsc.getUrl",
         "title": "SSJS: Get Dev PATH"
+      },
+      {
+        "command": "ssjs-vsc.showWalkthrough",
+        "title": "SSJS: Show Setup Walkthrough"
       }
     ],
     "configuration": {
@@ -86,6 +90,75 @@
         }
       }
     },
+    "walkthroughs": [
+      {
+        "id": "setup-ssjs-manager",
+        "title": "Setup SSJS Manager",
+        "description": "Quick guide on initial setup of the SSJS Manager using default Asset Code Provider.",
+        "steps": [
+          {
+            "id": "get-installed-package",
+            "title": "Get Your Installed Package",
+            "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						}
+          },
+          {
+            "id": "run-create-config",
+            "title": "Create Config",
+            "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						},
+						"completionEvents": [
+							"onCommand:ssjs-vsc.create-config"
+						]
+          },
+          {
+            "id": "finish-ssjs-setup",
+            "title": "Finish Setup file",
+            "description": "Finish the `ssjs-setup.json` file with missing information. Don't forget to save it.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						}
+          },
+          {
+            "id": "run-deploy-package",
+            "title": "Deploy Package",
+            "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives your additional details on using it.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						},
+						"completionEvents": [
+							"onCommand:ssjs-vsc.deploy-any-path"
+						]
+          },
+          {
+            "id": "set-cloud-page",
+            "title": "Create Development Cloud Page",
+            "description": "Create a new Cloud Page or Text Resource (based on your needs) in SFMC. Copy the code from the previously generated file into it and publish it. Keep the published page/file url.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						}
+          },
+          {
+            "id": "develop-ssjs",
+            "title": "Develop",
+            "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. Run in deployed Cloud Page or Resource. You can get the page parameters by runing `SSJS: Get Dev PATH` command.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "run create config command"
+						}
+          }
+        ]
+      }
+    ],
     "languages": [
       {
         "id": "ssjs",

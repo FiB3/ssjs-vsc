@@ -75,6 +75,11 @@ async function activate(context) {
 		await provider.getDevUrl();
 	});
 
+	let showGuide = vscode.commands.registerCommand('ssjs-vsc.showWalkthrough', ()=>{
+		// vscode.commands.executeCommand('workbench.action.openWalkthrough', 'FiB.ssjs-vsc#xxx', false);
+		vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'FiB.ssjs-vsc#setup-ssjs-manager' }, false);
+	});
+
 	let onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		if (Config.isConfigFile(textDocument.uri.fsPath)) {
 			config.loadConfig();
@@ -107,6 +112,7 @@ async function activate(context) {
 	context.subscriptions.push(updateSetup);
 	context.subscriptions.push(deployAnyPath);
 	context.subscriptions.push(getScriptUrl);
+	context.subscriptions.push(showGuide);
 }
 
 const activateAssetProvider = async function() {
