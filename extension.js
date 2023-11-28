@@ -178,7 +178,7 @@ const createConfig = async function(update) {
 
 	const mid = await vscode.window.showInputBox({
 		title: title,
-		prompt: `Business Unit MID (if needed):`,
+		prompt: `Business Unit MID:`,
 		ignoreFocusOut: true
 	});
 	

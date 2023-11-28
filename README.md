@@ -23,7 +23,7 @@ Project wide settings is currently done per project via `./vscode/ssjs-setup.jso
 
 ### Project Setup
 
-You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to set a Code Provider.
+You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you need to set Code Provider. Code Provider is a way in which this extension provides code to SFMC, so it can be run from there.
 
 You can see a guide using `SSJS: Show Setup Walkthrough` command for the default functionality. It takes just five minutes.
 
@@ -36,7 +36,7 @@ You can see a guide using `SSJS: Show Setup Walkthrough` command for the default
 2) Finish setting up your setup file.
 3) Run `Deploy Dev Page` command that will help you to deploy your Dev environment in Cloud Page.
 
-On Asset Provider, the dev asset folder is created on the first script deployment.
+On Asset Provider, the dev asset folder is created on the first script deployment. Run `Upload Script` command to deploy any ssjs, amp or html file.
 
 For server provider:
 
@@ -54,7 +54,7 @@ To be run using `Ctrl` + `Shift` + `P`.
 
 - `SSJS: Show Setup Walkthrough` - Shows a guide on how to setup the extension.
 - `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically, but first upload needs to be done manually.
-- `SSJS: Get Dev PATH` - get query parameters to run your script.
+- `SSJS: Get Dev Path` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server
 - `SSJS: Stop`: Stop DEV Server
 - `SSJS: Create Config`: Setup your project - must be run before starting server.
@@ -69,5 +69,4 @@ In such case, let me know on my GitHub! (issues page).
 - Format Document upcoming.
 - No check of Content Folder existence.
 - Some API failures won't return the problem.
-- Asset provider automatically deploys any `.ssjs`, `.html`, `.amp` file.
 - Client Secret not loading when VSCode is not up to date. Update your VSCode to fix.

@@ -2,7 +2,7 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "publisher": "FiB",
 	"author": {
 		"name": "filipbostik"
@@ -58,11 +58,11 @@
       },
       {
         "command": "ssjs-vsc.deploy-any-path",
-        "title": "SSJS: Deploy Dev Page"
+        "title": "SSJS: Create Dev Page Code"
       },
       {
         "command": "ssjs-vsc.getUrl",
-        "title": "SSJS: Get Dev PATH"
+        "title": "SSJS: Get Dev Path"
       },
       {
         "command": "ssjs-vsc.showWalkthrough",
@@ -99,19 +99,19 @@
           {
             "id": "get-installed-package",
             "title": "Get Your Installed Package",
-            "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets.",
+            "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets. Don't forget to get the MID of the BU that you want to connect to.",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
 						}
           },
           {
             "id": "run-create-config",
             "title": "Create Config",
-            "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection.",
+            "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
 						},
 						"completionEvents": [
 							"onCommand:ssjs-vsc.create-config"
@@ -123,16 +123,16 @@
             "description": "Finish the `ssjs-setup.json` file with missing information. Don't forget to save it.",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
 						}
           },
           {
             "id": "run-deploy-package",
             "title": "Deploy Package",
-            "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives your additional details on using it.",
+            "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives you additional details on using it.",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
 						},
 						"completionEvents": [
 							"onCommand:ssjs-vsc.deploy-any-path"
@@ -144,16 +144,25 @@
             "description": "Create a new Cloud Page or Text Resource (based on your needs) in SFMC. Copy the code from the previously generated file into it and publish it. Keep the published page/file url.",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
 						}
           },
           {
             "id": "develop-ssjs",
             "title": "Develop",
-            "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. Run in deployed Cloud Page or Resource. You can get the page parameters by runing `SSJS: Get Dev PATH` command.",
+            "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. First deployment is done using the `SSJS: Upload Script` command. Following deploys are automatically done on save.",
             "media": {
 							"image": "images/ssjs-vsc-demo1.2.gif",
-							"altText": "run create config command"
+							"altText": "demo of the extension"
+						}
+          },
+          {
+            "id": "run-script",
+            "title": "Run the code",
+            "description": "Run in your Cloud Page or Resource - one page for all scripts! You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.",
+            "media": {
+							"image": "images/ssjs-vsc-demo1.2.gif",
+							"altText": "demo of the extension"
 						}
           }
         ]
