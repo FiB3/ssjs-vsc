@@ -13,10 +13,12 @@ Long story short... make VSCode into SSJS IDE!
 
 #### Deployment options
 
-This extension allows you to develop the code in 2 main ways:
+This extension allows you to develop SSJS (or AMPscript) in accelerated pace, using one of the Code Providers and a Cloud Page (or Code Resource).
+
+Code Providers represent the way your code is made accessible to SFMC - either as code snippet (asset) or via simple web server running in the extension.
 
 **Asset Provider**  
-Uses API to deploy your script on demand or save. This is the default.
+Uses API to deploy your script via API as a Content Builder Code Snippet. Either on demand or on save. This is the default.
 
 Asset Provider is the more secure option.
 However, it is slightly slower, and requires an Installed Package. Deployed scripts are always available.

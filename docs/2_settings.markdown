@@ -10,9 +10,13 @@ Extension allows you to do some overall extension settings:
 
 **Code Provider:**
 
+Sets how to link your VSCode to SFMC?
+
 - None: Code is not provided from VSCode to SFMC.
-- Asset: Code is provided using Content Block. Slower but more secure.
+- Asset: Code is provided using Content Block. Slower but more secure. Default!
 - Server: Code is server using local sever. Faster, but requires reverse tunneling.
+
+More on [Code Providers]({{ site.baseurl }}/extension/#deployment-options).
 
 <img src="{{ site.baseurl }}/assets/img/preferences.png" alt="Preferences">
 
@@ -26,7 +30,7 @@ Create it either by `SSJS: Create Config` command (CMD/CTRL + Shift + P). You ca
 
 API Client Secret is always stored in a secure way (in OS Key management).
 
-Example:
+**Example:**
 
 ```json
 {
