@@ -59,7 +59,7 @@ To be run using `Ctrl` + `Shift` + `P`.
 - `SSJS: Stop`: Stop DEV Server
 - `SSJS: Create Config`: Setup your project - must be run before starting server.
 - `SSJS: Update API Credentials`: Update API Credentials of your SFMC instance.
-- `SSJS: Deploy Dev Page`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
+- `SSJS: Create Dev Page Code`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
 
 ## Known Issues
 

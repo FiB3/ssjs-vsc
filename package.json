@@ -101,7 +101,7 @@
             "title": "Get Your Installed Package",
             "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets. Don't forget to get the MID of the BU that you want to connect to.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						}
           },
@@ -110,7 +110,7 @@
             "title": "Create Config",
             "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						},
 						"completionEvents": [
@@ -122,7 +122,7 @@
             "title": "Finish Setup file",
             "description": "Finish the `ssjs-setup.json` file with missing information. Don't forget to save it.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						}
           },
@@ -131,7 +131,7 @@
             "title": "Deploy Package",
             "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives you additional details on using it.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						},
 						"completionEvents": [
@@ -143,7 +143,7 @@
             "title": "Create Development Cloud Page",
             "description": "Create a new Cloud Page or Text Resource (based on your needs) in SFMC. Copy the code from the previously generated file into it and publish it. Keep the published page/file url.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						}
           },
@@ -152,7 +152,7 @@
             "title": "Develop",
             "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. First deployment is done using the `SSJS: Upload Script` command. Following deploys are automatically done on save.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						}
           },
@@ -161,7 +161,7 @@
             "title": "Run the code",
             "description": "Run in your Cloud Page or Resource - one page for all scripts! You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.",
             "media": {
-							"image": "images/ssjs-vsc-demo1.2.gif",
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
 							"altText": "demo of the extension"
 						}
           }
