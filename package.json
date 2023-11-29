@@ -87,6 +87,13 @@
           "type": "boolean",
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
+        },
+        "ssjs-vsc.templatingTags": {
+          "type": "string",
+          "default": "{{,}}",
+          "pattern": "^[{}%<>\\[\\]]{2,3},[{}%<>\\[\\]]{2,3}$",
+          "patternErrorMessage": "2 or 3 characters, only: `{}%<>[]` are allowed. Separate using a comma. No spaces.",
+          "description": "Set Templating Tags for Mustache. Opening and closing tag separated with a single comma."
         }
       }
     },

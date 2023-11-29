@@ -20,8 +20,10 @@ module.exports = class BaseCodeProvider {
 		this._checkCommand();		
 	}
 
-	async uploadScript() {
-		this._checkCommand();
+	async uploadScript(autoUpload) {
+		if (!autoUpload) {
+			this._checkCommand();
+		}
 	}
 
 	async startServer() {

@@ -228,6 +228,11 @@ module.exports = class Config {
 		return vscode.workspace.getConfiguration('ssjs-vsc').get('autoSave') ?? false;
 	}
 
+	static getTemplatingTags() {
+		let stp = vscode.workspace.getConfiguration('ssjs-vsc').get('templatingTags') ?? '{{,}}';
+		return stp.split(',');
+	}
+
 	getPackageJsonData() {
 		const packageJsonFile = path.join(this.sourcePath, './package.json');
 		let packageJson = jsonHandler.load(packageJsonFile);

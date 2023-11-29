@@ -2,6 +2,7 @@ const Mustache = require('mustache');
 const moment = require('moment');
 
 const textFile = require('./auxi/file');
+const Config = require('./config');
 
 // no HTML escaping:
 Mustache.escape = function(text) {return text;};
@@ -33,6 +34,7 @@ exports.template = {
 	 */
 	runScriptFile: function(pth, config, isDev = true) {
 		const htmlTemplate = textFile.load(pth);
+		const customTags = Config.getTemplatingTags();
 
 		const tokens = config.getTokens(isDev);
 
@@ -41,7 +43,7 @@ exports.template = {
 			// , VERSION: this.getSsjsVersion(config.devTokens.VERSION)
 		};
 			
-		var html = Mustache.render(htmlTemplate, view);
+		var html = Mustache.render(htmlTemplate, view, {}, customTags);
 		return html;
 	},
 
