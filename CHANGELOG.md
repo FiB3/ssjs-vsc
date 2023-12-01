@@ -4,6 +4,12 @@ All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
 Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
 
+## [0.1.X] - 2023-11-28
+
+### Added
+- New settings to set templating tag.
+- fixes.
+
 ## [0.1.3] - 2023-11-28
 
 ### Added
