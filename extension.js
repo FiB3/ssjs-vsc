@@ -2,6 +2,8 @@
 // Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
+const beautifier = require("beauty-amp-core2");
+
 const Config = require('./src/config');
 
 const BaseCodeProvider = require('./src/baseCodeProvider');
@@ -98,8 +100,33 @@ async function activate(context) {
 		 * @return A set of text edits or a thenable that resolves to such. The lack of a result can be
 		 * signaled by returning `undefined`, `null`, or an empty array.
 		 */
-		provideDocumentFormattingEdits(document, formattingOptions) {
+		async provideDocumentFormattingEdits(document, formattingOptions) {
 			console.log("SSJS Beautifying running.");
+			try {
+				const editor = vscode.window.activeTextEditor;
+				const code = editor.document.getText();
+				
+				let formattedCode;
+				beautifier.setup(undefined, formattingOptions, { loggerOn: false });
+
+				try {
+					formattedCode = await beautifier.beautify(code);
+				} catch(err) {
+					console.log(`Error on Beautify:`, err);
+					vscode.window.showErrorMessage(`Error on formatting. Please, let us know in our GitHub issues.`);
+				}
+
+				editor.edit((editBuilder) => {
+					const documentStart = new vscode.Position(0, 0);
+					const documentEnd = editor.document.lineAt(editor.document.lineCount - 1).range.end;
+					const documentRange = new vscode.Range(documentStart, documentEnd);
+	
+					editBuilder.replace(documentRange, formattedCode);
+				});
+				console.log('DONE FORMAT');
+			} catch(e) {
+				console.log(`ERR:`, e);
+			}
 		},
 	});
 

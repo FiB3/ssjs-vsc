@@ -2,11 +2,11 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.1.3",
+  "version": "0.2.1",
   "publisher": "FiB",
-	"author": {
-		"name": "filipbostik"
-	},
+  "author": {
+    "name": "filipbostik"
+  },
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -16,10 +16,21 @@
     "Other"
   ],
   "keywords": [
-    "ssjs", "server-side javascript",
-    "ampscript", "amp",
-    "salesforce", "marketing cloud", "salesforce marketing cloud", "exacttarget", "sfmc", "mc",
-    "content builder", "cloud pages", "landing pages", "code resources", "text resource"
+    "ssjs",
+    "server-side javascript",
+    "ampscript",
+    "amp",
+    "salesforce",
+    "marketing cloud",
+    "salesforce marketing cloud",
+    "exacttarget",
+    "sfmc",
+    "mc",
+    "content builder",
+    "cloud pages",
+    "landing pages",
+    "code resources",
+    "text resource"
   ],
   "repository": {
     "type": "git",
@@ -31,7 +42,8 @@
     "onCommand:expressServer.start",
     "onLanguage:ssjs",
     "onLanguage:AMPscript",
-		"onLanguage:ampscript"
+    "onLanguage:ampscript",
+    "onLanguage:html"
   ],
   "main": "./extension.js",
   "contributes": {
@@ -75,7 +87,11 @@
         "ssjs-vsc.codeProvider": {
           "type": "string",
           "default": "Asset",
-          "enum": [ "None", "Asset", "Server" ],
+          "enum": [
+            "None",
+            "Asset",
+            "Server"
+          ],
           "description": "Specifies the folder path containing the tsserver and lib*.d.ts files to use.",
           "enumDescriptions": [
             "Code is not provided from VSCode to SFMC.",
@@ -108,69 +124,69 @@
             "title": "Get Your Installed Package",
             "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets. Don't forget to get the MID of the BU that you want to connect to.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						}
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            }
           },
           {
             "id": "run-create-config",
             "title": "Create Config",
             "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						},
-						"completionEvents": [
-							"onCommand:ssjs-vsc.create-config"
-						]
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            },
+            "completionEvents": [
+              "onCommand:ssjs-vsc.create-config"
+            ]
           },
           {
             "id": "finish-ssjs-setup",
             "title": "Finish Setup file",
             "description": "Finish the `ssjs-setup.json` file with missing information. Don't forget to save it.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						}
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            }
           },
           {
             "id": "run-deploy-package",
             "title": "Deploy Package",
             "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives you additional details on using it.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						},
-						"completionEvents": [
-							"onCommand:ssjs-vsc.deploy-any-path"
-						]
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            },
+            "completionEvents": [
+              "onCommand:ssjs-vsc.deploy-any-path"
+            ]
           },
           {
             "id": "set-cloud-page",
             "title": "Create Development Cloud Page",
             "description": "Create a new Cloud Page or Text Resource (based on your needs) in SFMC. Copy the code from the previously generated file into it and publish it. Keep the published page/file url.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						}
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            }
           },
           {
             "id": "develop-ssjs",
             "title": "Develop",
             "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. First deployment is done using the `SSJS: Upload Script` command. Following deploys are automatically done on save.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						}
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            }
           },
           {
             "id": "run-script",
             "title": "Run the code",
             "description": "Run in your Cloud Page or Resource - one page for all scripts! You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.",
             "media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "demo of the extension"
-						}
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "demo of the extension"
+            }
           }
         ]
       }
@@ -190,12 +206,12 @@
       {
         "id": "AMPscript",
         "aliases": [
-            "AMPscript",
-            "ampscript"
+          "AMPscript",
+          "ampscript"
         ],
         "extensions": [
-            ".amp",
-            ".ampscript"
+          ".amp",
+          ".ampscript"
         ]
       }
     ],
@@ -219,6 +235,7 @@
     "test": "node ./test/runTest.js"
   },
   "dependencies": {
+    "beauty-amp-core2": "^0.4.1",
     "express": "^4.18.2",
     "generate-password": "^1.7.0",
     "http-proxy-middleware": "^2.0.6",

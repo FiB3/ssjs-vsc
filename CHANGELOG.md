@@ -2,13 +2,16 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
-Check [Keep a Changelog](http://keepachangelog.com/) for recommendations on how to structure this file.
+## [0.2.1] - 2023-12-03
 
-## [0.1.X] - 2023-11-28
+### Fixed
+- Formatting not working after publishing due to Prettier v3.0.0 issue.
+
+## [0.2.0] - 2023-12-03
 
 ### Added
+- Add Formatter for SSJS.
 - New settings to set templating tag.
-- fixes.
 
 ## [0.1.3] - 2023-11-28
 
