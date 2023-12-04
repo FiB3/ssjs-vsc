@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.2.2] - 2023-12-04
+
+### Fixed
+- Formatting improvements to fix breaking changes to SSJS Code.
+
 ## [0.2.1] - 2023-12-03
 
 ### Fixed
