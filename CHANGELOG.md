@@ -2,6 +2,17 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.2.3] - 2024-01-11
+
+### Added
+- Formatting support for AMPscript, including check for BeautyAmp extension.
+- Improved SFMC Code formatting.
+- On-extension activation check of API Connection (Asset-Provider only).
+- Grouped extension Preferences for easier setup.
+
+### Fixed
+- Various bugfixes.
+
 ## [0.2.2] - 2023-12-04
 
 ### Fixed

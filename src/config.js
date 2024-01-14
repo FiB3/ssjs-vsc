@@ -221,16 +221,29 @@ module.exports = class Config {
 	}
 
 	static getCodeProvider() {
-		return vscode.workspace.getConfiguration('ssjs-vsc').get('codeProvider');
+		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('codeProvider');
 	}
 
 	static isAutoSaveEnabled() {
-		return vscode.workspace.getConfiguration('ssjs-vsc').get('autoSave') ?? false;
+		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('autoSave') ?? false;
 	}
 
 	static getTemplatingTags() {
-		let stp = vscode.workspace.getConfiguration('ssjs-vsc').get('templatingTags') ?? '{{,}}';
+		let stp = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('templatingTags') ?? '{{,}}';
 		return stp.split(',');
+	}
+
+	static getBeautyfierSetup() {
+		const settings = vscode.workspace.getConfiguration("ssjs-vsc.language.ampscript");
+		console.log(`Settings`, settings);
+		const s = {
+			capitalizeSet: settings.get('capitalizeKeywords'),
+			capitalizeVar: settings.get('capitalizeKeywords'),
+			capitalizeIfFor: settings.get('capitalizeKeywords'),
+			capitalizeAndOrNot: settings.get('capitalizeAndOrNot'),
+			maxParametersPerLine: settings.get('maxParametersPerLine')
+		};
+		return s;
 	}
 
 	getPackageJsonData() {

@@ -1,9 +1,6 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
 
-const beautifier = require("beauty-amp-core2");
-
+const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
 
 const BaseCodeProvider = require('./src/baseCodeProvider');
@@ -28,7 +25,7 @@ async function activate(context) {
 
 	// Watch for changes in settings
 	vscode.workspace.onDidChangeConfiguration((event) => {
-		if (event.affectsConfiguration('ssjs-vsc.codeProvider')) {
+		if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
 			pickCodeProvider();
 		}
 	});
@@ -37,13 +34,11 @@ async function activate(context) {
 
 	if (!Config.configFileExists()) {
 		console.log(`Setup file does not exists.`);
-		// const config = vscode.workspace.getConfiguration('ssjs-vsc');
-		// config.update('codeProvider', 'None');
 		deactivateProviders({}, statusBar);
 		vscode.window.showInformationMessage(`No setup file found. Run 'Create Config' command to create it.`);
 	} else {
 		config.loadConfig();
-		pickCodeProvider();
+		pickCodeProvider(true);
 	}
 
 	// update script:
@@ -90,45 +85,12 @@ async function activate(context) {
 		}
 	});
 
-	vscode.languages.registerDocumentFormattingEditProvider("ssjs", {
-		/**
-		 * Provide formatting edits for a whole document.
-		 *
-		 * @param document The document in which the command was invoked.
-		 * @param options Options controlling formatting.
-		 * @param token A cancellation token.
-		 * @return A set of text edits or a thenable that resolves to such. The lack of a result can be
-		 * signaled by returning `undefined`, `null`, or an empty array.
-		 */
-		async provideDocumentFormattingEdits(document, formattingOptions) {
-			console.log("SSJS Beautifying running.");
-			try {
-				const editor = vscode.window.activeTextEditor;
-				const code = editor.document.getText();
-				
-				let formattedCode;
-				beautifier.setup(undefined, formattingOptions, { loggerOn: false });
-
-				try {
-					formattedCode = await beautifier.beautify(code);
-				} catch(err) {
-					console.log(`Error on Beautify:`, err);
-					vscode.window.showErrorMessage(`Error on formatting. Please, let us know in our GitHub issues.`);
-				}
-
-				editor.edit((editBuilder) => {
-					const documentStart = new vscode.Position(0, 0);
-					const documentEnd = editor.document.lineAt(editor.document.lineCount - 1).range.end;
-					const documentRange = new vscode.Range(documentStart, documentEnd);
-	
-					editBuilder.replace(documentRange, formattedCode);
-				});
-				console.log('DONE FORMAT');
-			} catch(e) {
-				console.log(`ERR:`, e);
-			}
-		},
-	});
+	const formatters = new LanguageFormatter();
+	const formatterRegistrations = vscode.languages.registerDocumentFormattingEditProvider(
+		formatters.getSelectors(),
+    formatters
+	);
+	vscode.Disposable.from(formatterRegistrations);
 
 	context.subscriptions.push(scriptUpload);
 	context.subscriptions.push(onSaveFile);
@@ -142,9 +104,9 @@ async function activate(context) {
 	context.subscriptions.push(showGuide);
 }
 
-const activateAssetProvider = async function() {
+const activateAssetProvider = async function(testApiKeys) {
 	provider = new AssetCodeProvider(config, statusBar);
-	await provider.init();
+	await provider.init(testApiKeys);
 }
 
 const activateServerProvider = async function() {
@@ -157,14 +119,14 @@ const deactivateProviders = async function() {
 	await provider.init();
 }
 
-const pickCodeProvider = async function() {
+const pickCodeProvider = async function(testApiKeys) {
 	// Handle the setting change here
 	const codeProvider = Config.getCodeProvider();
 	await deactivateProviders();
 
 	if (codeProvider === 'Asset') {
 		vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
-		activateAssetProvider();
+		activateAssetProvider(testApiKeys);
 	} else if (codeProvider === 'Server') {
 		vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
 		activateServerProvider();
@@ -229,7 +191,7 @@ const createConfig = async function(update) {
 				}
 				
 				// Open the setup  file:
-				vscode.workspace.openTextDocument(config.getUserConfigPath()).then((doc) =>
+				vscode.workspace.openTextDocument(Config.getUserConfigPath()).then((doc) =>
 					vscode.window.showTextDocument(doc, {
 					})
 				);

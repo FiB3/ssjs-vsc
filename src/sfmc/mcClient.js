@@ -123,6 +123,10 @@ module.exports = class McClient {
     return allItems;
 	}
 
+	async validateApiKeys() {
+		return this._get(`/platform/v1/tokenContext`);
+	}
+
 	async _post(uri, body) {
 		return new Promise((resolve, reject) => {
 			this.client.RestClient.post({
@@ -173,7 +177,7 @@ module.exports = class McClient {
 					}
 				})
 				.catch((err) => {
-					console.error(`POST ${uri}: ${JSON.stringify(err)}`);
+					console.error(`PATCH ${uri}: ${JSON.stringify(err)}`);
 					reject(err);
 				});
 		});
@@ -207,21 +211,13 @@ module.exports = class McClient {
 	}
 
 	parseRestError(err) {
-		/* 
-			{ message: 'Category already exists with name: FiBDev under parentId: 460715', errorcode: 118090, documentation: ''}
-			{ message: 'Request contained some validation errors.', errorcode: 10006, documentation: '',
-					validationErrors: [
-						{
-							message: 'Asset names within a category and asset type must be unique. test1.ssjs-ssjs-vsc is already taken. Suggested name: test1.ssjs-ssjs-vsc (1)',
-						errorcode: 118039, documentation: ''}
-					]
-			}
-		*/
 		if (err.body?.validationErrors?.length) {
 			const ve = err.body.validationErrors[0];
 			return ve?.message ? ve.message : JSON.stringify(ve);
 		} else if (err.body?.message) {
 			return err.body.message;
+		} else if (err.res?.error_description) {
+			return err.res.error_description;
 		}
 		return JSON.stringify(err);
 	}

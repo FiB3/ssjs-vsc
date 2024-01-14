@@ -22,13 +22,25 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		this.mc = null;
 	}
 
-	async init() {
+	async init(testConnection = false) {
 		this.statusBar.setEnabled();
 		let c = await this.config.getSfmcInstanceData();
 		if (!c) {
 			vscode.window.showWarningMessage(`We could not obtain your API Client Secret. If you have set your credentials already, try updating VSCode and the extension. You can also try disable and enable the extension.`);
 		}
 		this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
+		// TODO: validate token:
+		if (testConnection === true) {
+			this.mc.validateApiKeys()
+					.then(() => {
+						console.log(`API Keys OK.`);
+					})
+					.catch((err) => {
+						console.error('TEST SFMC-Connection ERR:', err);
+						let m = this.mc.parseRestError(err);
+						vscode.window.showErrorMessage(`SFMC API Credentials issue: \n${m}`);
+					});
+		}
 	}
 
 	async uploadScript(autoUpload) {
@@ -176,7 +188,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 					vscode.window.showInformationMessage(`Asset uploaded.`);
 				})
 				.catch((err) => {
-					console.error('Patch Asset ERR:', err);
+					// console.error('Patch Asset ERR:', err);
 					asset.content = '<<script>>';
 					console.debug('Asset data:', asset);
 					// TODO: show error message:
