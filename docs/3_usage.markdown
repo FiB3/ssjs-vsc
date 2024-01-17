@@ -60,8 +60,7 @@ Mustache syntax is currently used.
 ```json
 {
 	//...
-	{
-		"dev-tokens": {
+	"dev-tokens": {
 		"IS_PROD": false,
 		"MC_SUBDOMAIN": "mc-dummy-subdomain",
 		"CLIENT_ID": "cl-id-12345",
