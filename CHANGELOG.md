@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.2.4] - 2024-01-17
+
+### Added
+- New Prod build command (SSJS: Production deployment) inserting compiled scripts to Clipboard.
+
 ## [0.2.3] - 2024-01-11
 
 ### Added

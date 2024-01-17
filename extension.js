@@ -41,7 +41,12 @@ async function activate(context) {
 		pickCodeProvider(true);
 	}
 
-	// update script:
+	// update PROD script:
+	let scriptProdUpload = vscode.commands.registerCommand('ssjs-vsc.upload-to-prod', async () => {
+		await provider.uploadToProduction();
+	});
+
+	// update dev script:
 	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
 		await provider.uploadScript();
 	});
@@ -92,6 +97,7 @@ async function activate(context) {
 	);
 	vscode.Disposable.from(formatterRegistrations);
 
+	context.subscriptions.push(scriptProdUpload);
 	context.subscriptions.push(scriptUpload);
 	context.subscriptions.push(onSaveFile);
 
