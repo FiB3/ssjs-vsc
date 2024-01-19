@@ -11,7 +11,7 @@ From syntax highlight to rapid testing and deployment.
 
 ![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
 
-### [Complete Guide](https://fib3.github.io/ssjs-vsc/)
+### [Complete Guide](https://fib3.vercel.app/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
 
 ## Settings
@@ -53,7 +53,8 @@ Then append query parameters you get by running `Get Dev PATH` command.
 To be run using `Ctrl` + `Shift` + `P`.
 
 - `SSJS: Show Setup Walkthrough` - Shows a guide on how to setup the extension.
-- `SSJS: Upload Script` - Uploads the script on Asset Provider. Can be run automatically, but first upload needs to be done manually.
+- `SSJS: Production deployment` - Uploads the script to given SFMC resource when and whenever possible.
+- `SSJS: Upload Script to Dev` - Uploads the script on Asset Provider. Can be run automatically, but first upload needs to be done manually.
 - `SSJS: Get Dev Path` - get query parameters to run your script.
 - `SSJS: Start`: Start DEV Server
 - `SSJS: Stop`: Stop DEV Server
@@ -66,7 +67,6 @@ To be run using `Ctrl` + `Shift` + `P`.
 Alpha release - some errors may appear.  
 In such case, let me know on my GitHub! (issues page).
 
-- Format Document upcoming.
+- Upcoming improvements to security of development Cloud Pages.
 - No check of Content Folder existence.
-- Some API failures won't return the problem.
 - Client Secret not loading when VSCode is not up to date. Update your VSCode to fix.
