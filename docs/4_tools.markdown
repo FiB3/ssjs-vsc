@@ -1,7 +1,10 @@
 ---
-layout: page
 title: Tools
+
+layout: redirected
+sitemap: false
 permalink: /tools/
+redirect_to:  http://localhost:4321/ssjs-vsc
 ---
 
 My projects...

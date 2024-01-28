@@ -1,7 +1,10 @@
 ---
-layout: page
 title: Extension
+
+layout: redirected
+sitemap: false
 permalink: /extension/
+redirect_to:  http://localhost:4321/ssjs-vsc
 ---
 
 This extension streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.

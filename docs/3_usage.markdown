@@ -1,7 +1,10 @@
 ---
-layout: page
 title: Use
+
+layout: redirected
+sitemap: false
 permalink: /use/
+redirect_to:  http://localhost:4321/ssjs-vsc
 ---
 
 Some features are provided automatically and without setup.  

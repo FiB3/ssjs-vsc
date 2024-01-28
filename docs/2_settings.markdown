@@ -1,7 +1,10 @@
 ---
-layout: page
 title: Settings
+
+layout: redirected
+sitemap: false
 permalink: /settings/
+redirect_to:  http://localhost:4321/ssjs-vsc
 ---
 
 #### Extension Settings
