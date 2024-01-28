@@ -4,7 +4,7 @@ title: Settings
 layout: redirected
 sitemap: false
 permalink: /settings/
-redirect_to:  http://localhost:4321/ssjs-vsc
+redirect_to:  https://fib3.vercel.app/ssjs-vsc
 ---
 
 #### Extension Settings

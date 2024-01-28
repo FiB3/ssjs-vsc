@@ -4,7 +4,7 @@ title: Use
 layout: redirected
 sitemap: false
 permalink: /use/
-redirect_to:  http://localhost:4321/ssjs-vsc
+redirect_to:  https://fib3.vercel.app/ssjs-vsc
 ---
 
 Some features are provided automatically and without setup.  

@@ -4,7 +4,7 @@ title: Extension
 layout: redirected
 sitemap: false
 permalink: /extension/
-redirect_to:  http://localhost:4321/ssjs-vsc
+redirect_to:  https://fib3.vercel.app/ssjs-vsc
 ---
 
 This extension streamlines Server Side JavaScript (and AMPscript) development in Salesforce Marketing Cloud.

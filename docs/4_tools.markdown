@@ -4,7 +4,7 @@ title: Tools
 layout: redirected
 sitemap: false
 permalink: /tools/
-redirect_to:  http://localhost:4321/ssjs-vsc
+redirect_to:  https://fib3.vercel.app/ssjs-vsc
 ---
 
 My projects...
