@@ -2,11 +2,12 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.2.5",
+  "version": "0.3.5",
   "publisher": "FiB",
   "author": {
     "name": "filipbostik"
   },
+  "homepage": "https://fib3.vercel.app/ssjs-vsc",
   "engines": {
     "vscode": "^1.77.0"
   },
@@ -74,7 +75,7 @@
       },
       {
         "command": "ssjs-vsc.deploy-any-path",
-        "title": "SSJS: Create Dev Page Code"
+        "title": "SSJS: Install Dev Page"
       },
       {
         "command": "ssjs-vsc.getUrl",

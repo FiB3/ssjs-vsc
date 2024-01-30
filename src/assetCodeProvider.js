@@ -9,8 +9,9 @@ const { template } = require('./template');
 const file = require('./auxi/file');
 const json = require('./auxi/json');
 
-const DEPLOYMENT_TEMPLATE = './templates/assetDeployment.ssjs';
-const DEPLOYED_NAME = 'deployment.ssjs';
+const DEPLOYMENT_TOKEN_TEMPLATE = './templates/assetProvider/tokenDeployment.ssjs';
+const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/assetProvider/formAuthDeployment.ssjs';
+
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class AssetCodeProvider extends BaseCodeProvider {
@@ -41,31 +42,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				return;
 			}
 			// if not existing, run dialog:
-			if (!this.config.getAssetFolderId()) {
-				console.log(`No Folder ID`);
-				const assetProviderTitle = `Asset Provider Folder`;
-				const folderName = await vscode.window.showInputBox({
-					title: assetProviderTitle,
-					prompt: `Enter Folder Name for Dev Assets:`,
-					ignoreFocusOut: true
-				});
-
-				const parentFolderName = await vscode.window.showInputBox({
-					title: assetProviderTitle,
-					prompt: `Enter Parent Folder Name for Dev Assets:`,
-					ignoreFocusOut: true
-				});
-
-				let f = await this.createFolder(folderName, parentFolderName);
-
-				if (!f) {
-					return;
-				} else {
-					vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
-					this.config.setAssetFolderId(f.body.id, `${parentFolderName} > ${folderName}`);
-				}
-			} else {
-				console.log(`Found Folder ID`);
+			if (!await this.snippets.checkAssetFolder()) {
+				return;
 			}
 
 			if (this.assetExists(filePath)) {
@@ -82,27 +60,30 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async deployAnyScript() {
-		const packageData = this.config.getPackageJsonData();
+		// PREPARE:
+		let prepResult = await this.prepareAnyScriptDeployment();
+		if (!prepResult) {
+			return;
+		}
+		
+		// SPECIFIC GET DATA:
+		if (prepResult == 'Token-Protected') {
+			console.log(`TODO: Deploying Token-Protected script.`);
+		} else if (prepResult == 'Basic-Auth') {
+			console.log(`TODO: Deploying Basic-Auth script.`);
+		}
 		const tkn = this.config.getDevPageToken();
-		const templatePath = path.join(this.config.sourcePath, DEPLOYMENT_TEMPLATE);
-
-		const deployScript = template.runFile(templatePath, {
-			"page": packageData['repository'],
-			"version": `v${packageData['version']}`,
-			"tokenEnabled": tkn ? true : false,
-			"token": tkn
-		});
-
-		// save into active editor (root) and open:
-		let deployPath = path.join(Config.getUserWorkspacePath(), DEPLOYED_NAME);
-		file.save(deployPath, deployScript);
-		vscode.workspace.openTextDocument(deployPath).then((doc) =>
-			vscode.window.showTextDocument(doc, {
-			})
-		);
+		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
+		const devAssetView = {
+			"tokenEnabled": tkn ? true : false, // TODO: make naming generic
+			"token": tkn // TODO: make naming generic
+		};
+		this.runAnyScriptDeployment(DEPLOYMENT_TOKEN_TEMPLATE, devAssetView);
 	}
 
 	async getDevUrl() {
+		// TODO: extract the logic to separate function in order to use it in future updates
+		// TODO: allow token exclusion
 		const activeTextEditor = vscode.window.activeTextEditor;
 
 		if (activeTextEditor) {
@@ -115,7 +96,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				let meta = json.load(this.getBlockMetaFile(filePath));
 				let id = meta.id;
 				let tkn = this.config.getDevPageToken();
-				let u = tkn ? `?token=${tkn}&asset-id=${id}` : `?asset-id=${id}`;
+				let url = this.config.getDevPageInfo().devPageUrl ? this.config.getDevPageInfo().devPageUrl : '';
+				let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
 				vscode.env.clipboard.writeText(u);
 			} else {
 				vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
@@ -177,39 +159,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 					let m = this.mc.parseRestError(err);
 					vscode.window.showErrorMessage(`Error on updating Dev Asset. \n${m}`);
 				});
-	}
-
-	/**
-	 * Create new Dev Folder for Content Blocks.
-	 * Store the data in the Config.
-	 * @param {string} folderName 
-	 */
-	async createFolder(folderName, parentFolderName) {
-		let parent = await this.getFolder(parentFolderName);
-		if (!parent) {
-			vscode.window.showWarningMessage(`Parent Folder not found!`);
-			return false;
-		}
-
-		let r;
-		try {
-			r = await this.mc.createAssetFolder(folderName, parent.id);
-		} catch (err) {
-			console.log(`Error on creating Asset folder:`, err);
-			let m = this.mc.parseRestError(err);
-			vscode.window.showWarningMessage(`Could not create Content Builder Folder! \n${m}`);
-			return false;
-		} 
-		return r;
-	}
-
-	/**
-	 * Get info about Dev Folder for Content Blocks.
-	 * Store the data in the Config.
-	 * @param {string} folderName 
-	 */
-	async getFolder(folderName) {
-		return await this.mc.getAssetFolder(folderName);
 	}
 
 	getAssetReqData(filePath) {

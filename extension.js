@@ -195,6 +195,8 @@ const createConfig = async function(update) {
 					// maybe use some confirming dialog??
 					config.createConfigFile(subdomain, clientId, mid, "{{your-publicly-accessible-domain}}");
 				}
+				// add userId from request data:
+				config.setSfmcUserId(data.body?.user?.id);
 				
 				// Open the setup  file:
 				vscode.workspace.openTextDocument(Config.getUserConfigPath()).then((doc) =>

@@ -13,5 +13,10 @@ module.exports = {
 			console.log(`Extension ${BEAUTY_AMP_ID} IS NOT installed nor enabled.`);
 			return false;
 		}
+	},
+
+	isUrl(str) {
+		const urlPattern = /^(https?:\/\/)([\w.-]+)\.([a-z]{2,})(\/\S*)?$/i;
+		return urlPattern.test(str);
 	}
 }

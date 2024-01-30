@@ -2,9 +2,20 @@
   "sfmc-domain": "<< sfmc-subdomain from AUTH URL: https://mc-subdomain.auth.marketingcloudapis.com/ >>",
   "sfmc-client-id": "<< client-id of installed package >>",
   "sfmc-mid": "<< optional: only if MID is needed >>",
+	"sfmc-user-id": -1,
 
-  "public-domain": "<< publicly accessible domain, e.g. NGROK forwarding domain >>",
-  "port": 4000,
+	"dev-resource": {
+		"dev-page-url": "<< dev page url >>",
+		"dev-snippet-id": "<< asset ID of the code snippet >>",
+		"asset-folder-id": 0,
+		"asset-folder": "<< asset-folder >>",
+
+		"use-auth": true,
+		"auth-type": "<<token|basic>>",
+    "dev-token": "<< dev-token-comes-here >>",
+		"dev-username": "<< dev-username-comes-here >>",
+    "dev-password": "<< dev-password-comes-here >>"
+	},
 
   "dev-folder-path": "",
   "dev-tokens": {
@@ -16,18 +27,14 @@
     "token-name": "use {{Mustache}} syntax in your files to fill your prod files"
   },
   "proxy-any-file": {
+		"enabled": true,
+		"public-domain": "<< publicly accessible domain, e.g. NGROK forwarding domain >>",
+		"port": 4000,
     "main-path": "/all-in-dev",
-    "enabled": true,
-    "use-token": true,
-    "dev-token": "<< dev-token-comes-here >>",
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
   },
   "asset-provider": {
-    "use-token": true,
-    "dev-token": "<< dev-token-comes-here >>",
-    "folder-id": 0,
-    "folder": "<< asset-folder >>"
   },
   "extension-version": "0.0.0"
 }

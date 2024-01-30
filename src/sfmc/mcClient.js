@@ -84,21 +84,23 @@ module.exports = class McClient {
 		let filtered = folders.filter((fldr) => {
 			return fldr.name === folderName;
 		});
+		console.log('Filtered Asset Folders:', filtered);
 		return filtered ? filtered[0] : false;
 	}
 
 	async getAssetFolders() {
 		const allItems = [];
     let page = 1;
-		let qs = {
-			'$page': 1,
-			'$pageSize': 500
-		};
 
-    while (true) {
+    while (true && page < 100) {
 			try {
-				const r = await this._get(`/asset/v1/content/categories`, qs);
+				const r = await this._get(`/asset/v1/content/categories`, {
+					'$page': page,
+					'$pageSize': 500
+				});
+
 				if (r.statusCode !== 200) {
+					console.errpr(`Get Asset Folders: ${r.statusCode}:`, r);
 					break;
 				}
 				const result = r.body;
@@ -109,6 +111,7 @@ module.exports = class McClient {
 				allItems.push(...result.items);
 				// If the current page is the last page, exit the loop
 				if (result.page >= Math.ceil(result.count / result.pageSize)) {
+					console.log(`Last Page: ${result.count} total items.`);
 					break;
 				}
 
@@ -140,7 +143,7 @@ module.exports = class McClient {
 						statusMessage: data.res.statusMessage,
 						body: data.body
 					};
-					console.log(`MC._post:`, r);
+					console.log(`MC._post ${uri}:`, r);
 
 					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
 						resolve(r);
@@ -168,7 +171,7 @@ module.exports = class McClient {
 						statusMessage: data.res.statusMessage,
 						body: data.body
 					};
-					console.log(r);
+					console.log(`MC._patch ${uri}:`, r);
 
 					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
 						resolve(r);
@@ -196,6 +199,7 @@ module.exports = class McClient {
 						statusMessage: data.res.statusMessage,
 						body: data.body
 					};
+					console.log(`MC._get ${uri}:`, r);
 
 					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
 						resolve(r);

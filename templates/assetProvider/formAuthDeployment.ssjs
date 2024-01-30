@@ -3,13 +3,13 @@
    * Development Page for SSJS Manager (Extension for Visual Studio Code).
    * Used to simplify (not only) SSJS Development using Content Block.
    * Version with Form Authentication.
-   * @source-page: https://fib3.vercel.app/ssjs-vsc
-   * @version: v0.2.5
+   * @source-page: {{page}}
+   * @version: {{version}}
    */
   Platform.Load("core","1.1.5");
 
-  var AUTH_ENABLED = true;
-  var AUTH_DEFAULT = 'aaa:123';
+  var AUTH_ENABLED = {{authEnabled}};
+  var AUTH_DEFAULT = '{{username}}:{{password}}';
 
   function checkHashedAuth(hashedValue) {
     var authHashed = Platform.Function.MD5(AUTH_DEFAULT, "UTF-8");

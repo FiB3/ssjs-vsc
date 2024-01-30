@@ -1,67 +1,35 @@
 <!-- 
-  FOLLOWING STEPS SHOW HOW TO DEPLOY DEV SCRIPT TO YOUR SFMC ENVIRONMENT:
-    1) Ensure, that your environment is publically accessible (e.g. by NGROK)
-    2) Your publically accessible domain needs to be set in your setup file (.vscode/ssjs-setup.json => "public-domain")
-    3) Create a new Cloud Page in your SFMC Instance.
-    4) Paste deployment script from this file into your Cloud Page (this comment is not required).
+  === How to deploy Dev script to your SFMC environment? ===
+
+    1) Create a new Cloud Page or Cloud Text Resource in your SFMC Instance - you will need the page URL.
+    2) Run the `SSJS: Install Dev Page` Command.
+    3) Fill any requested details (like Content Builder Folder names...).
+    4) Paste deployment script from this file into your Cloud Page (without this comment!).
     5) Save & Publish your Cloud Page.
 
   You are done!
-    
-  Any script in your environment can now be accessed via this Cloud Page:
-    Don't forget to add "dev-token" and path to your file:
-    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<ssjs-setup.json dev-token>>&path=<<relative path of developed script>>
+
+	=== How to use your Dev Page? ===
+  
+		1a) Asset Provider (default) - on first deployment of a new script, you need to run the `SSJS: Upload Script to Dev`.
+			Following deployments are automatic on file save.
+		1b) Server Provider - Just have Tunneling service running, and `SSJS: Start` the SSJS Manager.
+		2) Any script in your environment can now be accessed via this Cloud Page - SSJS: Get Dev Path.
  -->
 
 <!-- DEPLOYMENT SCRIPT FOLLOWS: -->
-<script runat="server">
-  /* 
-   * Development Page for SSJS Manager (Extension for Visual Studio Code).
-   * Used to simplify (not only) SSJS Development.
-   * @source-page: {{page}}
-   * @version: {{version}}
-   */
-  Platform.Load("core","1.1.5");
-  try {
-    var devPath = "{{proxy-any-file_main-path}}";
-    var devBaseUrl = "{{public-domain}}";
 
-    var token = Request.GetQueryStringParameter("token"); // QueryParameter('token')
-    var path = Request.GetQueryStringParameter("path"); //QueryParameter('path')
-    Variable.SetValue("path", path);
+%%[
+	/*
+    * Development Cloud Page / Cloud Resource for SSJS Manager (Extension for VSCode).
+    * Used to simplify (not only) SSJS Development using Content Block.
+    * @source-page: {{page}}
+    * @version: {{version}}
+    * Deployed for: << your-email-here >>
+	 */
+	VAR @devBlockID, @devPageContext
+	SET @devBlockID = {{devBlockID}}
+	SET @devPageContext = '{{devPageContext}}' /* values: 'cloud-page' / 'text-resource' */
+]%%
 
-    var devUrl = devBaseUrl + devPath + "?token=" + token + "&path=" + path;
-
-    var req = new Script.Util.HttpRequest(devUrl);
-    req.method = "GET";
-    req.emptyContentHandling = 0;
-    req.retries = 2;
-    req.continueOnError = true;
-
-    /* TODO: Add Basic Auth */
-    req.setHeader("ssjs-authorization", "{{basic-encrypted-secret}}");
-
-    var response = req.send();
-
-    if (response.statusCode + '' === '200' || response.statusCode + '' === '304') {
-      Variable.SetValue("ok", 'TRUE');
-      Variable.SetValue("content", response.content + '');
-    } else {
-      Variable.SetValue("ok", 'FALSE');
-      Variable.SetValue("status", response.statusCode);
-      Variable.SetValue("content", response.content + '');
-    }
-  } catch(err) {
-    Write("<br>" + Stringify(err));
-  }
-</script>
-
-<h2>
-SSJS DEV: %%=v(@path)=%%
-</h2>
-%%[ IF @ok == TRUE THEN ]%%
-  %%=TreatAsContent(@content)=%%
-%%[ ELSE ]%%
-  <h3>%%=v(@status)=%%</h3>
-  <p>%%=v(@content)=%%</p>
-%%[ ENDIF ]%%
+%%=ContentBlockByID(v(@devBlockID))=%%

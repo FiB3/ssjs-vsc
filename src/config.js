@@ -10,6 +10,7 @@ const folder = require('./auxi/folder');
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FOLDER_NAME = '.vscode';
 const SETUP_FILE_NAME = '.vscode/ssjs-setup.json';
+const REPO_DEFAULT = 'https://github.com/FiB3';
 
 const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
@@ -21,6 +22,14 @@ module.exports = class Config {
 
 		this.config = {};
 		this.sourcePath = sourcePath;
+	}
+
+	getDevPageInfo() {
+		return {
+			// "public-domain": this.config['public-domain'],
+			devPageUrl: Config.validateConfigValue(this.config?.['dev-resource']?.['dev-page-url']),
+			devSnippetId: Config.validateConfigValue(this.config?.['dev-resource']?.['dev-snippet-id'])
+		};
 	}
 
 	getHostPort() {
@@ -99,6 +108,10 @@ module.exports = class Config {
 		};
 	}
 
+	getSfmcUserId() {
+		return Config.validateConfigValue(this.config['sfmc-user-id']);
+	}
+
 	async storeSfmcClientSecret(clientId, clientSecret) {
 		await this.context.secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
 		console.log(`Credentials stored.`);
@@ -148,17 +161,34 @@ module.exports = class Config {
 	}
 
 	getAssetFolderId() {
+		// TODO: change to correct object
 		console.log(`FOLDER ID: ${this.config?.['asset-provider']?.['folder-id']}.`);
 		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
 	}
 
+	setDevPageInfo(pageUrl, snippetId) {
+		if (pageUrl) {
+			this.config['dev-resource']['dev-page-url'] = pageUrl;
+		}
+		if (snippetId) {
+			this.config['dev-resource']['dev-snippet-id'] = snippetId;
+		}
+		jsonHandler.save(Config.getUserConfigPath(), this.config);
+	}
+
 	setAssetFolderId(id, folderName) {
+		// TODO: change to first level only
 		if (!this.config['asset-provider']) this.config['asset-provider'] = {};
 		this.config['asset-provider']['folder-id'] = id;
 		this.config['asset-provider']['folder'] = folderName;
 		// get current setup:
 		jsonHandler.save(Config.getUserConfigPath(), this.config);
 		vscode.workspace.openTextDocument(Config.getUserConfigPath());
+	}
+
+	setSfmcUserId(userId) {
+		this.config['sfmc-user-id'] = userId || 0;
+		jsonHandler.save(Config.getUserConfigPath(), this.config);
 	}
 	
 	loadConfig() {
@@ -251,12 +281,29 @@ module.exports = class Config {
 		let packageJson = jsonHandler.load(packageJsonFile);
 
 		return {
-			"repository": packageJson?.['repository']?.['url'] ? packageJson['repository']['url'] : 'https://github.com/FiB3',
-			"version": packageJson?.['version'] ? packageJson['version'] : 'v?.?.?'
+			"repository": packageJson?.['repository']?.['url']
+					? packageJson['repository']['url'] : REPO_DEFAULT,
+			"homepage": packageJson?.['homepage']
+					? packageJson['homepage'] : REPO_DEFAULT,
+			"version": packageJson?.['version']
+					? packageJson['version'] : 'v?.?.?'
 		};
 	}
 
 	static isConfigFile(fileName) {
 		return fileName.endsWith(SETUP_FILE_NAME);		
+	}
+
+	/**
+	 * Test value from Config if it's set. Include test for `<<*>>` and undefined, null, or 0 value.
+	 * @param {*} value Value from Config file.
+	 * @returns {*|false} Value or false if not set.
+	 */
+	static validateConfigValue(value) {
+		return value === undefined || value === null
+				|| value === 0 || value === ''
+				|| (typeof(value) == 'string' && value?.startsWith('<<'))
+			? false
+			: value;
 	}
 }

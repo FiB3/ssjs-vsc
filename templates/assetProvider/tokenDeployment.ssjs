@@ -1,27 +1,8 @@
-<!-- TODO: change -->
-<!-- 
-  FOLLOWING STEPS SHOW HOW TO DEPLOY DEV SCRIPT TO YOUR SFMC ENVIRONMENT:
-    - valid only for Asset Provider!
-
-    1) Setup the extension (Create Config)
-    2) Create a new Cloud Page in your SFMC Instance.
-    3) Paste deployment script from this file into your Cloud Page (comments are not required).
-    4) Save & Publish your Cloud Page.
-
-  You are done!
-
-  To access any of your scripts just run the "Upload Script" command.
-    
-  Any script in your environment can now be accessed via this Cloud Page:
-    Don't forget to add "dev-token" and path to your file:
-    e.g.: https://mc12345667890.pub.sfmc-content.com/abcdefghijk?token=<<ssjs-setup.json asset-provider dev-token>>&path=<<asset.id>>
- -->
-
-<!-- DEPLOYMENT SCRIPT FOLLOWS: -->
 <script runat="server">
   /* 
    * Development Page for SSJS Manager (Extension for Visual Studio Code).
    * Used to simplify (not only) SSJS Development using Content Block.
+   * Token-protected.
    * @source-page: {{page}}
    * @version: {{version}}
    */
