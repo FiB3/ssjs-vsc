@@ -5,9 +5,11 @@ const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SnippetHandler = require('./sfmc/snippetHandler');
 const { template } = require('./template');
+const json = require('./auxi/json');
+
+const vsc = require('./vsc.js');
 const dialogs = require('./dialogs');
 const checks = require('./checks');
-
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
@@ -289,6 +291,36 @@ module.exports = class BaseCodeProvider {
 					assetId = false;
 				});
 		return assetId;
+	}
+
+	/**
+	 * Validates if the current file is supported for deployment and returns the Dev Page Contexts.
+	 * @returns {Object|false} Object with filePath, asset metadata and devPageContext. False if something is wrong.
+	 */
+	async _getContextForGetUrl() {
+		// TODO: pick asset also based on asset file
+		const filePath = vsc.getActiveEditor();
+		if (filePath && checks.isFileSupported(filePath)) {
+			let metadata = json.load(this.snippets.getMetadataFileName(filePath));
+
+			let devPageContext;
+			if (this.config.isDevPageSet() && this.config.isDevResourceSet()) {
+				devPageContext = await dialogs.pickDevPageContext();
+			} else if (this.config.isDevPageSet()) {
+				devPageContext = 'page';
+			} else if (this.config.isDevResourceSet()) {
+				devPageContext = 'text';
+			} else {
+				vscode.window.showErrorMessage('No Dev Page or Resource is set.');
+				return false;
+			}
+			return {
+				filePath,
+				metadata,
+				devPageContext
+			};
+		}
+		return false;
 	}
 
 	_checkCommand() {

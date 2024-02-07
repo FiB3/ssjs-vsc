@@ -1,8 +1,22 @@
 const vscode = require('vscode');
+const path = require('path');
 
 const BEAUTY_AMP_ID = 'FiB.beautyAmp';
+const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = {
+
+	/**
+	 * Check if the file is supported for deployment.
+	 */
+	isFileSupported: (filePath) => {
+		if (USABLE_EXT.includes(path.extname(filePath))) {
+			return true;
+		}
+		vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
+		return false;
+	},
+
 	beautyAmpEnabled: () => {
 		const extension = vscode.extensions.getExtension(BEAUTY_AMP_ID);
 		if (extension) {

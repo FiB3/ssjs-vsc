@@ -3,6 +3,7 @@ const checks = require('./checks');
 
 const DEV_FOLDER_PROMPT_TITLE = `Create Dev Assets Folder`;
 const DEV_PAGE_PROMPT_TITLE = `Set up Dev Cloud Page`;
+const GET_PAGE_PROMPT_TITLE = `Pick Cloud Page Type`;
 
 module.exports = {
 
@@ -81,7 +82,7 @@ module.exports = {
 		const cloudPageOptions = ['Both', 'Cloud Page', 'Text Resource'];
 		const selected = await vscode.window.showQuickPick(cloudPageOptions, {
 			title: DEV_PAGE_PROMPT_TITLE,
-			prompt: `Select the type of authentication to use for the Cloud Page/Resource.`,
+			prompt: `Select if you want to develop in Cloud Page or Resource (you can do both!).`,
 			placeHolder: 'Do I want to develop in Cloud Page and/or Text Resource?',
 			ignoreFocusOut: true
 		});
@@ -133,6 +134,27 @@ module.exports = {
 			}
 		});
 		return cloudPageUrl || false;
+	},
+
+	/**
+	 * Ask user to select the type of the Dev Page - for cases where only one is required.
+	 * @returns {Promise<string|boolean>} "page"/"text", False if none selected.
+	 */
+	async pickDevPageContext() {
+		const cloudPageOptions = ['Cloud Page', 'Text Resource'];
+		const selected = await vscode.window.showQuickPick(cloudPageOptions, {
+			title: GET_PAGE_PROMPT_TITLE,
+			prompt: `Select if you want to use Cloud Page or Resource.`,
+			placeHolder: 'Do I want to develop in Cloud Page and/or Text Resource?',
+			ignoreFocusOut: true
+		});
+
+		if (!selected) { return false; }
+		if (selected == 'Cloud Page') {
+			return 'page';
+		} else if (selected == 'Text Resource') {
+			return 'text';
+		}
 	},
 
 	getFriendlyDevContext(devPageContext = 'page') {

@@ -78,7 +78,8 @@ module.exports = class Config {
 	getDevPageAuth(pageContext = 'page') {
 		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
 		let res = {
-			'useAuth': this.config?.[contextKey]?.['use-auth'] || false
+			'useAuth': this.config?.[contextKey]?.['use-auth'] || false,
+			'authType': this.config?.[contextKey]?.['auth-type'] || 'none'
 		};
 
 		if (res.useAuth) {
@@ -154,6 +155,14 @@ module.exports = class Config {
 
 	getSfmcUserId() {
 		return Config.validateConfigValue(this.config['sfmc-user-id']);
+	}
+
+	isDevPageSet() {
+		return this.config['dev-page']?.['snippet-id'] ? true : false;
+	}
+
+	isDevResourceSet() {
+		return this.config['dev-resource']?.['snippet-id']  ? true : false;
 	}
 
 	async storeSfmcClientSecret(clientId, clientSecret) {

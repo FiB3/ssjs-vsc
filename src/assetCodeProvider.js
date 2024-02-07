@@ -3,7 +3,9 @@ var path = require('path');
 
 const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
-const mcClient = require('./sfmc/mcClient');
+const vsc = require('./vsc.js');
+const checks = require('./checks');
+const dialogs = require('./dialogs');
 
 const { template } = require('./template');
 const file = require('./auxi/file');
@@ -84,30 +86,11 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async getDevUrl() {
-		// TODO: extract the logic to separate function in order to use it in future updates
-		// TODO: allow token exclusion
-		// TODO: pick asset based on select box dialog OR from asset file.
-		const activeTextEditor = vscode.window.activeTextEditor;
+		const pageDetails = await this._getContextForGetUrl();
 
-		if (activeTextEditor) {
-			// Get the URI (Uniform Resource Identifier) of the currently open file
-			const fileUri = activeTextEditor.document.uri;
-			// Convert the URI to a file path
-			const filePath = fileUri.fsPath;
-			// TODO: file type check:
-			if (USABLE_EXT.includes(path.extname(filePath))) {
-				let meta = json.load(this.getBlockMetaFile(filePath));
-				let id = meta.id;
-				let tkn = this.config.getDevPageToken();
-				// TODO: dev page context:
-				let url = this.config.getDevPageInfo().devPageUrl ? this.config.getDevPageInfo().devPageUrl : '';
-				let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
-				vscode.env.clipboard.writeText(u);
-			} else {
-				vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
-			}
-		} else {
-			vscode.window.showErrorMessage('No file is currently open.');
+		if (pageDetails) {
+			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
+			vscode.env.clipboard.writeText(url);
 		}
 	}
 
@@ -211,5 +194,23 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	getBlockName(filePath) {
 		let fName = path.basename(filePath);
 		return `${fName}-ssjs-vsc`;
+	}
+
+	_getDevUrl(devPageContext, metadata) {
+		let tokenConfig = this.config.getDevPageAuth(devPageContext);
+		let id = metadata.id;
+		let tkn;
+
+		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
+			// TODO: this is not perfect, but good enough for now:
+			vscode.window.showInformationMessage(`URL in clipboard. Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`);
+		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
+			vscode.window.showInformationMessage(`URL in clipboard.`);
+			tkn = tokenConfig.token;
+		}
+
+		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
+		let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
+		vscode.env.clipboard.writeText(u);
 	}
 }
