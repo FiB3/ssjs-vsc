@@ -5,11 +5,10 @@ const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SnippetHandler = require('./sfmc/snippetHandler');
 const { template } = require('./template');
+const dialogs = require('./dialogs');
 const checks = require('./checks');
 
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
-const DEPLOYMENT_PATH = './.vscode/deployment.ssjs';
-const SNIPPET_PATH = './.vscode/deploymentSnippet.ssjs';
 
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
@@ -93,98 +92,120 @@ module.exports = class BaseCodeProvider {
 		// TODO: Check if ssjs-setup.json exists:
 
 		// TODO: Check setup version:
-
-		// get Cloud Page URL from user and store to ssjs-setup.json:
-		let cloudPageUrl = await vscode.window.showInputBox({
-			title: "Cloud Page URL",
-			prompt: `Create a new Cloud Page/Code Resource for Dev in SFMC and paste the URL here.`,
-			placeHolder: "Dev Cloud Page/Resource URL",
-			ignoreFocusOut: true,
-			validateInput: (text) => {
-				if (!checks.isUrl(text)) {
-					return 'Please, enter the URL of the Dev Cloud Page.';
-				}
-				return null;
-			}
-		});
-		if (!cloudPageUrl) {
-			// TODO: maybe allow empty input when already set to keep old value
+		
+		// Confirm that everything is set by user:
+		const confirmed = await dialogs.confirmPreInstallSetup();
+		if (!confirmed) {
 			return false;
-		}
-		this.config.setDevPageInfo(cloudPageUrl);
+		}	
 
-		// If Folder not found, create:
+		// Check Asset Folder existence:
 		if (!await this.snippets.checkAssetFolder()) {
 			return false;
 		}
 
-		// TODO: Ask user for selection of the deployment asset to use:
-		const options = ['Token-Protected', 'Basic-Auth'];
-
-		const selectedOption = await vscode.window.showQuickPick(options, {
-			title: `Cloud Page Authentication Type`,
-			prompt: `Select the type of authentication to use for the Cloud Page/Resource.`,
-			placeHolder: 'Select an option',
-			ignoreFocusOut: true
-		});
-
-		if (selectedOption) {
-			return selectedOption;
+		// Ask for Dev Page Type:
+		const devPageContexts = await dialogs.getDevPageOptions();
+		if (!devPageContexts) { 
+			return false;
 		}
-		return false;
+
+		for (let pageContext of devPageContexts) {
+			console.log(`Dev Page Context:`, pageContext);
+			// Ask for Cloud Page URL from user and store to ssjs-setup.json:
+			let cloudPageUrl = await dialogs.getDevPageUrl(pageContext);
+			if (!cloudPageUrl) {
+				// TODO: maybe allow empty input when already set to keep old value
+				return false;
+			}
+
+			// Ask for selection of the deployment asset to use:
+			let authOption = await dialogs.getAuthOptions();
+			if (!authOption) {
+				return false;
+			}
+			// save combination of options:
+			this.config.setDevPageInfo(pageContext, authOption, cloudPageUrl);
+			// TODO: add options to set own basic auth creds & skip when already filled:
+			this.config.generateDevTokens(pageContext);
+		}
+		return devPageContexts;
+	}
+
+	/**
+	 * Runs deployments for all Any Scripts based on parameters.
+	 * @param {Array<>} pagesData
+	 */
+	async runAnyScriptDeployments(pagesData) {
+		const packageData = this.config.getPackageJsonData();
+
+		for (let pageData of pagesData) {
+			let devPageContext = pageData.devPageContext;
+			let assetFile = pageData.assetFile;
+			let cloudPageFile = pageData.cloudPageFile;
+
+			let view = pageData.viewSpecifics ? pageData.viewSpecifics : {};
+			view = {
+				"page": packageData['homepage'],
+				"version": `v${packageData['version']}`,
+				"devPageContext": devPageContext,
+				"pageContextReadable": dialogs.getFriendlyDevContext(devPageContext),
+				...this.config.getDevPageAuth(devPageContext),
+				...view
+			}
+			console.log(`View:`, view);
+			console.log(`Tokens:`, this.config.getDevPageAuth(devPageContext));
+
+			await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile);
+			console.log(`${devPageContext} asset deployed`);
+		}
 	}
 
 	/**
 	 * Handles actual deployment of Any Scripts to SFMC, except building data (view) for the template. 
 	 */
-	async runAnyScriptDeployment(assetFile, view, cloudPageFile = DEPLOYMENT_TEMPLATE) {
-		const packageData = this.config.getPackageJsonData();
+	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE) {
 		// PREPARE ASSET FILE:
 		const snippetTemplatePath = path.join(this.config.sourcePath, assetFile);
 		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
-		const snippetScript = template.runFile(snippetTemplatePath, {
-			"page": packageData['homepage'],
-			"version": `v${packageData['version']}`,
-			...view
-		});
+		const snippetScript = template.runFile(snippetTemplatePath, view);
 		
 		// deploy asset to SFMC:
 		let runCloudPage = false;
-		let devAssetId = this.config.getDevPageInfo()?.devSnippetId;
+		let devAssetId = this.config.getDevPageInfo(devPageContext)?.devSnippetId;
 		let assetId;
 		if (devAssetId) {
 			// update existing asset:
 			console.log(`UPDATE DEV asset: ${devAssetId}`);
-			assetId = await this.updateSnippetBlock(devAssetId, snippetScript);
+			assetId = await this.updateSnippetBlock(devAssetId, snippetScript, devPageContext);
 			// TODO: ask if to re-deploy the Cloud Page (NO as default)
 		} else {
 			// create new asset:
 			console.log(`CREATE DEV asset`);
-			assetId = await this.createSnippetBlock(snippetScript);
+			assetId = await this.createSnippetBlock(snippetScript, devPageContext);
 			console.log(`Asset ID:`, assetId);
 			if (assetId) {
-				this.config.setDevPageInfo(undefined, assetId);
+				this.config.setDevPageInfo(devPageContext, undefined, undefined, assetId);
 				runCloudPage = true;
 			} else {
-				vscode.window.showWarningMessage(`Installation could not have been finished!`);
+				vscode.window.showWarningMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" could not have been finished!`);
 			}
 		}
 
 		if (runCloudPage) {
-			// TODO: ask for page context:
-			let devPageContext = 'cloud-page'; // 'cloud-page' / 'text-resource'
-
+			console.log(`Create Cloud Page for: ${devPageContext}`);
 			// BUILD ASSET TEMPLATE
 			const cpTemplatePath = path.join(this.config.sourcePath, cloudPageFile);
 			const deploymentScript = template.runFile(cpTemplatePath, {
-				"page": packageData['homepage'],
-				"version": `v${packageData['version']}`,
+				"page": view['homepage'],
+				"version": view['version'],
+				"userID": this.config.getSfmcUserId() || 'anonymous',
 				"devBlockID": assetId,
-				"devPageContext": devPageContext
+				"pageContextReadable": view['pageContextReadable']
 			});
 			// CREATE FILE:
-			this.snippets.saveScriptText(DEPLOYMENT_PATH, deploymentScript, true);
-			vscode.window.showInformationMessage(`Installation almost complete - please follow steps from this file to finish.`);
+			this.snippets.saveScriptText(this.snippets.getDeploymentFileName(devPageContext), deploymentScript, true);
+			vscode.window.showInformationMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" almost complete - please follow steps from this file to finish.`);
 		}
 	}
 
@@ -214,18 +235,18 @@ module.exports = class BaseCodeProvider {
 	/**
 	 * Create New Dev Asset Block based on File.
 	 * @param {string} scriptText
-	 * @param {string} assetName
+	 * @param {string} devPageContext
 	 * @returns {number|false} assetId
 	 */
-	async createSnippetBlock(scriptText, assetName) {
-		let asset = this.snippets.getReqData(scriptText, assetName);
+	async createSnippetBlock(scriptText, devPageContext) {
+		let asset = this.snippets.getReqData(scriptText, devPageContext);
 		// create the asset:
 		let assetId = 0;
 		await this.mc._post(`/asset/v1/assets/`, asset)
 				.then((data) => {					
-					let snippetPath = this.snippets.saveScriptText(SNIPPET_PATH, scriptText);
+					let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
 					this.snippets.saveMetadata(snippetPath, data);
-					vscode.window.showInformationMessage(`Dev Asset Installed.`);
+					vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Installed.`);
 					assetId = data.body.id;
 				})
 				.catch((err) => {
@@ -234,7 +255,7 @@ module.exports = class BaseCodeProvider {
 					console.debug('Dev Asset data:', asset);
 					// TODO: show error message:
 					let m = this.mc.parseRestError(err);
-					vscode.window.showErrorMessage(`Error on Installing Dev Asset! \n${m}`);
+					vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					assetId = false;
 				});
 		return assetId;
@@ -246,16 +267,16 @@ module.exports = class BaseCodeProvider {
 	 * @param {string} scriptText
 	 * @returns {number|false} assetId
 	 */
-	async updateSnippetBlock(devAssetId, scriptText) {
+	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
 		let asset = {
 			content: scriptText
 		};
 		let assetId = 0;
 		await this.mc._patch(`/asset/v1/assets/${devAssetId}`, asset)
 				.then((data) => {
-					let snippetPath = this.snippets.saveScriptText(SNIPPET_PATH, scriptText);
+					let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
 					this.snippets.saveMetadata(snippetPath, data);
-					vscode.window.showInformationMessage(`Dev Asset Updated.`);
+					vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
 					assetId = data.body.id;
 				})
 				.catch((err) => {
@@ -264,7 +285,7 @@ module.exports = class BaseCodeProvider {
 					console.debug('Dev Asset data:', asset);
 					// TODO: show error message:
 					let m = this.mc.parseRestError(err);
-					vscode.window.showErrorMessage(`Error on Updating Dev Asset! \n${m}`);
+					vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					assetId = false;
 				});
 		return assetId;

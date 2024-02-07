@@ -3,21 +3,8 @@
   "sfmc-client-id": "<< client-id of installed package >>",
   "sfmc-mid": "<< optional: only if MID is needed >>",
 	"sfmc-user-id": -1,
+	"dev-folder-path": "",
 
-	"dev-resource": {
-		"dev-page-url": "<< dev page url >>",
-		"dev-snippet-id": "<< asset ID of the code snippet >>",
-		"asset-folder-id": 0,
-		"asset-folder": "<< asset-folder >>",
-
-		"use-auth": true,
-		"auth-type": "<<token|basic>>",
-    "dev-token": "<< dev-token-comes-here >>",
-		"dev-username": "<< dev-username-comes-here >>",
-    "dev-password": "<< dev-password-comes-here >>"
-	},
-
-  "dev-folder-path": "",
   "dev-tokens": {
     "IS_PROD": "true",
     "token-name": "use {{Mustache}} syntax in your files to fill your dev files"
@@ -26,6 +13,32 @@
     "IS_PROD": "false",
     "token-name": "use {{Mustache}} syntax in your files to fill your prod files"
   },
+
+	"asset-folder-id": 0,
+	"asset-folder": "<< asset-folder >>",
+
+	"dev-page": {
+		"url": "<< dev page url >>",
+		"snippet-id": "<< asset ID of the code snippet >>",
+
+		"use-auth": true,
+		"auth-type": "<<token|basic|web (future)|none>>",
+    "dev-token": "<< dev-token-comes-here >>",
+		"dev-username": "<< dev-username-comes-here >>",
+    "dev-password": "<< dev-password-comes-here >>"
+	},
+
+	"dev-resource": {
+		"url": "<< dev page url >>",
+		"snippet-id": "<< asset ID of the code snippet >>",
+
+		"use-auth": true,
+		"auth-type": "<<token|basic>>",
+    "dev-token": "<< dev-token-comes-here >>",
+		"dev-username": "<< dev-username-comes-here >>",
+    "dev-password": "<< dev-password-comes-here >>"
+	},
+
   "proxy-any-file": {
 		"enabled": true,
 		"public-domain": "<< publicly accessible domain, e.g. NGROK forwarding domain >>",
@@ -33,8 +46,6 @@
     "main-path": "/all-in-dev",
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
-  },
-  "asset-provider": {
   },
   "extension-version": "0.0.0"
 }

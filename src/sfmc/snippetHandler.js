@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const path = require('path');
 const file = require('../auxi/file');
 const json = require('../auxi/json');
+const dialogs = require('../dialogs');
 
 const Config = require('../config');
 
@@ -19,12 +20,10 @@ class SnippetHandler {
 		this.mc = mc;
 	}
 
-	getReqData(scriptText, assetName) {
-		if (!assetName) {
-			let timestamp = Math.round(new Date().getTime() / 1000);
-			let userId = this.config.getSfmcUserId() || 'anonym';
-			assetName = `deploymentAsset.${userId}.${timestamp}`;
-		}
+	getReqData(scriptText, devPageContext = 'ssjs') {
+		let timestamp = Math.round(new Date().getTime() / 1000);
+		let userId = this.config.getSfmcUserId() || 'anonymous';
+		let assetName = `devAsset.${devPageContext}.${userId}.${timestamp}`;
 		// get asset folder in MC:
 		this.folderId = this.config.getAssetFolderId();
 
@@ -74,6 +73,7 @@ class SnippetHandler {
 		json.save(metadataPath, dt);
 	}
 
+	// TODO: not finished yet:
 	loadMetadata(filePath) {
 		let metaPath = this.snippets.getMetadataFileName(filePath);
 		let meta = json.load(metaPath);
@@ -90,20 +90,8 @@ class SnippetHandler {
 	}
 
 	async createAssetFolder() {
-		const promptTitle = `Create Dev Assets Folder`;
-		const folderName = await vscode.window.showInputBox({
-			title: promptTitle,
-			prompt: `Enter Name for your new Dev Folder in Content Builder:`,
-			placeHolder: "New Folder name - shouldn't exist within your Content Builder.",
-			ignoreFocusOut: true
-		});
-
-		const parentFolderName = await vscode.window.showInputBox({
-			title: promptTitle,
-			prompt: `Enter Parent Folder Name for Dev Assets:`,
-			placeHolder: "Existing Folder name - where your new folder should be created.",
-			ignoreFocusOut: true
-		});
+		const parentFolderName = await dialogs.getDevFolderParentName();
+		const folderName = await dialogs.getDevFolderName();
 
 		if (!folderName || !parentFolderName) {
 			return false;
@@ -173,6 +161,14 @@ class SnippetHandler {
 	getBlockName(filePath) {
 		let fName = path.basename(filePath);
 		return `${fName}-ssjs-vsc`;
+	}
+
+	getDeploymentFileName(devPathContext = 'page') {
+		return `./.vscode/deployment.${devPathContext}.ssjs`;
+	}
+
+	getDevAssetFileName(devPathContext = 'page') {
+		return `./.vscode/devAsset.${devPathContext}.ssjs`;
 	}
 }
 

@@ -65,25 +65,28 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		if (!prepResult) {
 			return;
 		}
-		
-		// SPECIFIC GET DATA:
-		if (prepResult == 'Token-Protected') {
-			console.log(`TODO: Deploying Token-Protected script.`);
-		} else if (prepResult == 'Basic-Auth') {
-			console.log(`TODO: Deploying Basic-Auth script.`);
+		console.log(`Deploy any script prep:`, prepResult, '.');
+		let deployments = [];
+		for (let devPageContext of prepResult) {
+			let authType = this.config.getDevPageAuthType(devPageContext);
+			let assetFile = '';
+			if (authType == 'basic') {
+				assetFile = DEPLOYMENT_BASIC_AUTH_TEMPLATE;
+			} else {
+				assetFile = DEPLOYMENT_TOKEN_TEMPLATE;
+			}
+			deployments.push({
+				devPageContext,
+				assetFile
+			});
 		}
-		const tkn = this.config.getDevPageToken();
-		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
-		const devAssetView = {
-			"tokenEnabled": tkn ? true : false, // TODO: make naming generic
-			"token": tkn // TODO: make naming generic
-		};
-		this.runAnyScriptDeployment(DEPLOYMENT_TOKEN_TEMPLATE, devAssetView);
+		await this.runAnyScriptDeployments(deployments);
 	}
 
 	async getDevUrl() {
 		// TODO: extract the logic to separate function in order to use it in future updates
 		// TODO: allow token exclusion
+		// TODO: pick asset based on select box dialog OR from asset file.
 		const activeTextEditor = vscode.window.activeTextEditor;
 
 		if (activeTextEditor) {
@@ -96,6 +99,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				let meta = json.load(this.getBlockMetaFile(filePath));
 				let id = meta.id;
 				let tkn = this.config.getDevPageToken();
+				// TODO: dev page context:
 				let url = this.config.getDevPageInfo().devPageUrl ? this.config.getDevPageInfo().devPageUrl : '';
 				let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
 				vscode.env.clipboard.writeText(u);

@@ -24,11 +24,17 @@ module.exports = class Config {
 		this.sourcePath = sourcePath;
 	}
 
-	getDevPageInfo() {
+	/**
+	 * Get info about Dev Page/Resource.
+	 * @param {string} pageContext page/text
+	 * @returns {object}
+	 */
+	getDevPageInfo(pageContext = 'page') {
+		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+
 		return {
-			// "public-domain": this.config['public-domain'],
-			devPageUrl: Config.validateConfigValue(this.config?.['dev-resource']?.['dev-page-url']),
-			devSnippetId: Config.validateConfigValue(this.config?.['dev-resource']?.['dev-snippet-id'])
+			devPageUrl: Config.validateConfigValue(this.config?.[contextKey]?.['url']),
+			devSnippetId: Config.validateConfigValue(this.config?.[contextKey]?.['snippet-id'])
 		};
 	}
 
@@ -37,6 +43,7 @@ module.exports = class Config {
 	}
 
 	anyPathEnabled() {
+		// TODO: check and refactor
 		return this.config['proxy-any-file']?.enabled ? this.config['proxy-any-file'].enabled : false;
 	}
 
@@ -63,7 +70,44 @@ module.exports = class Config {
 		return Object.keys(this.config[tokensKey]) ? this.config[tokensKey] : {};
 	}
 
-	getDevPageToken() {
+	/**
+	 * Get Authentication data for Dev Page/Resource.
+	 * @param {string} pageContext page/text
+	 * @returns {object} with keys: useAuth, token, username, password
+	 */
+	getDevPageAuth(pageContext = 'page') {
+		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+		let res = {
+			'useAuth': this.config?.[contextKey]?.['use-auth'] || false
+		};
+
+		if (res.useAuth) {
+			if (this.config?.[contextKey]?.['auth-type'] === 'token') {
+				// Could use Config.validateConfigValue()
+				res.token = this.config?.[contextKey]?.['dev-token'] || '';
+				res.username = '';
+				res.password = '';
+				return res;
+			} else if (this.config?.[contextKey]?.['auth-type'] === 'basic') {
+				res.token = '';
+				res.username = this.config?.[contextKey]?.['dev-username'] || '';
+				res.password = this.config?.[contextKey]?.['dev-password'] || '';
+				return res;
+			}
+		}
+		res.token = '';
+		res.username = '';
+		res.password = '';
+		return res;
+	}
+
+	getDevPageAuthType(pageContext = 'page') {
+		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+		return this.config?.[contextKey]?.['auth-type'] || 'none';
+	}
+
+	getDevPageToken(pageContext = 'page', authType = 'token') {
+		// TODO: update and use authType
 		if (Config.isServerProvider()) {
 			if (this.config?.['proxy-any-file']?.['use-token'] && this.config?.['proxy-any-file']?.['dev-token']) {
 				return this.config['proxy-any-file']['dev-token'] || false;
@@ -118,6 +162,7 @@ module.exports = class Config {
 	}
 
 	createConfigFile(subdomain, clientId, mid, publicDomain) {
+		// TODO: rework
 		const templatePath = path.join(this.sourcePath, SETUP_TEMPLATE);
 	
 		let configTemplate = jsonHandler.load(templatePath);
@@ -166,14 +211,48 @@ module.exports = class Config {
 		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
 	}
 
-	setDevPageInfo(pageUrl, snippetId) {
+	/**
+	 * Sets params for Dev Page/Resource. 
+	 */
+	setDevPageInfo(pageContext = 'page', authOption, pageUrl, snippetId) {
+		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+		
+		if (authOption) {
+			this.config[contextKey]['use-auth'] = authOption !== 'none' ? true : false;
+			this.config[contextKey]['auth-type'] = authOption;
+		}
 		if (pageUrl) {
-			this.config['dev-resource']['dev-page-url'] = pageUrl;
+			this.config[contextKey]['url'] = pageUrl;
 		}
 		if (snippetId) {
-			this.config['dev-resource']['dev-snippet-id'] = snippetId;
+			this.config[contextKey]['snippet-id'] = snippetId;
 		}
 		jsonHandler.save(Config.getUserConfigPath(), this.config);
+	}
+
+	/**
+	 * Sets (or generates) auth secrets for Dev Page/Resource.
+	 * @param {text} pageContext 
+	 */
+	generateDevTokens(pageContext = 'page') {
+		// TODO: add optional args for token, username & password
+		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+		if (!this.config[contextKey]['use-auth']) {
+			console.log(`generateDevTokens(): No Auth used.`);
+		} else {
+			if (this.config[contextKey]['auth-type'] === 'token') {
+				this.config[contextKey]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
+				delete this.config[contextKey]["dev-username"];
+				delete this.config[contextKey]["dev-password"];
+			} else if (this.config[contextKey]['auth-type'] === 'basic') {
+				this.config[contextKey]["dev-username"] = "user";
+				this.config[contextKey]["dev-password"] = generator.generate({ length: 16, numbers: true });
+				delete this.config[contextKey]["dev-token"];
+			} else {
+				console.log(`generateDevTokens(): Unknown Auth used.`);
+			}
+		}
+		this.saveConfigFile();
 	}
 
 	setAssetFolderId(id, folderName) {
@@ -204,6 +283,13 @@ module.exports = class Config {
 		this.config = config;
 
 		return config;
+	}
+
+	saveConfigFile(withFileOpen = false) {
+		jsonHandler.save(Config.getUserConfigPath(), this.config);
+		if (withFileOpen) {
+			vscode.workspace.openTextDocument(Config.getUserConfigPath());
+		}
 	}
 
 	static configFileExists() {
