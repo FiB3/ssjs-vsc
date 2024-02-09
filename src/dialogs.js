@@ -135,6 +135,22 @@ module.exports = {
 		});
 		return cloudPageUrl || false;
 	},
+	
+	/**
+	 * Simple Yes/No prompt.
+	 * @param {string} title 
+	 * @param {string} prompt 
+	 * @returns {boolean}
+	 */
+	async yesNoConfirm(title, prompt, placeholder = prompt) {
+		const selected = await vscode.window.showQuickPick(['Yes', 'No'], {
+			title: title,
+			prompt: prompt,
+			placeHolder: placeholder,
+			ignoreFocusOut: true
+		});
+		return selected == 'Yes';
+	},
 
 	/**
 	 * Ask user to select the type of the Dev Page - for cases where only one is required.

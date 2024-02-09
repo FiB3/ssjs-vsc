@@ -10,7 +10,6 @@ const file = require('./auxi/file');
 
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 const DEPLOYED_NAME = 'deployment.ssjs';
-const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
@@ -86,25 +85,19 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async getDevUrl() {
-		const activeTextEditor = vscode.window.activeTextEditor;
+		const filePath = vsc.getActiveEditor();
 
-		if (activeTextEditor) {
-			// Get the URI (Uniform Resource Identifier) of the currently open file
-			const fileUri = activeTextEditor.document.uri;
-			// Convert the URI to a file path
-			const filePath = fileUri.fsPath;
-			// TODO: file type check:
-			if (USABLE_EXT.includes(path.extname(filePath))) {
-				let pth = path.relative(Config.getUserWorkspacePath(), filePath);
-
-				let tkn = this.config.getDevPageToken();
-				let u = tkn ? `?token=${tkn}&path=${pth}` : `?path=${pth}`;
-				vscode.env.clipboard.writeText(u);
-			} else {
-				vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
+		if (filePath) {
+			// file type check:
+			if (!checks.isFileSupported(filePath, !autoUpload)) {
+				return;
 			}
-		} else {
-			vscode.window.showErrorMessage('No file is currently open.');
+			
+			let pth = path.relative(Config.getUserWorkspacePath(), filePath);
+
+			let tkn = this.config.getDevPageToken();
+			let u = tkn ? `?token=${tkn}&path=${pth}` : `?path=${pth}`;
+			vscode.env.clipboard.writeText(u);
 		}
 	}
 }

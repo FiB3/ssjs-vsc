@@ -3,9 +3,8 @@ const vscode = require('vscode');
 module.exports = {
 
 	/**
-	 * Check if there is an active editor tab window and get URL from it.
-	 * @returns {string|boolean} URL or false
-	 
+	 * Check if there is an active editor tab window and get URL of active file.
+	 * @returns {string|boolean} path to file or false
 	 */
 	getActiveEditor: () => {
 		const activeTextEditor = vscode.window.activeTextEditor;

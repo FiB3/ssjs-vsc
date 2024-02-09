@@ -8,7 +8,7 @@
 	 */
 	Platform.Load("core","1.1.5");
 
-	Variable.SetValue("devPageContext", '{{devPageContext}}'); /* values: 'page' - cloud page / 'text' - text resource */
+	// Variable.SetValue("devPageContext", '{{devPageContext}}'); /* values: 'page' - cloud page / 'text' - text resource */
 	var TOKEN_ENABLED = {{useAuth}};
 	var TOKEN_DEFAULT = '{{token}}';
 

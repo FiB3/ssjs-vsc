@@ -157,6 +157,30 @@ module.exports = class Config {
 		return Config.validateConfigValue(this.config['sfmc-user-id']);
 	}
 
+	/**
+	 * Run a quick check, if the setup seems valid.
+	 * @returns {boolean}
+	 */
+	isSetupValid() {
+		let sfmcValid = this.config['sfmc-domain'] && this.config['sfmc-client-id'] ? true : false;
+		let serverProviderValid = true;
+		if (Config.isServerProvider()) {
+			serverProviderValid = Boolean(this.config['proxy-any-file']?.['public-domain']);
+		}
+		const assetFolderValid = Boolean(this.config['asset-folder-id']);
+
+		let devContextsValid = this.isDevPageSet()
+				? Boolean(this.config['dev-page']?.['url'] && this.config['dev-page']?.['snippet-id'])
+				: true;
+
+		if (this.isDevResourceSet()) {
+			devContextsValid = devContextsValid && Boolean(this.config['dev-resource']?.['url'] && this.config['dev-resource']?.['snippet-id']);
+		}
+		let valid = sfmcValid && serverProviderValid && assetFolderValid && devContextsValid;
+		console.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
+		return valid;	
+	}
+
 	isDevPageSet() {
 		return this.config['dev-page']?.['snippet-id'] ? true : false;
 	}

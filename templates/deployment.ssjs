@@ -26,7 +26,8 @@
     * @version: {{version}}
     * Deployed for: << your-email-here >> (User ID: {{userID}})
 	 */
-	VAR @devBlockID
+	VAR @devBlockID, @devPageContext
 	SET @devBlockID = {{devBlockID}}
+	SET @devPageContext = '{{devPageContext}}' // 'page' for CloudPage, 'text' for Code Resources
 ]%%
 %%=ContentBlockByID(v(@devBlockID))=%%

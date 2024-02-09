@@ -12,8 +12,6 @@ const dialogs = require('./dialogs');
 const checks = require('./checks');
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
-const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
-
 module.exports = class BaseCodeProvider {
 
 	constructor(config, statusBar) {
@@ -96,10 +94,12 @@ module.exports = class BaseCodeProvider {
 		// TODO: Check setup version:
 		
 		// Confirm that everything is set by user:
-		const confirmed = await dialogs.confirmPreInstallSetup();
-		if (!confirmed) {
-			return false;
-		}	
+		if (!this.config.isSetupValid()) {
+			const confirmed = await dialogs.confirmPreInstallSetup();
+			if (!confirmed) {
+				return false;
+			}
+		}
 
 		// Check Asset Folder existence:
 		if (!await this.snippets.checkAssetFolder()) {
@@ -138,7 +138,7 @@ module.exports = class BaseCodeProvider {
 	 * Runs deployments for all Any Scripts based on parameters.
 	 * @param {Array<>} pagesData
 	 */
-	async runAnyScriptDeployments(pagesData) {
+	async runAnyScriptDeployments(pagesData, silenced = false) {
 		const packageData = this.config.getPackageJsonData();
 
 		for (let pageData of pagesData) {
@@ -166,7 +166,7 @@ module.exports = class BaseCodeProvider {
 	/**
 	 * Handles actual deployment of Any Scripts to SFMC, except building data (view) for the template. 
 	 */
-	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE) {
+	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE, silenced = false) {
 		// PREPARE ASSET FILE:
 		const snippetTemplatePath = path.join(this.config.sourcePath, assetFile);
 		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
@@ -181,6 +181,7 @@ module.exports = class BaseCodeProvider {
 			console.log(`UPDATE DEV asset: ${devAssetId}`);
 			assetId = await this.updateSnippetBlock(devAssetId, snippetScript, devPageContext);
 			// TODO: ask if to re-deploy the Cloud Page (NO as default)
+			runCloudPage = await dialogs.yesNoConfirm(`Update deployment files?`, `Do you want to generate new deployment files for ${view['pageContextReadable']}?`);
 		} else {
 			// create new asset:
 			console.log(`CREATE DEV asset`);
@@ -203,6 +204,7 @@ module.exports = class BaseCodeProvider {
 				"version": view['version'],
 				"userID": this.config.getSfmcUserId() || 'anonymous',
 				"devBlockID": assetId,
+				"devPageContext": devPageContext,
 				"pageContextReadable": view['pageContextReadable']
 			});
 			// CREATE FILE:
@@ -219,9 +221,8 @@ module.exports = class BaseCodeProvider {
 			const fileUri = activeTextEditor.document.uri;
 			// Convert the URI to a file path
 			const filePath = fileUri.fsPath;
-
-			// TODO: replace with Config.isFileTypeAllowed(filePath)
-			if (!USABLE_EXT.includes(path.extname(filePath))) {
+			
+			if (!checks.isFileSupported(filePath)) {
 				return false;
 			}
 			let fileText = template.runScriptFile(filePath, this.config, isDev);
@@ -321,6 +322,33 @@ module.exports = class BaseCodeProvider {
 			};
 		}
 		return false;
+	}
+
+	/**
+	 * Build data for AnyScript deployment (for this.runAnyScriptDeployments())
+	 * @param {Array} contexts 
+	 * @param {String} tokenTemplatePath 
+	 * @param {String} basicAuthTemplatePath 
+	 * @param {String} webAppTemplatePath for future use
+	 * @returns {Array<Object>}
+	 */
+	_getContextInfoForDeployment(contexts = ['page', 'text'], tokenTemplatePath, basicAuthTemplatePath, webAppTemplatePath) {
+		console.log(`Deploy any script prep:`, contexts, '.');
+		let deployments = [];
+		for (let devPageContext of contexts) {
+			let authType = this.config.getDevPageAuthType(devPageContext);
+			let assetFile = '';
+			if (authType == 'basic') {
+				assetFile = basicAuthTemplatePath;
+			} else {
+				assetFile = tokenTemplatePath;
+			}
+			deployments.push({
+				devPageContext,
+				assetFile
+			});
+		}
+		return deployments;
 	}
 
 	_checkCommand() {

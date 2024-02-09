@@ -8,12 +8,17 @@ module.exports = {
 
 	/**
 	 * Check if the file is supported for deployment.
+	 * @param {string} filePath
+	 * @param {boolean} showWarning shows warning message if file is not supported
+	 * @returns {boolean} true if file is supported, false otherwise.
 	 */
-	isFileSupported: (filePath) => {
+	isFileSupported: (filePath, showWarning = true) => {
 		if (USABLE_EXT.includes(path.extname(filePath))) {
 			return true;
 		}
-		vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not allowed for deployment!`);
+		if (showWarning) {
+			vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not supported!`);
+		}
 		return false;
 	},
 

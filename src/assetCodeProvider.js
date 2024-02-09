@@ -2,10 +2,9 @@ const vscode = require('vscode');
 var path = require('path');
 
 const BaseCodeProvider = require('./baseCodeProvider');
-const Config = require('./config');
-const vsc = require('./vsc.js');
+// const Config = require('./config');
 const checks = require('./checks');
-const dialogs = require('./dialogs');
+const vsc = require('./vsc');
 
 const { template } = require('./template');
 const file = require('./auxi/file');
@@ -13,8 +12,6 @@ const json = require('./auxi/json');
 
 const DEPLOYMENT_TOKEN_TEMPLATE = './templates/assetProvider/tokenDeployment.ssjs';
 const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/assetProvider/formAuthDeployment.ssjs';
-
-const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
@@ -29,18 +26,11 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async uploadScript(autoUpload) {
-		const activeTextEditor = vscode.window.activeTextEditor;
+		const filePath = vsc.getActiveEditor();
 
-		if (activeTextEditor) {
-			// Get the URI (Uniform Resource Identifier) of the currently open file
-			const fileUri = activeTextEditor.document.uri;
-			// Convert the URI to a file path
-			const filePath = fileUri.fsPath;
-			// TODO: file type check:
-			if (!USABLE_EXT.includes(path.extname(filePath))) {
-				if (!autoUpload) {
-					vscode.window.showWarningMessage(`File type ${path.extname(filePath)} is not allowed for deployment!`);
-				}
+		if (filePath) {
+			// file type check:
+			if (!checks.isFileSupported(filePath, !autoUpload)) {
 				return;
 			}
 			// if not existing, run dialog:
@@ -55,9 +45,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			} else {
 				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
-		} else {
-			console.log('No file is currently open.');
-			// vscode.window.showErrorMessage('No file is currently open.');
 		}
 	}
 
@@ -67,21 +54,18 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		if (!prepResult) {
 			return;
 		}
-		console.log(`Deploy any script prep:`, prepResult, '.');
-		let deployments = [];
-		for (let devPageContext of prepResult) {
-			let authType = this.config.getDevPageAuthType(devPageContext);
-			let assetFile = '';
-			if (authType == 'basic') {
-				assetFile = DEPLOYMENT_BASIC_AUTH_TEMPLATE;
-			} else {
-				assetFile = DEPLOYMENT_TOKEN_TEMPLATE;
-			}
-			deployments.push({
-				devPageContext,
-				assetFile
-			});
-		}
+
+		let deployments = this._getContextInfoForDeployment(prepResult, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
+		await this.runAnyScriptDeployments(deployments);
+	}
+
+	async updateAnyScript(silenced = false) {
+		// get options set in ssjs-setup.json:
+		let contexts = [];
+		this.config.isDevPageSet() ? contexts.push('page') : null;
+		this.config.isDevResourceSet() ? contexts.push('text') : null;
+
+		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
 		await this.runAnyScriptDeployments(deployments);
 	}
 
