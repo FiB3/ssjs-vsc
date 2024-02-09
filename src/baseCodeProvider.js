@@ -3,7 +3,7 @@ var path = require('path');
 
 const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
-const SnippetHandler = require('./sfmc/snippetHandler');
+const SnippetHandler = require('./snippetHandler');
 const { template } = require('./template');
 const json = require('./auxi/json');
 
@@ -242,26 +242,9 @@ module.exports = class BaseCodeProvider {
 	 * @returns {number|false} assetId
 	 */
 	async createSnippetBlock(scriptText, devPageContext) {
-		let asset = this.snippets.getReqData(scriptText, devPageContext);
-		// create the asset:
-		let assetId = 0;
-		await this.mc._post(`/asset/v1/assets/`, asset)
-				.then((data) => {					
-					let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
-					this.snippets.saveMetadata(snippetPath, data);
-					vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Installed.`);
-					assetId = data.body.id;
-				})
-				.catch((err) => {
-					console.error('Create Dev Asset ERR:', err);
-					asset.content = '<<script>>';
-					console.debug('Dev Asset data:', asset);
-					// TODO: show error message:
-					let m = this.mc.parseRestError(err);
-					vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
-					assetId = false;
-				});
-		return assetId;
+		let asset = this.snippets.getReqForDeploymentAsset(scriptText, devPageContext);
+		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
+		return await this.snippets.createSfmcSnippet(asset, devPageContext, snippetPath);
 	}
 	
 	/**
@@ -271,27 +254,8 @@ module.exports = class BaseCodeProvider {
 	 * @returns {number|false} assetId
 	 */
 	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
-		let asset = {
-			content: scriptText
-		};
-		let assetId = 0;
-		await this.mc._patch(`/asset/v1/assets/${devAssetId}`, asset)
-				.then((data) => {
-					let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
-					this.snippets.saveMetadata(snippetPath, data);
-					vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
-					assetId = data.body.id;
-				})
-				.catch((err) => {
-					console.error('Update Dev Asset ERR:', err);
-					asset.content = '<<script>>';
-					console.debug('Dev Asset data:', asset);
-					// TODO: show error message:
-					let m = this.mc.parseRestError(err);
-					vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
-					assetId = false;
-				});
-		return assetId;
+		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
+		return await this.snippets.updateSfmcSnippet(devAssetId, scriptText, devPageContext, snippetPath);
 	}
 
 	/**
