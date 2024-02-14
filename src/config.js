@@ -370,6 +370,7 @@ module.exports = class Config {
 		return pth;
 	}
 
+	// Move to `vsc` module
 	static getUserWorkspacePath() {
 		// TODO: improve with e.g.: workspace.workspaceFolders
 		return vscode.workspace.rootPath;

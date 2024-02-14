@@ -8,6 +8,8 @@ const { app } = require('./proxy');
 const { template } = require('./template');
 const file = require('./auxi/file');
 const dialogs = require('./dialogs');
+const vsc = require('./vsc');
+const checks = require('./checks');
 
 const DEPLOYMENT_TOKEN_TEMPLATE = './templates/serverProvider/tokenDeployment.ssjs';
 const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/serverProvider/formAuthDeployment.ssjs';
@@ -92,20 +94,59 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async getDevUrl() {
-		// TODO:
-		const filePath = vsc.getActiveEditor();
+		const pageDetails = await this._getContextForGetUrl();
 
-		if (filePath) {
-			// file type check:
-			if (!checks.isFileSupported(filePath, !autoUpload)) {
-				return;
-			}
-			
-			let pth = path.relative(Config.getUserWorkspacePath(), filePath);
-
-			let tkn = this.config.getDevPageToken();
-			let u = tkn ? `?token=${tkn}&path=${pth}` : `?path=${pth}`;
-			vscode.env.clipboard.writeText(u);
+		if (pageDetails) {
+			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.filePath);
+			vscode.env.clipboard.writeText(url);
 		}
+	}
+
+	/**
+	 * Validates if the current file is supported for deployment and returns the Dev Page Contexts.
+	 * @returns {Object|false} Object with filePath, asset metadata and devPageContext. False if something is wrong.
+	 */
+	async _getContextForGetUrl() {
+		// TODO: pick asset also based on asset file
+		const filePath = vsc.getActiveEditor(true);
+		if (filePath && checks.isFileSupported(filePath)) {
+			// let metadata = json.load(this.snippets.getMetadataFileName(filePath));
+
+			let devPageContext;
+			if (this.config.isDevPageSet() && this.config.isDevResourceSet()) {
+				devPageContext = await dialogs.pickDevPageContext();
+			} else if (this.config.isDevPageSet()) {
+				devPageContext = 'page';
+			} else if (this.config.isDevResourceSet()) {
+				devPageContext = 'text';
+			} else {
+				vscode.window.showErrorMessage('No Dev Page or Resource is set.');
+				return false;
+			}
+			return {
+				filePath,
+				metadata: false,
+				devPageContext
+			};
+		}
+		console.log(`Path not supported? ${filePath}?`);
+		return false;
+	}
+
+	_getDevUrl(devPageContext, filePath) {
+		let tokenConfig = this.config.getDevPageAuth(devPageContext);
+		let tkn;
+
+		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
+			// TODO: this is not perfect, but good enough for now:
+			vscode.window.showInformationMessage(`URL in clipboard. Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`);
+		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
+			vscode.window.showInformationMessage(`URL in clipboard.`);
+			tkn = tokenConfig.token;
+		}
+
+		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
+		let u = tkn ? `${url}?token=${tkn}&path=${filePath}` : `${url}?path=${filePath}`;
+		vscode.env.clipboard.writeText(u);
 	}
 }
