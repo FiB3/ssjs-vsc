@@ -55,6 +55,10 @@ module.exports = class BaseCodeProvider {
 		this._checkCommand();
 	}
 
+	async updateAnyScript(silenced = false) {
+		this._checkCommand();
+	}
+
 	async uploadToProduction() {
 		// base provider will only be able to build to clipboard
 		// other providers will need to have more checks.
@@ -181,7 +185,9 @@ module.exports = class BaseCodeProvider {
 			console.log(`UPDATE DEV asset: ${devAssetId}`);
 			assetId = await this.updateSnippetBlock(devAssetId, snippetScript, devPageContext);
 			// TODO: ask if to re-deploy the Cloud Page (NO as default)
+			console.log(`${devPageContext}, 1`);
 			runCloudPage = await dialogs.yesNoConfirm(`Update deployment files?`, `Do you want to generate new deployment files for ${view['pageContextReadable']}?`);
+			console.log(`${devPageContext}, 2`);
 		} else {
 			// create new asset:
 			console.log(`CREATE DEV asset`);
@@ -254,7 +260,9 @@ module.exports = class BaseCodeProvider {
 	 * @returns {number|false} assetId
 	 */
 	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
+		console.log(`${devPageContext}, 1.1`);
 		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
+		console.log(`${devPageContext}, 1.2`);
 		return await this.snippets.updateSfmcSnippet(devAssetId, scriptText, devPageContext, snippetPath);
 	}
 

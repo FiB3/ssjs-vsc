@@ -6,6 +6,7 @@ const generator = require('generate-password');
 const jsonHandler = require('./auxi/json'); // TODO: change to `json` only
 const file = require('./auxi/file');
 const folder = require('./auxi/folder');
+const checks = require('./checks');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FOLDER_NAME = '.vscode';
@@ -130,6 +131,22 @@ module.exports = class Config {
 		return {
 			anyUser: this.config['proxy-any-file']['auth-username'],
 			anyPassword: this.config['proxy-any-file']['auth-password']
+		};
+	}
+
+	getServerProvider() {
+		const publicDomain = Config.validateConfigValue(this.config?.['proxy-any-file']?.['public-domain']);
+		const mainPath = Config.validateConfigValue(this.config?.['proxy-any-file']?.['main-path']);
+		const authUser = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-username']);
+		const authPassword = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-password']);
+		const serverUrl = checks.isUrl(publicDomain) && mainPath ? Config.createUrl(publicDomain, mainPath) : false;
+
+		return {
+			serverUrl: serverUrl,
+			publicDomain,
+			mainPath,
+			authUser,
+			authPassword
 		};
 	}
 
@@ -298,6 +315,20 @@ module.exports = class Config {
 		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 
+	setServerProvider(publicDomain = 'https://127.0.0.1', mainPath = '/all-in-dev') {
+		if (!this.config['proxy-any-file']) {
+			this.config['proxy-any-file'] = {
+				"enabled": true,
+				"port": 4000,
+				"auth-username": "user",
+				"auth-password": generator.generate({ length: 16, numbers: true })
+			};
+		}
+		this.config['proxy-any-file']['public-domain'] = publicDomain;
+		this.config['proxy-any-file']['main-path'] = mainPath;
+		this.saveConfigFile();
+	}
+
 	setSfmcUserId(userId) {
 		this.config['sfmc-user-id'] = userId || 0;
 		jsonHandler.save(Config.getUserConfigPath(), this.config);
@@ -424,5 +455,10 @@ module.exports = class Config {
 				|| (typeof(value) == 'string' && value?.startsWith('<<'))
 			? false
 			: value;
+	}
+
+	static createUrl(fqdn, path) {
+    const url = new URL(path, fqdn);
+    return url.href;
 	}
 }

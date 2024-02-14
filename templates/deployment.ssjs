@@ -28,6 +28,6 @@
 	 */
 	VAR @devBlockID, @devPageContext
 	SET @devBlockID = {{devBlockID}}
-	SET @devPageContext = '{{devPageContext}}' // 'page' for CloudPage, 'text' for Code Resources
+	SET @devPageContext = '{{devPageContext}}' /* 'page' for CloudPage, 'text' for Code Resources */
 ]%%
 %%=ContentBlockByID(v(@devBlockID))=%%

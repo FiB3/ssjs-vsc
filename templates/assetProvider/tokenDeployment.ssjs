@@ -49,7 +49,7 @@
 		// exp_date.setMinutes(exp_date.getMinutes() + 1);
 		exp_date.setDate(exp_date.getDate() + 1);
 		var cookieHashed = Platform.Function.MD5(value, "UTF-8");
-	Platform.Response.SetCookie("ssjs-token", cookieHashed, exp_date, true);
+		Platform.Response.SetCookie("ssjs-token", cookieHashed, exp_date, true);
 	}
 
 	function getAssetId() {

@@ -85,18 +85,7 @@ function checkPathSecurity(req, res, next) {
   }
 
   if (passOk) {
-    // check if token is also used:
-    if (config.getDevPageToken() !== false) {
-      if (req.query?.token === config.getDevPageToken()) {
-        next();
-      } else {
-        console.error('Any-proxy token not valid');
-        console.info('TKN:', req.query);
-        send401Response(res, 'Not Authorised by token.');
-      }
-    } else {
-      next();
-    }
+		next();
   } else {
     console.error('Basic AUTH not valid!');
     send401Response(res, 'Not Authorised by Path.');

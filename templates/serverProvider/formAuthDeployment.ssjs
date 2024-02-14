@@ -1,3 +1,4 @@
+
 <script runat="server">
   /*
    * Development Page for SSJS Manager (Extension for Visual Studio Code).
@@ -8,8 +9,11 @@
    */
   Platform.Load("core","1.1.5");
 
-  var AUTH_ENABLED = {{authEnabled}};
+	// Variable.SetValue("devPageContext", '{{devPageContext}}'); /* values: 'page' - cloud page / 'text' - text resource */
+	var AUTH_ENABLED = {{useAuth}};
   var AUTH_DEFAULT = '{{username}}:{{password}}';
+	var VSC_DOMAIN = "{{server-url}}";
+	var SSJS_BASIC_ENCRYPTED = "{{basic-encrypted-secret}}";
 
   function checkHashedAuth(hashedValue) {
     var authHashed = Platform.Function.MD5(AUTH_DEFAULT, "UTF-8");
@@ -41,22 +45,58 @@
 
   function setAuthCookie(value) {
     var exp_date = new Date();
-    exp_date.setMinutes(exp_date.getMinutes() + 1);
-    // exp_date.setDate(exp_date.getDate() + 1);
+    // exp_date.setMinutes(exp_date.getMinutes() + 1);
+    exp_date.setDate(exp_date.getDate() + 1);
     var cookieHashed = Platform.Function.MD5(value, "UTF-8");
 		Platform.Response.SetCookie("ssjs-basic-auth", cookieHashed, exp_date, true);
   }
 
-	function getAssetId() {
-    // TODO: ensure that the param is provided and is OK?
-    var assetId = Request.GetQueryStringParameter("asset-id");
-    assetId = protectFromInjection(assetId);
-    // add assetId validation - maybe whitelist?
-    return assetId;
-  }
+	function getScriptPath() {
+		var pth = Request.GetQueryStringParameter("path");
+		if (pth) {
+			Variable.SetValue("path", pth);
+			return pth;
+		} else {
+			setNok(400, "No path provided - please specify path query parameter.", "none");
+			return false;
+		}
+	}
+
+	function setOk(content) {
+		Variable.SetValue("ok", true);
+		Variable.SetValue("status", "200");
+		Variable.SetValue("content", content);
+		Variable.SetValue("authenticated", true);
+	}
+
+	function setNok(status, content, path) {
+		Variable.SetValue("ok", false);
+		Variable.SetValue("authenticated", false);
+		if (status) { Variable.SetValue("status", status + ''); }
+		if (content) { Variable.SetValue("content", content + ''); }
+		if (path) { Variable.SetValue("path",	path); }
+	}
+
+	function callScript(devUrl, path) {
+		var req = new Script.Util.HttpRequest(devUrl);
+    req.method = "GET";
+    req.emptyContentHandling = 0;
+    req.retries = 2;
+    req.continueOnError = true;
+    req.setHeader("ssjs-authorization", SSJS_BASIC_ENCRYPTED);
+
+    var response = req.send();
+
+    if (response.statusCode + '' === '200' || response.statusCode + '' === '304') {
+			setOk(response.content);
+    } else {
+			setNok(response.statusCode, response.content + '');
+    }
+	}
 
 	try {
-    var authenticated = false;
+    // set default state:
+		setNok(400, "Unknown failure.", "none");
 
 		if (AUTH_ENABLED) {
 			var authCookie = getTokenCookie();
@@ -72,12 +112,14 @@
     }
 
 		if (authenticated) {
-      var assetId = getAssetId();
-      Variable.SetValue("id", assetId);
-      Variable.SetValue("authenticated", true);
+      var path = getScriptPath();
+
+			if (path) {
+				var devUrl = VSC_DOMAIN + "?path=" + path;
+				callScript(devUrl);
+			}
     } else {
-      Variable.SetValue("authenticated", 'none');
-			Variable.SetValue("id", false);
+			setNok(401, "Not authenticated.", "none");
     }
 
 		Platform.Response.SetResponseHeader("Strict-Transport-Security", "max-age=200");
@@ -90,29 +132,35 @@
     Write("<br>" + Stringify(err));
   }
 </script>
-
-%%[ IF @authenticated == TRUE and @id == 'none' THEN ]%%
-	<h2>SSJS Manager</h2>
-	<p>Provide <code>asset-id</code> query parameter to load the content block.</p>
-
-%%[ ELSEIF @authenticated == TRUE THEN ]%%
-	%%=ContentBlockByID(v(@id))=%%
+%%[ IF @authenticated == TRUE AND @ok == TRUE AND Not Empty(@path) THEN ]%%
+	%%=TreatAsContent(@content)=%%
+%%[ ELSEIF NOT @authenticated == TRUE AND @status == '401' THEN ]%%
+	%%[ IF @devPageContext == 'page' THEN ]%%
+		<h2>SSJS Manager Login</h2>
+		<form method="post">
+		<!-- action="/" -->
+				<div>
+						<label for="username">Username:</label>
+						<input type="text" id="username" name="username" required>
+				</div>
+				<div>
+						<label for="password">Password:</label>
+						<input type="password" id="password" name="password" required>
+				</div>
+				<div>
+						<input type="submit" value="Login">
+				</div>
+		</form>
+	%%[ ELSE ]%%
+401
+Not authenticated.
+	%%[ ENDIF ]%%
 %%[ ELSE ]%%
-
-<h2>SSJS Manager Login</h2>
-<form method="post">
-<!-- action="/" -->
-    <div>
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username" required>
-    </div>
-    <div>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" required>
-    </div>
-    <div>
-        <input type="submit" value="Login">
-    </div>
-</form>
-
+	%%[ IF @devPageContext == 'page' THEN ]%%
+		<h3>%%=v(@status)=%%</h3>
+		<p>%%=v(@content)=%%</p>
+	%%[ ELSE ]%%
+%%=v(@status)=%%
+%%=v(@content)=%%
+	%%[ ENDIF ]%%
 %%[ ENDIF ]%%

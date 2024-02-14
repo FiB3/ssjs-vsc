@@ -7,9 +7,10 @@ const Config = require('./config');
 const { app } = require('./proxy');
 const { template } = require('./template');
 const file = require('./auxi/file');
+const dialogs = require('./dialogs');
 
-const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
-const DEPLOYED_NAME = 'deployment.ssjs';
+const DEPLOYMENT_TOKEN_TEMPLATE = './templates/serverProvider/tokenDeployment.ssjs';
+const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/serverProvider/formAuthDeployment.ssjs';
 
 module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
@@ -17,8 +18,8 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		super(config, statusBar);
 	}
 
-	async init() {
-		this.statusBar.setEnabled();
+	async init(testConnection = false) {
+		super.init(true, testConnection);
 	}
 
 	async deployAnyScript() {
@@ -27,39 +28,45 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 			const encodedCredentials = Buffer.from(credentials, 'utf-8').toString('base64');
 			return `Basic ${encodedCredentials}`;
 		}
-		// check setup file (existence, public-domain and it's setup, dev-token):
-		let configData = [];
-		try {
-			configData = this.config.loadConfig();
-		} catch (err) {
-			vscode.window.showErrorMessage(`Setup file not found or incorrect. Please, check it and create it using "SSJS: Create Config".`);
-			console.error(`ServerProvider.deployAnyScript()`, err);
+
+		// add viewSpecifics to deployments:
+		let serverData = this.config.getServerProvider();
+		// TODO: check the setup, show setup warning, if something is missing:
+		if (!serverData.serverUrl) {
+			let d = await dialogs.getTunnelPublicDomain();
+			if (d) {
+				// set public domain
+				this.config.setServerProvider(d);
+				// load data again:
+				serverData = this.config.getServerProvider();
+			}
+			if (!d || !serverData.serverUrl) {
+				vscode.window.showWarningMessage(`Server Provider setup is missing data. Please check your settings.`);
+				return;
+			}
 		}
-		if (!configData['public-domain'] || !configData['proxy-any-file']?.['main-path']) {
-			vscode.window.showWarningMessage(`Some project setup is not filled - check your .vscode/ssjs-setup.json file.`);
+
+		let prepResult = await this.prepareAnyScriptDeployment();
+		if (!prepResult) {
 			return;
 		}
-	
-		const packageData = this.config.getPackageJsonData();
-	
-		// load script from "templates/deployment.ssjs"
-		const templatePath = path.join(this.config.sourcePath, DEPLOYMENT_TEMPLATE);
-		const deployScript = template.runFile(templatePath, {
-			"page": packageData['repository'],
-			"version": packageData['version'],
-			"proxy-any-file_main-path": configData['proxy-any-file']['main-path'], // TODO: get from project ssjs-setup.json (is it possible to keep ".")
-			"public-domain": configData['public-domain'],  // TODO: get from project ssjs-setup.json,
-			"basic-encrypted-secret": generateBasicAuthHeader(configData['proxy-any-file']['auth-username'], configData['proxy-any-file']['auth-password'])
+
+		let deployments = this._getContextInfoForDeployment(prepResult, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
+		deployments.forEach((d) => {
+			d.viewSpecifics = {
+				'server-url': serverData.serverUrl,
+				'public-domain': serverData.publicDomain,
+				'main-path': serverData.mainPath,
+				'basic-encrypted-secret': generateBasicAuthHeader(serverData.authUser, serverData.authPassword)
+			}			
 		});
-	
-		// save into active editor (root) and open:
-		let deployPath = path.join(Config.getUserWorkspacePath(), DEPLOYED_NAME);
-		file.save(deployPath, deployScript);
-		vscode.workspace.openTextDocument(deployPath).then((doc) =>
-			vscode.window.showTextDocument(doc, {
-			})
-		);
+		// run deployments:
+		await this.runAnyScriptDeployments(deployments);
 	}
+
+	// async updateAnyScript(silenced = false) {
+	// 	// TODO:
+	// }
 
 	async startServer() {
 		if (!app.running) {
@@ -85,6 +92,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async getDevUrl() {
+		// TODO:
 		const filePath = vsc.getActiveEditor();
 
 		if (filePath) {
