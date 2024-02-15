@@ -62,10 +62,19 @@ To be run using `Ctrl` + `Shift` + `P`.
 - `SSJS: Update API Credentials`: Update API Credentials of your SFMC instance.
 - `SSJS: Create Dev Page Code`: This will help you deploy a Cloud Page that simplifies SSJS Dev.
 
+## Sponsors
+
+I would like to thank my sponsors:
+
+[![bluez.io](https://bluez.io/wp-content/uploads/2021/10/cropped-bluezio-symbol-60x60.png "bluez.io")](https://bluez.io/)  
+bluez.io
+
+Sponsoring coming soon! For now please enjoy and share!
+
 ## Known Issues
 
-Alpha release - some errors may appear.  
-In such case, let me know on my GitHub! (issues page).
+Work in progress - some errors may appear.  
+In such case, let me know on my [GitHub here!](https://github.com/fib3/ssjs-vsc/issues)
 
 - Upcoming improvements to security of development Cloud Pages.
 - No check of Content Folder existence.

@@ -29,7 +29,7 @@ exports.app = {
     app.use(morgan('dev'));
 
     if (config.anyPathEnabled()) {
-      console.log(`Any-proxy URL: ${config.getAnyMainPath()}, TOKEN: '${config.getDevPageToken()}'`);
+      console.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
 
       app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res, next) => {
         let pth = req.query?.path;
@@ -76,7 +76,7 @@ function checkPathSecurity(req, res, next) {
       const encodedCredentials = authHeader.split(' ')[1];
       const decodedCredentials = Buffer.from(encodedCredentials, 'base64').toString('utf-8');
       const [username, password] = decodedCredentials.split(':');
-      const { anyUser, anyPassword } = config.getBasicAuth();
+      const { anyUser, anyPassword } = config.getServerProviderBasicAuth();
       
       passOk = username === anyUser && password === anyPassword;
     }

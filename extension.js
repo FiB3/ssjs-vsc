@@ -38,6 +38,9 @@ async function activate(context) {
 		vscode.window.showInformationMessage(`No setup file found. Run 'Create Config' command to create it.`);
 	} else {
 		config.loadConfig();
+		// check config:
+		await checkSetup();
+		// start server or asset provider:
 		pickCodeProvider(true);
 	}
 
@@ -193,7 +196,7 @@ const createConfig = async function(update) {
 				} else {
 					// create setup file:
 					// maybe use some confirming dialog??
-					config.createConfigFile(subdomain, clientId, mid, "{{your-publicly-accessible-domain}}");
+					config.createConfigFile(subdomain, clientId, mid);
 				}
 				// add userId from request data:
 				config.setSfmcUserId(data.body?.user?.id);
@@ -213,6 +216,21 @@ const createConfig = async function(update) {
 				// Show error message:
 				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 			});
+}
+
+const checkSetup = async function() {
+	const minVersion = '0.3.0';
+	const currentVersion = config.config['extension-version'] || 'v0.0.0';
+
+	if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
+		console.log(`Setup file is up to date. Version: ${currentVersion}.`);
+		return;
+	}
+	console.log(`Migrate setup file from version: ${currentVersion} to ${minVersion}.`);
+	// migrate setup:
+	config.migrateSetup();
+	// show a warning message:
+	vscode.window.showWarningMessage(`Please, run 'SSJS: Install Dev Page' command to finish update. This is one time action.`);
 }
 
 // This method is called when your extension is deactivated

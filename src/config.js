@@ -39,17 +39,24 @@ module.exports = class Config {
 		};
 	}
 
+	/**
+	 * Get Server Provider server PORT.
+	 */
 	getHostPort() {
-		return this.config.port || 4000;
+		return Config.validateConfigValue(this.config?.['proxy-any-file']?.['port'], 4000);
 	}
 
 	anyPathEnabled() {
-		// TODO: check and refactor
+		// TODO: remove completely:
 		return this.config['proxy-any-file']?.enabled ? this.config['proxy-any-file'].enabled : false;
 	}
 
+	/**
+	 * Returns main path for Server Provider.
+	 * @returns {string}
+	 */
 	getAnyMainPath() {
-		return this.config['proxy-any-file']['main-path'];
+		return this.config['proxy-any-file']?.['main-path'] || '/all-in-dev';
 	}
 
 	getPublicPath() {
@@ -65,6 +72,11 @@ module.exports = class Config {
 		return publicPath;
 	}
 
+	/**
+	 * Get Mustache template tokens.
+	 * @param {boolean} isDev
+	 * @returns {object}
+	 */
 	getTokens(isDev = true) {
 		console.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
@@ -108,32 +120,21 @@ module.exports = class Config {
 		return this.config?.[contextKey]?.['auth-type'] || 'none';
 	}
 
-	getDevPageToken(pageContext = 'page', authType = 'token') {
-		// TODO: update and use authType
-		if (Config.isServerProvider()) {
-			if (this.config?.['proxy-any-file']?.['use-token'] && this.config?.['proxy-any-file']?.['dev-token']) {
-				return this.config['proxy-any-file']['dev-token'] || false;
-			} else {
-				return false;
-			}
-		} else if (Config.isAssetProvider()) {
-			if (this.config?.['asset-provider']?.['use-token'] && this.config?.['asset-provider']?.['dev-token']) {
-				return this.config['asset-provider']['dev-token'] || false;
-			} else {
-				return false;
-			}
-		} else {
-			return false;
-		}
-	}
-
-	getBasicAuth() {
+	/**
+	 * Get Basic Auth data for Server Provider.
+	 * @returns {object} with keys: anyUser, anyPassword
+	 */
+	getServerProviderBasicAuth() {
 		return {
 			anyUser: this.config['proxy-any-file']['auth-username'],
 			anyPassword: this.config['proxy-any-file']['auth-password']
 		};
 	}
 
+	/**
+	 * Get Server Provider data.
+	 * @returns {object} with keys: serverUrl, publicDomain, mainPath, authUser, authPassword
+	 */
 	getServerProvider() {
 		const publicDomain = Config.validateConfigValue(this.config?.['proxy-any-file']?.['public-domain']);
 		const mainPath = Config.validateConfigValue(this.config?.['proxy-any-file']?.['main-path']);
@@ -206,12 +207,15 @@ module.exports = class Config {
 		return this.config['dev-resource']?.['snippet-id']  ? true : false;
 	}
 
+	/**
+	 * Store SFMC Client Secret to VSCode key vault.
+	 */
 	async storeSfmcClientSecret(clientId, clientSecret) {
 		await this.context.secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
 		console.log(`Credentials stored.`);
 	}
 
-	createConfigFile(subdomain, clientId, mid, publicDomain) {
+	createConfigFile(subdomain, clientId, mid) {
 		// TODO: rework
 		const templatePath = path.join(this.sourcePath, SETUP_TEMPLATE);
 	
@@ -220,14 +224,11 @@ module.exports = class Config {
 		configTemplate["sfmc-domain"] = subdomain;
 		configTemplate["sfmc-client-id"] = clientId;
 		configTemplate["sfmc-mid"] = mid;
-		configTemplate["public-domain"] = publicDomain;
+
 		// security:
 		console.log(`createConfigFile():`, configTemplate);
 		configTemplate["proxy-any-file"]["auth-username"] = "user";
 		configTemplate["proxy-any-file"]["auth-password"] = generator.generate({ length: 16, numbers: true });
-		configTemplate["proxy-any-file"]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
-
-		configTemplate["asset-provider"]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
 
 		configTemplate["extension-version"] = this.getPackageJsonData().version;
 		
@@ -235,7 +236,6 @@ module.exports = class Config {
 		folder.create(setupFolder);
 	
 		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
-		
 		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 
@@ -248,17 +248,21 @@ module.exports = class Config {
 		configTemplate["sfmc-client-id"] = clientId;
 		configTemplate["sfmc-mid"] = mid;
 
-		configTemplate["extension-version"] = this.getPackageJsonData().version;
+		// configTemplate["extension-version"] = this.getPackageJsonData().version;
 		// save:
 		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
 		
 		vscode.workspace.openTextDocument(Config.getUserConfigPath());
 	}
 
+	/**
+	 * Get Asset Folder ID.
+	 * @returns {number|false}
+	 */
 	getAssetFolderId() {
-		// TODO: change to correct object
-		console.log(`FOLDER ID: ${this.config?.['asset-provider']?.['folder-id']}.`);
-		return this.config?.['asset-provider']?.['folder-id'] ? this.config?.['asset-provider']?.['folder-id'] : false;
+		const folderId = Config.validateConfigValue(this.config?.['asset-folder-id'], false);
+		console.log(`FOLDER ID: ${folderId}.`);
+		return folderId;
 	}
 
 	/**
@@ -305,27 +309,33 @@ module.exports = class Config {
 		this.saveConfigFile();
 	}
 
-	setAssetFolderId(id, folderName) {
-		// TODO: change to first level only
-		if (!this.config['asset-provider']) this.config['asset-provider'] = {};
-		this.config['asset-provider']['folder-id'] = id;
-		this.config['asset-provider']['folder'] = folderName;
-		// get current setup:
-		jsonHandler.save(Config.getUserConfigPath(), this.config);
-		vscode.workspace.openTextDocument(Config.getUserConfigPath());
+	/**
+	 * Set Asset Folder ID.
+	 * @param {number} id
+	 * @param {string} folderName - path to folder
+	 */
+	setAssetFolderId(id = 0, folderName = '<< asset-folder >>') {
+		this.config['asset-folder-id'] = id;
+		this.config['asset-folder'] = folderName;
+		this.saveConfigFile(); // no open file
 	}
 
+	/**
+	 * Set Server Provider.
+	 * @param {string} publicDomain
+	 * @param {string} mainPath
+	 */
 	setServerProvider(publicDomain = 'https://127.0.0.1', mainPath = '/all-in-dev') {
 		if (!this.config['proxy-any-file']) {
 			this.config['proxy-any-file'] = {
 				"enabled": true,
+				"public-domain": publicDomain,
 				"port": 4000,
+				"main-path": mainPath,
 				"auth-username": "user",
 				"auth-password": generator.generate({ length: 16, numbers: true })
 			};
 		}
-		this.config['proxy-any-file']['public-domain'] = publicDomain;
-		this.config['proxy-any-file']['main-path'] = mainPath;
 		this.saveConfigFile();
 	}
 
@@ -354,6 +364,46 @@ module.exports = class Config {
 		if (withFileOpen) {
 			vscode.workspace.openTextDocument(Config.getUserConfigPath());
 		}
+	}
+
+	/**
+	 * Migrate setup file to new version - currently to v0.3.0+.
+	 */
+	migrateSetup() {	
+		let newConfig = {
+			'sfmc-domain': this.config['sfmc-domain'],
+			'sfmc-client-id': this.config['sfmc-client-id'],
+			'sfmc-mid': this.config['sfmc-mid'],
+			'sfmc-user-id': this.config['sfmc-user-id'] || 0,
+			'dev-folder-path': this.config['dev-folder-path'],
+			'dev-tokens': this.config['dev-tokens'] || {},
+			'prod-tokens': this.config['prod-tokens'] || {},
+			'asset-folder-id': 0,
+			'asset-folder': '<< asset-folder >>',
+			'dev-page': {},
+			'dev-resource': {},
+			'proxy-any-file': {},
+			'extension-version': this.getPackageJsonData().version || '0.0.0'
+		};
+
+		// move asset folder IDs:
+		newConfig['asset-folder-id'] = Config.validateConfigValue(this.config['asset-provider']?.['folder-id'], newConfig['asset-folder-id']);
+		newConfig['asset-folder'] = Config.validateConfigValue(this.config['asset-provider']?.['folder'], newConfig['asset-folder']);
+
+		// serverProvider:
+		newConfig['proxy-any-file'] = {
+			'enabled': Config.validateConfigValue(this.config['proxy-any-file']['enabled'], 4000),
+			'public-domain': Config.validateConfigValue(this.config['public-domain'], '<< publicly accessible domain, e.g. NGROK forwarding domain >>'),
+			'port': Config.validateConfigValue(this.config['port'], 4000),
+			'main-path': Config.validateConfigValue(this.config['proxy-any-file']['main-path'], '/all-in-dev'),
+			'auth-username': Config.validateConfigValue(this.config['proxy-any-file']['auth-username'], 'user'),
+			'auth-password': Config.validateConfigValue(this.config['proxy-any-file']['auth-password'], generator.generate({ length: 16, numbers: true }))
+		};
+
+		// save setup file
+		this.config = newConfig;
+		console.log(`Migrated Config:`, newConfig);
+		this.saveConfigFile();
 	}
 
 	static configFileExists() {
@@ -427,6 +477,7 @@ module.exports = class Config {
 		return s;
 	}
 
+	// TODO: make static
 	getPackageJsonData() {
 		const packageJsonFile = path.join(this.sourcePath, './package.json');
 		let packageJson = jsonHandler.load(packageJsonFile);
@@ -448,18 +499,31 @@ module.exports = class Config {
 	/**
 	 * Test value from Config if it's set. Include test for `<<*>>` and undefined, null, or 0 value.
 	 * @param {*} value Value from Config file.
+	 * @param {*} [defaultVal=false] Default value if not set it uses false
 	 * @returns {*|false} Value or false if not set.
 	 */
-	static validateConfigValue(value) {
+	static validateConfigValue(value, defaultVal = false) {
 		return value === undefined || value === null
-				|| value === 0 || value === ''
-				|| (typeof(value) == 'string' && value?.startsWith('<<'))
-			? false
+				|| value === 0
+				|| (typeof(value) == 'string' && (
+					value.trim() === '' || value?.startsWith('<<') || value?.startsWith('{{')))
+			? defaultVal
 			: value;
 	}
 
 	static createUrl(fqdn, path) {
     const url = new URL(path, fqdn);
     return url.href;
+	}
+
+	/**
+	 * Parse version string to numeric value.
+	 * @param {string} version e.g. "v1.2.3" / "1.2.3"
+	 * @returns {number} e.g. "v1.2.3" => 10203
+	 */
+	static parseVersion(version) {
+		let numeric = version.replace('v', '');
+		let parts = numeric.split('.');
+		return Number(parts[0])*10000 +Number(parts[1]*100) + Number(parts[2])*1;
 	}
 }
