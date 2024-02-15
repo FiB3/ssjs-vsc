@@ -28,21 +28,16 @@ exports.app = {
     let app = express();
     app.use(morgan('dev'));
 
-    if (config.anyPathEnabled()) {
-      console.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
-
-      app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res, next) => {
-        let pth = req.query?.path;
-        if (pth) {
-          let html = template.runScriptFile(pth, config, isDev = true);
-          res.status(200).send(html);
-        } else {
-          throw("checkResourcePath() not used!")
-        }
-      });
-    } else {
-      console.error(`Any-proxy not set.`);
-    }
+		console.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
+		app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res, next) => {
+			let pth = req.query?.path;
+			if (pth) {
+				let html = template.runScriptFile(pth, config, isDev = true);
+				res.status(200).send(html);
+			} else {
+				throw("checkResourcePath() not used!")
+			}
+		});
 
     server = app.listen(this.port, () => {
       console.log(`Server listening on: localhost:${this.port}`);

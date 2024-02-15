@@ -46,11 +46,6 @@ module.exports = class Config {
 		return Config.validateConfigValue(this.config?.['proxy-any-file']?.['port'], 4000);
 	}
 
-	anyPathEnabled() {
-		// TODO: remove completely:
-		return this.config['proxy-any-file']?.enabled ? this.config['proxy-any-file'].enabled : false;
-	}
-
 	/**
 	 * Returns main path for Server Provider.
 	 * @returns {string}
@@ -328,7 +323,6 @@ module.exports = class Config {
 	setServerProvider(publicDomain = 'https://127.0.0.1', mainPath = '/all-in-dev') {
 		if (!this.config['proxy-any-file']) {
 			this.config['proxy-any-file'] = {
-				"enabled": true,
 				"public-domain": publicDomain,
 				"port": 4000,
 				"main-path": mainPath,
@@ -392,7 +386,6 @@ module.exports = class Config {
 
 		// serverProvider:
 		newConfig['proxy-any-file'] = {
-			'enabled': Config.validateConfigValue(this.config['proxy-any-file']['enabled'], 4000),
 			'public-domain': Config.validateConfigValue(this.config['public-domain'], '<< publicly accessible domain, e.g. NGROK forwarding domain >>'),
 			'port': Config.validateConfigValue(this.config['port'], 4000),
 			'main-path': Config.validateConfigValue(this.config['proxy-any-file']['main-path'], '/all-in-dev'),

@@ -38,7 +38,7 @@
     "url": "https://github.com/FiB3/ssjs-vsc"
   },
   "icon": "images/logo.png",
-  "license": "MIT",
+  "license": "BSD-4-CLAUSE",
   "activationEvents": [
     "onCommand:expressServer.start",
     "onLanguage:ssjs",
