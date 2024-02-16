@@ -37,7 +37,7 @@
     "type": "git",
     "url": "https://github.com/FiB3/ssjs-vsc"
   },
-  "icon": "images/logo.png",
+  "icon": "images/logo.v1.1.png",
   "license": "BSD-4-CLAUSE",
   "activationEvents": [
     "onCommand:expressServer.start",
