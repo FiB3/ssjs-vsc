@@ -14,5 +14,7 @@ vsc-extension-quickstart.md
 TODO.md
 
 images/*.gif
+images/walkthrough/
+images/logo.png
 
 # node_modules
