@@ -113,10 +113,10 @@ module.exports = {
 		const parentFolderName = await vscode.window.showInputBox({
 			title: DEV_FOLDER_PROMPT_TITLE,
 			prompt: `Enter Parent Folder Name for Dev Assets (in Content Builder):`,
-			placeHolder: "Existing Folder name.",
+			placeHolder: "Existing Folder name (default: 'Content Builder').",
 			ignoreFocusOut: true
 		});
-		return parentFolderName || false;
+		return parentFolderName || 'Content Builder';
 	},
 
 	/**

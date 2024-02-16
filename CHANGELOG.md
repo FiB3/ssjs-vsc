@@ -2,6 +2,26 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.7] - 2024-02-16
+
+### Added
+- New new authentication option for Dev Pages - Basic auth.
+- Made Dev pages store authentication data in cookies.
+- Option to use both Cloud Page and Text Resource in your env and pick the one needed at the moment.
+- New command to Update installed Dev Pages.
+
+### Changed
+- Shortened manually deployed scripts to bare minimum.
+- Moved script for dev pages to Content builder to enable automatic updates.
+- Major overhaul of ssjs-setup.json file with an automatic migration.
+- Names of some commands to make them more clear.
+- Updated README and Walkthrough to current status.
+- License tot BSD-4-clause.
+- Other minor improvements.
+
+### Fixed
+- Bug on Folder creation, when folder was not created in larger Business Units.
+
 ## [0.2.4] - 2024-01-17
 
 ### Added
