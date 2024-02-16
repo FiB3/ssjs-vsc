@@ -59,7 +59,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async updateAnyScript(silenced = false) {
-		// get options set in ssjs-setup.json:
 		let contexts = [];
 		this.config.isDevPageSet() ? contexts.push('page') : null;
 		this.config.isDevResourceSet() ? contexts.push('text') : null;

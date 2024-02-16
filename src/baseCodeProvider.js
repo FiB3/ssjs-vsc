@@ -78,6 +78,7 @@ module.exports = class BaseCodeProvider {
 	}
 
 	async startServer() {
+		console.log(`START SERVER:`, this);
 		this._checkCommand();
 	}
 
@@ -92,11 +93,7 @@ module.exports = class BaseCodeProvider {
 	/**
 	 * Handles preparation of Any Scripts to SFMC, like creating Asset Folder, storing Cloud Page URL etc.
 	 */
-	async prepareAnyScriptDeployment() {
-		// TODO: Check if ssjs-setup.json exists:
-
-		// TODO: Check setup version:
-		
+	async prepareAnyScriptDeployment() {		
 		// Confirm that everything is set by user:
 		if (!this.config.isSetupValid()) {
 			const confirmed = await dialogs.confirmPreInstallSetup();

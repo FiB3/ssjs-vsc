@@ -77,6 +77,10 @@
         "command": "ssjs-vsc.deploy-any-path",
         "title": "SSJS: Install Dev Page"
       },
+			{
+        "command": "ssjs-vsc.update-any-path",
+        "title": "SSJS: Update Dev Page"
+      },
       {
         "command": "ssjs-vsc.getUrl",
         "title": "SSJS: Get Dev Path"

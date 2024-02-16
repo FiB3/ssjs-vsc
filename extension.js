@@ -9,6 +9,7 @@ const ServerCodeProvider = require('./src/serverCodeProvider');
 
 const statusBar = require('./src/statusBar');
 const McClient = require('./src/sfmc/mcClient');
+const dialogs = require('./src/dialogs');
 
 let provider;
 let config;
@@ -19,17 +20,40 @@ let config;
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	console.log('"ssjs-vsc" is starting!');
+	console.log(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
 	
 	statusBar.create(context, config);
 
-	// Watch for changes in settings
-	vscode.workspace.onDidChangeConfiguration((event) => {
-		if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
-			pickCodeProvider();
-		}
-	});
+	watchForConfigurationChanges();
+	await loadConfiguration(context);
 
+	registerCommands(context, [
+		// NOTE: provider methods need to be called as shown to use changes in the provider reference
+		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await provider.uploadToProduction() },
+		{ name: 'ssjs-vsc.upload-script', callback: async () => await provider.uploadScript() },
+		{ name: 'ssjs-vsc.start', callback: async () => await provider.startServer() },
+		{ name: 'ssjs-vsc.stop', callback: async () => await provider.stopServer() },
+		{ name: 'ssjs-vsc.create-config', callback: () => createConfig },
+		{ name: 'ssjs-vsc.update-config', callback: () => createConfig(true) },
+		{ name: 'ssjs-vsc.deploy-any-path', callback: async () => await provider.deployAnyScript() },
+		{ name: 'ssjs-vsc.update-any-path', callback: async () => await provider.updateAnyScript() },
+		{ name: 'ssjs-vsc.getUrl', callback: async () => await provider.getDevUrl() },
+		{ name: 'ssjs-vsc.showWalkthrough', callback: showWalkthrough }
+	]);
+
+	registerFileActions(context);
+	registerFormatters(context);
+}
+
+function watchForConfigurationChanges() {
+	vscode.workspace.onDidChangeConfiguration((event) => {
+			if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
+					pickCodeProvider();
+			}
+	});
+}
+
+async function loadConfiguration(context) {
 	config = new Config(context, __dirname);
 
 	if (!Config.configFileExists()) {
@@ -38,79 +62,40 @@ async function activate(context) {
 		vscode.window.showInformationMessage(`No setup file found. Run 'Create Config' command to create it.`);
 	} else {
 		config.loadConfig();
-		// check config:
 		await checkSetup();
-		// start server or asset provider:
 		pickCodeProvider(true);
 	}
+}
 
-	// update PROD script:
-	let scriptProdUpload = vscode.commands.registerCommand('ssjs-vsc.upload-to-prod', async () => {
-		await provider.uploadToProduction();
+function registerCommands(context, commands) {
+	commands.forEach(({ name, callback }) => {
+		const command = vscode.commands.registerCommand(name, callback);
+		context.subscriptions.push(command);
 	});
+}
 
-	// update dev script:
-	let scriptUpload = vscode.commands.registerCommand('ssjs-vsc.upload-script', async () => {
-		await provider.uploadScript();
-	});
-
-	// Start server:
-	let serverStart = vscode.commands.registerCommand('ssjs-vsc.start', async () => {
-		await provider.startServer();
-	});
-	// Stop server:
-	let serverStop = vscode.commands.registerCommand('ssjs-vsc.stop', async () => {
-		await provider.stopServer();
-	});
-	
-	// Create setup file:
-	let createSetup = vscode.commands.registerCommand('ssjs-vsc.create-config', async () => {
-		await createConfig();
-	});
-
-	let updateSetup = vscode.commands.registerCommand('ssjs-vsc.update-config', async () => {
-		await createConfig(true);
-	});
-
-	let deployAnyPath = vscode.commands.registerCommand('ssjs-vsc.deploy-any-path', async () => {
-		await provider.deployAnyScript();
-	});
-	
-	let getScriptUrl = vscode.commands.registerCommand('ssjs-vsc.getUrl', async () => {
-		await provider.getDevUrl();
-	});
-
-	let showGuide = vscode.commands.registerCommand('ssjs-vsc.showWalkthrough', ()=>{
-		// vscode.commands.executeCommand('workbench.action.openWalkthrough', 'FiB.ssjs-vsc#xxx', false);
-		vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'FiB.ssjs-vsc#setup-ssjs-manager' }, false);
-	});
-
-	let onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
+function registerFileActions(context) {
+	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		if (Config.isConfigFile(textDocument.uri.fsPath)) {
-			config.loadConfig();
+				config.loadConfig();
 		} else if (Config.isAutoSaveEnabled()) {
-			await provider.uploadScript(true);
+				await provider.uploadScript(true);
 		}
 	});
+	context.subscriptions.push(onSaveFile);
+}
 
+function registerFormatters(context) {
 	const formatters = new LanguageFormatter();
 	const formatterRegistrations = vscode.languages.registerDocumentFormattingEditProvider(
-		formatters.getSelectors(),
-    formatters
+			formatters.getSelectors(),
+			formatters
 	);
 	vscode.Disposable.from(formatterRegistrations);
+}
 
-	context.subscriptions.push(scriptProdUpload);
-	context.subscriptions.push(scriptUpload);
-	context.subscriptions.push(onSaveFile);
-
-	context.subscriptions.push(serverStart);
-	context.subscriptions.push(serverStop);
-	context.subscriptions.push(createSetup);
-	context.subscriptions.push(updateSetup);
-	context.subscriptions.push(deployAnyPath);
-	context.subscriptions.push(getScriptUrl);
-	context.subscriptions.push(showGuide);
+function showWalkthrough() {
+	vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'FiB.ssjs-vsc#setup-ssjs-manager' }, false);
 }
 
 const activateAssetProvider = async function(testApiKeys) {
@@ -144,41 +129,8 @@ const pickCodeProvider = async function(testApiKeys) {
 	}
 }
 
-const createConfig = async function(update) {
-	let title = update ? `Update SFMC Environment` : `Set up SFMC Environment`;
-	let subdomain = await vscode.window.showInputBox({
-		title: title,
-		prompt: `Enter SFMC Auth domain:`,
-		ignoreFocusOut: true
-	});
-	// ensure that FQDN can be used too
-	subdomain = McClient.extractSubdomain(subdomain);
-	if (!subdomain) {
-		vscode.window.showErrorMessage(`Use valid subdomain or Auth domain.`);
-		return;
-	}
-	console.log(`Subdomain: ${subdomain}.`);
-
-	const clientId = await vscode.window.showInputBox({
-		title: title,
-		prompt: `Server-to-server Client ID:`,
-		ignoreFocusOut: true
-	});
-	if (!clientId) { return; }
-
-	const clientSecret = await vscode.window.showInputBox({
-		title: title,
-		prompt: `Server-to-server Client Secret:`,
-		ignoreFocusOut: true,
-		password: true
-	});
-	if (!clientSecret) { return; }
-
-	const mid = await vscode.window.showInputBox({
-		title: title,
-		prompt: `Business Unit MID:`,
-		ignoreFocusOut: true
-	});
+const createConfig = async function(update = false) {
+	const { subdomain, clientId, clientSecret, mid } = await dialogs.api.getCredentials(update);
 	
 	let mc = new McClient(subdomain, clientId, clientSecret, mid);
 

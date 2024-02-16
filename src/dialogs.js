@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const checks = require('./checks');
+const McClient = require('./sfmc/mcClient');
 
 const DEV_FOLDER_PROMPT_TITLE = `Create Dev Assets Folder`;
 const DEV_PAGE_PROMPT_TITLE = `Set up Dev Cloud Page`;
@@ -7,6 +8,50 @@ const GET_PAGE_PROMPT_TITLE = `Pick Cloud Page Type`;
 
 module.exports = {
 
+	api: {
+		/**
+		 * Ask user to provide SFMC API credentials. Validates subdomain.
+		 * @param {boolean} update - If true, the dialog will ask for update of the existing credentials.
+		 * @returns {Promise<object|boolean>} Object with credentials or false if user cancels the dialog.
+		 */
+		async getCredentials(update = false) {
+			let title = update ? `Update SFMC Environment` : `Set up SFMC Environment`;
+
+			let subdomain = await vscode.window.showInputBox({
+				title: title,
+				prompt: `Enter your SFMC Subdomain:`,
+				placeHolder: "Subdomain or Auth URL",
+				ignoreFocusOut: true
+			});
+			subdomain = McClient.extractSubdomain(subdomain);
+			if (!subdomain) {
+				vscode.window.showErrorMessage(`Use valid subdomain or Auth domain.`);
+				return false;
+			}
+			const clientId = await vscode.window.showInputBox({
+				title: title,
+				prompt: `Enter your API Client ID:`,
+				placeHolder: "Client ID from your Installed Package.",
+				ignoreFocusOut: true
+			});
+			if (!subdomain) { return false; }
+			const clientSecret = await vscode.window.showInputBox({
+				title: title,
+				prompt: `Enter your API Client Secret:`,
+				placeHolder: "Client Secret from your Installed Package.",
+				ignoreFocusOut: true
+			});
+			if (!subdomain) { return false; }
+			const mid = await vscode.window.showInputBox({
+				title: title,
+				prompt: `Business Unit MID:`,
+				placeHolder: "Your Business Unit MID.",
+				ignoreFocusOut: true
+			});
+
+			return { subdomain, clientId, clientSecret, mid };
+		}
+	},
 	/**
 	 * Ask user to confirm, that pre-install setup is done.
 	 */

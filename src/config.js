@@ -485,6 +485,13 @@ module.exports = class Config {
 		};
 	}
 
+	static getExtensionVersion() {
+		const packageJsonFile = path.join(__dirname, '../package.json');
+		let packageJson = jsonHandler.load(packageJsonFile);
+
+		return packageJson?.['version'] ? `v${packageJson['version']}` : 'v?.?.?';
+	}
+
 	static isConfigFile(fileName) {
 		return fileName.endsWith(SETUP_FILE_NAME);		
 	}

@@ -66,9 +66,28 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		await this.runAnyScriptDeployments(deployments);
 	}
 
-	// async updateAnyScript(silenced = false) {
-	// 	// TODO:
-	// }
+	async updateAnyScript(silenced = false) {
+		let contexts = [];
+		this.config.isDevPageSet() ? contexts.push('page') : null;
+		this.config.isDevResourceSet() ? contexts.push('text') : null;
+
+		let serverData = this.config.getServerProvider();
+		if (!serverData.serverUrl) {
+			vscode.window.showWarningMessage(`Server Provider setup is missing data. Please check your settings.`);
+			return;
+		}
+
+		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
+		deployments.forEach((d) => {
+			d.viewSpecifics = {
+				'server-url': serverData.serverUrl,
+				'public-domain': serverData.publicDomain,
+				'main-path': serverData.mainPath,
+				'basic-encrypted-secret': generateBasicAuthHeader(serverData.authUser, serverData.authPassword)
+			}			
+		});
+		await this.runAnyScriptDeployments(deployments);
+	}
 
 	async startServer() {
 		if (!app.running) {
