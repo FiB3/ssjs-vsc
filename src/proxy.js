@@ -1,6 +1,6 @@
-var fs = require('fs');
-var path = require('path');
-var express = require('express');
+const fs = require('fs');
+const path = require('path');
+const express = require('express');
 const morgan = require("morgan");
 const moment = require('moment');
 
@@ -55,6 +55,18 @@ exports.app = {
     });
   }
 };
+
+/**
+ * Generate Basic Auth Header.
+ * @param {*} username 
+ * @param {*} password 
+ * @returns {string} Basic Auth Header - 'Basic <encodedCredentials>'
+ */
+exports.generateBasicAuthHeader = function(username, password) {
+	const credentials = `${username}:${password}`;
+	const encodedCredentials = Buffer.from(credentials, 'utf-8').toString('base64');
+	return `Basic ${encodedCredentials}`;
+}
 
 /**
  * Handle authentication of any path.

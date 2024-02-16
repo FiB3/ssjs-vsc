@@ -4,9 +4,7 @@ var path = require('path');
 const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
 
-const { app } = require('./proxy');
-const { template } = require('./template');
-const file = require('./auxi/file');
+const { app, generateBasicAuthHeader } = require('./proxy');
 const dialogs = require('./dialogs');
 const vsc = require('./vsc');
 const checks = require('./checks');
@@ -25,11 +23,6 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async deployAnyScript() {
-		function generateBasicAuthHeader(username, password) {
-			const credentials = `${username}:${password}`;
-			const encodedCredentials = Buffer.from(credentials, 'utf-8').toString('base64');
-			return `Basic ${encodedCredentials}`;
-		}
 
 		// add viewSpecifics to deployments:
 		let serverData = this.config.getServerProvider();
