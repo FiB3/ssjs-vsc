@@ -141,7 +141,7 @@
       {
         "id": "setup-ssjs-manager",
         "title": "Setup SSJS Manager",
-        "description": "Quick guide on initial setup of the SSJS Manager using default Asset Code Provider.",
+        "description": "Quick guide on initial setup of the SSJS Manager using default preferences.",
         "steps": [
           {
             "id": "get-installed-package",
@@ -155,7 +155,7 @@
 					{
             "id": "create-cloud-page",
             "title": "Create Web Studio resources",
-            "description": "Create a Cloud Page and a Text Code Resource in Web Studio and get published URLs - content will be provided later on.",
+            "description": "Create a Cloud Page and/or a Text Code Resource in Web Studio and get published URLs - content will be provided later on.",
             "media": {
               "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createCloudPage.png",
               "altText": "Create Cloud Text Resource"
@@ -164,7 +164,7 @@
           {
             "id": "run-create-config",
             "title": "Create Config",
-            "description": "Run `SSJS: Create Config` command. User your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package",
+            "description": "Run `SSJS: Create Config` command. Use your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package.",
             "media": {
               "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
               "altText": "demo of the extension"
@@ -176,19 +176,10 @@
           {
             "id": "run-install-dev-page",
             "title": "Install Dev Page",
-            "description": "Run `SSJS: Install Dev Page` command. Fill all information and the page will be created in SFMC. Watch notifications for other steps.",
+            "description": "Run `SSJS: Install Dev Page` command. Fill all information and the dev page code will be created in SFMC.",
             "media": {
               "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
               "altText": "dev page installation"
-            }
-          },
-          {
-            "id": "run-deploy-package",
-            "title": "Deploy Package",
-            "description": "Run `SSJS: Deploy Dev Page` command. The generated file gives you additional details on using it.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-              "altText": "demo of the extension"
             },
             "completionEvents": [
               "onCommand:ssjs-vsc.deploy-any-path"
@@ -205,7 +196,7 @@
           },
           {
             "id": "develop-ssjs",
-            "title": "Develop",
+            "title": "Write scripts",
             "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. First deployment is done using the `SSJS: Upload Script` command. Following deploys are automatically done on save.",
             "media": {
               "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
