@@ -29,7 +29,7 @@ You can start using this extension for basic features right away. However in ord
 You can see a guide using `SSJS: Show Setup Walkthrough` command for the default functionality. It takes just five minutes.
 
 **Setup Cheatsheet:**
-1) Create Installed Package (perferably your own).
+1) Create Installed Package (preferably your own).
 2) Create your own Cloud Page and Cloud Text Resource in SFMC.
 3) Run `SSJS: Create Config` command withing VSCode to create your setup file (and store SFMC Credentials safely).
 4) Run the `SSJS: Install Dev Page` command that will help you to deploy your Dev environment in Web Studio.
