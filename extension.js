@@ -2,6 +2,7 @@ const vscode = require('vscode');
 
 const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
+const telemetry = require('./src/telemetry');
 
 const BaseCodeProvider = require('./src/baseCodeProvider');
 const AssetCodeProvider = require('./src/assetCodeProvider');
@@ -21,7 +22,7 @@ let config;
  */
 async function activate(context) {
 	console.log(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
-	
+	telemetry.init(context);
 	statusBar.create(context, config);
 
 	watchForConfigurationChanges();
@@ -47,9 +48,10 @@ async function activate(context) {
 
 function watchForConfigurationChanges() {
 	vscode.workspace.onDidChangeConfiguration((event) => {
-			if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
-					pickCodeProvider();
-			}
+		if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
+			pickCodeProvider();
+			telemetry.log(`changeCodeProvider`, { codeProvider: Config.getCodeProvider() });
+		}
 	});
 }
 
@@ -95,6 +97,7 @@ function registerFormatters(context) {
 }
 
 function showWalkthrough() {
+	telemetry.log('showWalkthrough');
 	vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'FiB.ssjs-vsc#setup-ssjs-manager' }, false);
 }
 
@@ -189,6 +192,7 @@ const checkSetup = async function() {
 function deactivate() {
 	console.log(`Deactivating extension!`);
 	provider.deactivate();
+	telemetry.dispose();
 }
 
 module.exports = {

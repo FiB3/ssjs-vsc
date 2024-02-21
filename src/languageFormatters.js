@@ -2,6 +2,9 @@ const vscode = require('vscode');
 const beautifier = require("beauty-amp-core2");
 const Config = require('./config');
 const checks = require ('./checks');
+const telemetry = require('./telemetry');
+
+const TELEMETRY_EVENT = 'formatting';
 
 class LanguageFormatter {
     constructor() {
@@ -43,6 +46,7 @@ class LanguageFormatter {
 
     async formatSsjsAndAmpscript(document, formattingOptions, token) {
 			console.log(`SFMC Beautifier running for ${document.languageId}.`);
+			telemetry.log(TELEMETRY_EVENT, { language: document.languageId });
 
 			try {
 				const editor = vscode.window.activeTextEditor;
@@ -59,6 +63,7 @@ class LanguageFormatter {
 						if (htmlError.name == 'SyntaxError' && typeof(htmlError.message) == 'string') {
 							let errLine = htmlError.message.split('\n')?.[0] ? htmlError.message.split('\n')?.[0] : htmlError.message;
 							vscode.window.showErrorMessage(`Error on HTML formatting, Probably malformed HTML:\n\t` + errLine);
+							telemetry.error(TELEMETRY_EVENT, { error: htmlError.message, language: 'HTML'});
 							formattedCode = await beautifier.beautify(code, false);
 							vscode.window.showInformationMessage(`Formatting without HTML finished.`);
 						}
@@ -66,6 +71,7 @@ class LanguageFormatter {
 				} catch(err) {
 					console.log(`Error on Beautify:`, err);
 					vscode.window.showErrorMessage(`Error on formatting. Please, let us know in our GitHub issues.`);
+					telemetry.error(TELEMETRY_EVENT, { error: err.message, language: document.languageId});
 				}
 
 				editor.edit((editBuilder) => {
