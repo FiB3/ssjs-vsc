@@ -81,10 +81,14 @@ function registerCommands(context, commands) {
 
 function registerFileActions(context) {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
-		if (Config.isConfigFile(textDocument.uri.fsPath)) {
-				config.loadConfig();
-		} else if (Config.isAutoSaveEnabled()) {
-				await provider.uploadScript(true);
+		let filePath = textDocument.uri.fsPath;
+		
+		if (Config.isConfigFile(filePath)) {
+			config.loadConfig();
+		} else if (Config.isAutoSaveEnabled() && Config.isFileInWorkspace(filePath)) {
+			await provider.uploadScript(true);
+		} else {
+			console.log(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
 		}
 	});
 	context.subscriptions.push(onSaveFile);

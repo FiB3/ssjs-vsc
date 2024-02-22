@@ -132,6 +132,20 @@ module.exports = class BaseConfig {
 	}
 
 	/**
+	 * Check if the file is in the current workspace.
+	 * @param {string} filePath Path to the file.
+	 * @returns {boolean} True if the file is in the workspace.
+	 */
+	static isFileInWorkspace(filePath) {
+		const workspacePath = BaseConfig.getUserWorkspacePath();
+    // Normalize paths to ensure consistent format
+    const absoluteFilePath = path.resolve(filePath);
+    const absoluteWorkspacePath = path.resolve(workspacePath);
+
+    return absoluteFilePath.startsWith(absoluteWorkspacePath);
+	}
+
+	/**
 	 * Get the main (root) folder of the extension - where the package.json/extension.js is.
 	 * @note this depends on location of this script!
 	 * @returns {string} Path to the main folder of the extension.

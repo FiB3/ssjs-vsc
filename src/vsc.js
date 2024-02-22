@@ -23,7 +23,8 @@ function getActiveEditor(relativePath = false) {
 			}
 			return fileUri.fsPath;
 	} else {
-			vscode.window.showErrorMessage('No file is currently open.');
+		console.log('No file is currently open: vsc.getActiveEditor().');
+		vscode.window.showErrorMessage('No file is currently open.');
 	}
 }
 
