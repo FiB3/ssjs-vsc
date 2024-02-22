@@ -140,7 +140,7 @@ module.exports = class BaseCodeProvider {
 	 * @param {Array<>} pagesData
 	 */
 	async runAnyScriptDeployments(pagesData, silenced = false) {
-		const packageData = this.config.getPackageJsonData();
+		const packageData = Config.getPackageJson();
 
 		for (let pageData of pagesData) {
 			let devPageContext = pageData.devPageContext;

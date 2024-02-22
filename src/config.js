@@ -3,26 +3,14 @@ const path = require('path');
 
 const generator = require('generate-password');
 
-const jsonHandler = require('./auxi/json'); // TODO: change to `json` only
-const file = require('./auxi/file');
-const folder = require('./auxi/folder');
+const Preferences = require('./config/preferences');
 const checks = require('./checks');
 
-const SETUP_TEMPLATE = './templates/setup.example.json';
-const SETUP_FOLDER_NAME = '.vscode';
-const SETUP_FILE_NAME = '.vscode/ssjs-setup.json';
-const REPO_DEFAULT = 'https://github.com/FiB3';
+module.exports = class Config extends Preferences {
 
-const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
-const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
-
-module.exports = class Config {
-
-	constructor(context, sourcePath) {
+	constructor(context) {
+		super();
 		this.context = context;
-
-		this.config = {};
-		this.sourcePath = sourcePath;
 	}
 
 	/**
@@ -57,7 +45,7 @@ module.exports = class Config {
 	getPublicPath() {
 		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
 		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
-		
+		console.log(`Config: PUBLIC PATH: "${publicPath}".`);
 		publicPath = publicPath.startsWith('\/')
 				? publicPath
 				: path.join(Config.getUserWorkspacePath(), publicPath);
@@ -211,43 +199,29 @@ module.exports = class Config {
 	}
 
 	createConfigFile(subdomain, clientId, mid) {
-		// TODO: rework
-		const templatePath = path.join(this.sourcePath, SETUP_TEMPLATE);
-	
-		let configTemplate = jsonHandler.load(templatePath);
-		console.log(configTemplate);
-		configTemplate["sfmc-domain"] = subdomain;
-		configTemplate["sfmc-client-id"] = clientId;
-		configTemplate["sfmc-mid"] = mid;
+		let configData = {
+			'sfmc-domain': subdomain,
+			'sfmc-client-id': clientId,
+			'sfmc-mid': mid,
+			'proxy-any-file': {
+				'auth-username': 'user',
+				'auth-password': generator.generate({ length: 16, numbers: true })
+			},
+			'extension-version': Config.getExtensionVersion()
+		};
 
-		// security:
-		console.log(`createConfigFile():`, configTemplate);
-		configTemplate["proxy-any-file"]["auth-username"] = "user";
-		configTemplate["proxy-any-file"]["auth-password"] = generator.generate({ length: 16, numbers: true });
-
-		configTemplate["extension-version"] = this.getPackageJsonData().version;
-		
-		const setupFolder = path.join(Config.getUserWorkspacePath(), SETUP_FOLDER_NAME);
-		folder.create(setupFolder);
-	
-		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
-		vscode.workspace.openTextDocument(Config.getUserConfigPath());
+		this.deployConfigFile(configData, true);
 	}
 
+	// TODO: rename
+	// This is actually not an update of the whole file, but only of the SFMC data.
 	updateConfigFile(subdomain, clientId, mid) {
-		// get current setup:
-		let configTemplate = jsonHandler.load(Config.getUserConfigPath()); // TODO: handle non-existing file
-		console.log(configTemplate);
 		// update values:
-		configTemplate["sfmc-domain"] = subdomain;
-		configTemplate["sfmc-client-id"] = clientId;
-		configTemplate["sfmc-mid"] = mid;
+		this.config["sfmc-domain"] = subdomain;
+		this.config["sfmc-client-id"] = clientId;
+		this.config["sfmc-mid"] = mid;
 
-		// configTemplate["extension-version"] = this.getPackageJsonData().version;
-		// save:
-		jsonHandler.save(Config.getUserConfigPath(), configTemplate);
-		
-		vscode.workspace.openTextDocument(Config.getUserConfigPath());
+		this.saveConfigFile(true);
 	}
 
 	/**
@@ -276,7 +250,7 @@ module.exports = class Config {
 		if (snippetId) {
 			this.config[contextKey]['snippet-id'] = snippetId;
 		}
-		jsonHandler.save(Config.getUserConfigPath(), this.config);
+		this.saveConfigFile();
 	}
 
 	/**
@@ -312,7 +286,7 @@ module.exports = class Config {
 	setAssetFolderId(id = 0, folderName = '<< asset-folder >>') {
 		this.config['asset-folder-id'] = id;
 		this.config['asset-folder'] = folderName;
-		this.saveConfigFile(); // no open file
+		this.saveConfigFile();
 	}
 
 	/**
@@ -335,29 +309,7 @@ module.exports = class Config {
 
 	setSfmcUserId(userId) {
 		this.config['sfmc-user-id'] = userId || 0;
-		jsonHandler.save(Config.getUserConfigPath(), this.config);
-	}
-	
-	loadConfig() {
-		const configPath = Config.getUserConfigPath();
-		const config = jsonHandler.load(configPath);
-		// TODO: error if config is not yet deployed!
-		if (config.error) {
-			console.log(`Config.loadCofig()`, config);
-			throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
-		} else {
-			console.log(`Config Reloaded.`);
-		}
-		this.config = config;
-
-		return config;
-	}
-
-	saveConfigFile(withFileOpen = false) {
-		jsonHandler.save(Config.getUserConfigPath(), this.config);
-		if (withFileOpen) {
-			vscode.workspace.openTextDocument(Config.getUserConfigPath());
-		}
+		this.saveConfigFile();
 	}
 
 	/**
@@ -377,7 +329,7 @@ module.exports = class Config {
 			'dev-page': {},
 			'dev-resource': {},
 			'proxy-any-file': {},
-			'extension-version': this.getPackageJsonData().version || '0.0.0'
+			'extension-version': Config.getExtensionVersion()
 		};
 
 		// move asset folder IDs:
@@ -397,133 +349,5 @@ module.exports = class Config {
 		this.config = newConfig;
 		console.log(`Migrated Config:`, newConfig);
 		this.saveConfigFile();
-	}
-
-	static configFileExists() {
-		return file.exists(Config.getUserConfigPath());
-	}
-
-	static getUserConfigPath() {
-		let pth;
-		try {
-			pth = path.join(Config.getUserWorkspacePath(), SETUP_FILE_NAME);
-		} catch (err) {
-			console.log(`PATH NOT SET! Data:`, Config.getUserWorkspacePath(), SETUP_FILE_NAME);
-		}
-		return pth;
-	}
-
-	// Move to `vsc` module
-	static getUserWorkspacePath() {
-		// TODO: improve with e.g.: workspace.workspaceFolders
-		return vscode.workspace.rootPath;
-	}
-
-	/**
-	 * Is passed language ID allowed?
-	 */
-	static isLanguageAllowed(langId) {
-		console.log(`LanguageID: "${langId}".`);
-		return USABLE_LANG_IDS.includes(langId);
-	}
-
-	static isFileTypeAllowed(filePath) {
-		console.log(`File extname: "${path.extname(filePath)}".`);
-		return USABLE_EXT.includes(path.extname(filePath));
-	}
-
-	static isAssetProvider() {
-		return Config.getCodeProvider() === 'Asset';
-	}
-
-	static isServerProvider() {
-		return Config.getCodeProvider() === 'Server';
-	}
-
-	static isNoneProvider() {
-		return Config.getCodeProvider() === 'None';
-	}
-
-	static getCodeProvider() {
-		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('codeProvider');
-	}
-
-	static isAutoSaveEnabled() {
-		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('autoSave') ?? false;
-	}
-
-	static getTemplatingTags() {
-		let stp = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('templatingTags') ?? '{{,}}';
-		return stp.split(',');
-	}
-
-	static getBeautyfierSetup() {
-		const settings = vscode.workspace.getConfiguration("ssjs-vsc.language.ampscript");
-		console.log(`Settings`, settings);
-		const s = {
-			capitalizeSet: settings.get('capitalizeKeywords'),
-			capitalizeVar: settings.get('capitalizeKeywords'),
-			capitalizeIfFor: settings.get('capitalizeKeywords'),
-			capitalizeAndOrNot: settings.get('capitalizeAndOrNot'),
-			maxParametersPerLine: settings.get('maxParametersPerLine')
-		};
-		return s;
-	}
-
-	// TODO: make static
-	getPackageJsonData() {
-		const packageJsonFile = path.join(this.sourcePath, './package.json');
-		let packageJson = jsonHandler.load(packageJsonFile);
-
-		return {
-			"repository": packageJson?.['repository']?.['url']
-					? packageJson['repository']['url'] : REPO_DEFAULT,
-			"homepage": packageJson?.['homepage']
-					? packageJson['homepage'] : REPO_DEFAULT,
-			"version": packageJson?.['version']
-					? packageJson['version'] : 'v?.?.?'
-		};
-	}
-
-	static getExtensionVersion() {
-		const packageJsonFile = path.join(__dirname, '../package.json');
-		let packageJson = jsonHandler.load(packageJsonFile);
-
-		return packageJson?.['version'] ? `v${packageJson['version']}` : 'v?.?.?';
-	}
-
-	static isConfigFile(fileName) {
-		return fileName.endsWith(SETUP_FILE_NAME);		
-	}
-
-	/**
-	 * Test value from Config if it's set. Include test for `<<*>>` and undefined, null, or 0 value.
-	 * @param {*} value Value from Config file.
-	 * @param {*} [defaultVal=false] Default value if not set it uses false
-	 * @returns {*|false} Value or false if not set.
-	 */
-	static validateConfigValue(value, defaultVal = false) {
-		return value === undefined || value === null
-				|| value === 0
-				|| (typeof(value) == 'string' && (
-					value.trim() === '' || value?.startsWith('<<') || value?.startsWith('{{')))
-			? defaultVal
-			: value;
-	}
-
-	static createUrl(fqdn, path) {
-    const url = new URL(path, fqdn);
-    return url.href;
-	}
-
-	/**
-	 * Parse version string to numeric value.
-	 * @param {string} version e.g. "v1.2.3" / "1.2.3"
-	 * @returns {number} e.g. "v1.2.3" => 10203
-	 */
-	static parseVersion(version) {
-		let numeric = version.replace('v', '');
-		let parts = numeric.split('.');
-		return Number(parts[0])*10000 +Number(parts[1]*100) + Number(parts[2])*1;
 	}
 }

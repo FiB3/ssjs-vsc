@@ -20,6 +20,8 @@ module.exports = {
 	},
 
 	setEnabled() {
+		console.log(`getCodeProvider(): ${Config.getCodeProvider()}.`);
+
 		if (Config.isServerProvider()) {
 			this.setMessage(`SSJS Active`, `SSJS Server ready.`);
 		} else if (Config.isAssetProvider()) {

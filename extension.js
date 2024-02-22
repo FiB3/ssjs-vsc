@@ -22,11 +22,14 @@ let config;
  */
 async function activate(context) {
 	console.log(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
+
 	telemetry.init(context);
+
 	statusBar.create(context, config);
 
-	watchForConfigurationChanges();
 	await loadConfiguration(context);
+
+	watchForConfigurationChanges();
 
 	registerCommands(context, [
 		// NOTE: provider methods need to be called as shown to use changes in the provider reference
@@ -56,7 +59,7 @@ function watchForConfigurationChanges() {
 }
 
 async function loadConfiguration(context) {
-	config = new Config(context, __dirname);
+	config = new Config(context);
 
 	if (!Config.configFileExists()) {
 		console.log(`Setup file does not exists.`);
