@@ -1,13 +1,12 @@
 const vscode = require('vscode');
-var path = require('path');
 
 const BaseCodeProvider = require('./baseCodeProvider');
 // const Config = require('./config');
 const checks = require('./checks');
 const vsc = require('./vsc');
+const telemetry = require('./telemetry');
 
 const { template } = require('./template');
-const file = require('./auxi/file');
 const json = require('./auxi/json');
 
 const DEPLOYMENT_TOKEN_TEMPLATE = './templates/assetProvider/tokenDeployment.ssjs';
@@ -59,21 +58,29 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async updateAnyScript(silenced = false) {
-		let contexts = [];
-		this.config.isDevPageSet() ? contexts.push('page') : null;
-		this.config.isDevResourceSet() ? contexts.push('text') : null;
+		try {
+			let contexts = [];
+			this.config.isDevPageSet() ? contexts.push('page') : null;
+			this.config.isDevResourceSet() ? contexts.push('text') : null;
 
-		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
-		await this.runAnyScriptDeployments(deployments);
+			let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
+			await this.runAnyScriptDeployments(deployments);
+		} catch (e) {
+			telemetry.error('updateAnyScript', { error: e.message, codeProvider: 'Asset' });
+		}
 	}
 
 	async getDevUrl() {
-		const pageDetails = await this._getContextForGetUrl();
+		try {
+			const pageDetails = await this._getContextForGetUrl();
 
-		if (pageDetails) {
-			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
-			vscode.env.clipboard.writeText(url);
-		}
+			if (pageDetails) {
+				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
+				vscode.env.clipboard.writeText(url);
+			}
+		} catch (e) {
+			telemetry.error('getDevUrl', { error: e.message, codeProvider: 'Asset' });
+		}	
 	}
 
 	/**
@@ -113,6 +120,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
 		let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
-		vscode.env.clipboard.writeText(u);
+		return u;
 	}
 }

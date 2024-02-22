@@ -159,6 +159,6 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
 		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
 		let u = tkn ? `${url}?token=${tkn}&path=${filePath}` : `${url}?path=${filePath}`;
-		vscode.env.clipboard.writeText(u);
+		return u;
 	}
 }

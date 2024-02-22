@@ -21,23 +21,20 @@ module.exports = class BaseConfig {
 	}
 
 	/**
-	 * Create a new configuration file.
+	 * Create a new blank configuration file.
 	 * @param {boolean} [withFileOpen=false] Open the file after creation.
 	 */
-	deployConfigFile(configData, withFileOpen = false) {
+	deployConfigFile() {
 		const templatePath = path.join(BaseConfig.getExtensionSourceFolder(), SETUP_TEMPLATE);
 		let configTemplate = jsonHandler.load(templatePath);
 
-		configTemplate = Object.assign(configTemplate, configData);
 		configTemplate["extension-version"] = BaseConfig.getExtensionVersion();
 		
 		const setupFolder = path.join(BaseConfig.getUserWorkspacePath(), SETUP_FOLDER_NAME);
 		folder.create(setupFolder);
 	
 		jsonHandler.save(BaseConfig.getUserConfigPath(), configTemplate);
-		if (withFileOpen) {
-			vscode.workspace.openTextDocument(BaseConfig.getUserConfigPath());
-		}
+		this.loadConfig();
 	}
 
 	/**
@@ -97,7 +94,6 @@ module.exports = class BaseConfig {
 	 * @returns {Object} Repository and version data.
 	 */
 	static getPackageJson() {
-		// console.log(`GetPackageJson()...: sourcePath: `, BaseConfig.getExtensionSourceFolder(), `.`);
 		const packageJsonFile = path.join(BaseConfig.getExtensionSourceFolder(), './package.json');
 		let packageJson = jsonHandler.load(packageJsonFile);
 

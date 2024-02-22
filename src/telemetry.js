@@ -43,7 +43,7 @@ class TelemetryHandler {
 	error(errorName, properties = {}, measurements = {}) {
 		properties.isProd = this.isProd;
 		if (TELEMETRY_DEV_OFF) {
-			console.log(`Telemetry.rrror: ${errorName}`, properties, measurements);
+			console.log(`Telemetry.error: ${errorName}`, properties, measurements);
 			return;
 		}
 		this.reporter.sendTelemetryErrorEvent(errorName, properties, measurements);

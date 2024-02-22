@@ -37,7 +37,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.upload-script', callback: async () => await provider.uploadScript() },
 		{ name: 'ssjs-vsc.start', callback: async () => await provider.startServer() },
 		{ name: 'ssjs-vsc.stop', callback: async () => await provider.stopServer() },
-		{ name: 'ssjs-vsc.create-config', callback: () => createConfig },
+		{ name: 'ssjs-vsc.create-config', callback: () => createConfig() },
 		{ name: 'ssjs-vsc.update-config', callback: () => createConfig(true) },
 		{ name: 'ssjs-vsc.deploy-any-path', callback: async () => await provider.deployAnyScript() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await provider.updateAnyScript() },
@@ -136,44 +136,48 @@ const pickCodeProvider = async function(testApiKeys) {
 }
 
 const createConfig = async function(update = false) {
-	const { subdomain, clientId, clientSecret, mid } = await dialogs.api.getCredentials(update);
-	
-	let mc = new McClient(subdomain, clientId, clientSecret, mid);
+	try {
+		const { subdomain, clientId, clientSecret, mid } = await dialogs.api.getCredentials(update);
+		
+		let mc = new McClient(subdomain, clientId, clientSecret, mid);
 
-	await mc._get(`/platform/v1/configcontext`)
-			.then((data) => {
-				console.log('DATA', data);
-				vscode.window.showInformationMessage(`API Credentials validated!`);
-				// store credentials:
-				config.storeSfmcClientSecret(clientId, clientSecret);
+		await mc._get(`/platform/v1/configcontext`)
+				.then((data) => {
+					console.log('createConfig() - API Response:', data);
+					vscode.window.showInformationMessage(`API Credentials validated!`);
+					// store credentials:
+					config.storeSfmcClientSecret(clientId, clientSecret);
 
-				if (update) {
-					// update setup file:
-					config.updateConfigFile(subdomain, clientId, mid);
-					config.loadConfig();
-				} else {
-					// create setup file:
-					// maybe use some confirming dialog??
-					config.createConfigFile(subdomain, clientId, mid);
-				}
-				// add userId from request data:
-				config.setSfmcUserId(data.body?.user?.id);
-				
-				// Open the setup  file:
-				vscode.workspace.openTextDocument(Config.getUserConfigPath()).then((doc) =>
-					vscode.window.showTextDocument(doc, {
-					})
-				);
-				// Show message that hints the create any-file Cloud Page:
-				vscode.window.showInformationMessage(`Setup created: ./vscode/ssjs-setup.json.`);
+					if (update) {
+						// update setup file:
+						config.updateConfigFile(subdomain, clientId, mid);
+						config.loadConfig();
+					} else {
+						// create setup file:
+						// maybe use some confirming dialog??
+						config.createConfigFile(subdomain, clientId, mid);
+					}
+					// add userId from request data:
+					config.setSfmcUserId(data.body?.user?.id);
+					
+					// Open the setup  file:
+					vscode.workspace.openTextDocument(Config.getUserConfigPath()).then((doc) =>
+						vscode.window.showTextDocument(doc, {
+						})
+					);
+					// Show message that hints the create any-file Cloud Page:
+					vscode.window.showInformationMessage(`Setup created: ./vscode/ssjs-setup.json.`);
 
-				pickCodeProvider();
-			})
-			.catch((err) => {
-				console.log('ERR', err);
-				// Show error message:
-				vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
-			});
+					pickCodeProvider();
+				})
+				.catch((err) => {
+					console.log('ERR', err);
+					// Show error message:
+					vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
+				});
+	}	catch (e) {
+		telemetry.error('createConfig', { error: e.message });
+	}
 }
 
 const checkSetup = async function() {

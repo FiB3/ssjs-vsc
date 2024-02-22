@@ -78,7 +78,6 @@ module.exports = class BaseCodeProvider {
 	}
 
 	async startServer() {
-		console.log(`START SERVER:`, this);
 		this._checkCommand();
 	}
 
@@ -169,7 +168,7 @@ module.exports = class BaseCodeProvider {
 	 */
 	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE, silenced = false) {
 		// PREPARE ASSET FILE:
-		const snippetTemplatePath = path.join(this.config.sourcePath, assetFile);
+		const snippetTemplatePath = path.join(Config.getExtensionSourceFolder(), assetFile);
 		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
 		const snippetScript = template.runFile(snippetTemplatePath, view);
 		
@@ -201,7 +200,7 @@ module.exports = class BaseCodeProvider {
 		if (runCloudPage) {
 			console.log(`Create Cloud Page for: ${devPageContext}`);
 			// BUILD ASSET TEMPLATE
-			const cpTemplatePath = path.join(this.config.sourcePath, cloudPageFile);
+			const cpTemplatePath = path.join(Config.getExtensionSourceFolder(), cloudPageFile);
 			const deploymentScript = template.runFile(cpTemplatePath, {
 				"page": view['homepage'],
 				"version": view['version'],

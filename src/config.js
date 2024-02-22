@@ -140,11 +140,16 @@ module.exports = class Config extends Preferences {
 		const subdomain = config['sfmc-domain'];
 		const clientId = config['sfmc-client-id'];
 		const mid = config['sfmc-mid'];
-		let clientSecret = await this.context.secrets.get(`ssjs-vsc.${clientId}`);
+
+		let SECRET_NAME = `ssjs-vsc.${clientId}`;
+		let clientSecret = await this.context.secrets.get(SECRET_NAME);
+		
+		SECRET_NAME = SECRET_NAME.substring(0, 13) + '...';
 		if (!clientSecret) {
-			console.log(`Loading secret failed for: "${`ssjs-vsc.${clientId}`}".`);
+			console.log(`Loading secret failed for: "${SECRET_NAME}`);
 			return false;
 		}
+		console.log(`Loaded secret for: "${SECRET_NAME}"`);
 
 		return {
 			subdomain,
@@ -199,18 +204,15 @@ module.exports = class Config extends Preferences {
 	}
 
 	createConfigFile(subdomain, clientId, mid) {
-		let configData = {
-			'sfmc-domain': subdomain,
-			'sfmc-client-id': clientId,
-			'sfmc-mid': mid,
-			'proxy-any-file': {
-				'auth-username': 'user',
-				'auth-password': generator.generate({ length: 16, numbers: true })
-			},
-			'extension-version': Config.getExtensionVersion()
-		};
+		this.deployConfigFile(true);
+		this.config['sfmc-domain'] = subdomain;
+		this.config['sfmc-client-id'] = clientId;
+		this.config['sfmc-mid'] = mid;
 
-		this.deployConfigFile(configData, true);
+		this.config['proxy-any-file']['auth-username'] = 'user';
+		this.config['proxy-any-file']['auth-password'] = generator.generate({ length: 16, numbers: true });
+		this.config['extension-version'] = Config.getExtensionVersion();
+		this.saveConfigFile(true);
 	}
 
 	// TODO: rename
