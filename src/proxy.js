@@ -2,11 +2,9 @@ const fs = require('fs');
 const path = require('path');
 const express = require('express');
 const morgan = require("morgan");
-const moment = require('moment');
 
 const { template } = require('./template');
 const Config = require('./config');
-const textFile = require('./auxi/file');
 
 let config;
 let server;
@@ -29,10 +27,10 @@ exports.app = {
     app.use(morgan('dev'));
 
 		console.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
-		app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res, next) => {
+		app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res) => {
 			let pth = req.query?.path;
 			if (pth) {
-				let html = template.runScriptFile(pth, config, isDev = true);
+				let html = template.runScriptFile(pth, config, true);
 				res.status(200).send(html);
 			} else {
 				throw("checkResourcePath() not used!")
@@ -118,7 +116,7 @@ function checkResourcePath(req, res, next) {
         next();
       } else {
         console.error('Any-proxy path invalid (2):', p);
-        send401Response(res, 'File type not allowed.');
+        send401Response(res, 'File type not allowed.', false);
       }
     } else {
       // TODO: Path NOK
@@ -161,8 +159,7 @@ function sendErrorResponse(res, httpStatus, renderView, sendJson) {
     });
   } else {
     const pth = path.join(__dirname, `../templates/${httpStatus}.html`);
-    const htmlTemplate = textFile.load(pth);
-    var html = Mustache.render(htmlTemplate, renderView);
+		let html = template.runFile(pth);
     res.status(httpStatus).send(html);
   }
 }

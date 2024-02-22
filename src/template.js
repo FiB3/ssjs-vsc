@@ -1,6 +1,5 @@
 const path = require('path');
 const Mustache = require('mustache');
-const moment = require('moment');
 
 const textFile = require('./auxi/file');
 const Config = require('./config');
@@ -42,7 +41,7 @@ exports.template = {
 		// loop through tokens, for each that starts with: `file://` replace value with loaded file's value
 		for (let [token, value] of Object.entries(tokens)) {
 			if (value.startsWith('file://')) {
-				libPath = path.join(Config.getUserWorkspacePath(), value.substring(7));
+				let libPath = path.join(Config.getUserWorkspacePath(), value.substring(7));
 				let fileContent = textFile.load(libPath);
 				tokens[token] = fileContent;
 				console.log(`TOKEN: ${token}: ${libPath}; ${fileContent.substring(0, 25)}...`);
@@ -58,11 +57,11 @@ exports.template = {
 		return html;
 	},
 
-	getSsjsVersion: function() {
-		// TODO: needs to be improved
-		// when deploying - set date, when previewing set timestamp??
-		return config.automateVersion
-				? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
-				: '';
-	}
+	// getSsjsVersion: function() {
+	// 	// TODO: needs to be improved
+	// 	// when deploying - set date, when previewing set timestamp??
+	// 	return config.automateVersion
+	// 			? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
+	// 			: '';
+	// }
 }

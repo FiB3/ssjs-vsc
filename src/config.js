@@ -1,4 +1,3 @@
-const vscode = require('vscode');
 const path = require('path');
 
 const generator = require('generate-password');

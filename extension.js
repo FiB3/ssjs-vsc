@@ -46,7 +46,7 @@ async function activate(context) {
 	]);
 
 	registerFileActions(context);
-	registerFormatters(context);
+	registerFormatters();
 }
 
 function watchForConfigurationChanges() {
@@ -94,7 +94,7 @@ function registerFileActions(context) {
 	context.subscriptions.push(onSaveFile);
 }
 
-function registerFormatters(context) {
+function registerFormatters() {
 	const formatters = new LanguageFormatter();
 	const formatterRegistrations = vscode.languages.registerDocumentFormattingEditProvider(
 			formatters.getSelectors(),
