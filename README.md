@@ -64,6 +64,11 @@ bluez.io
 
 Sponsoring coming soon! For now please enjoy and share!
 
+## Telemetry
+
+This extension is collecting some telemetry in order to allow for future improvements and bugfixes.  
+No personal information, API Keys nor script content is collected.
+
 ## Known Issues
 
 Work in progress - some errors may appear.  

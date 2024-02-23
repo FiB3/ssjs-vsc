@@ -2,6 +2,17 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.8] - 2024-02-23
+
+### Added
+- Check of Installed Package scopes.
+- Added Telemetry to allow for better future improvements (per README).
+
+### Fixed
+- Updated Beautifiers to fix the "key-words in variables" problem.
+- Fixed `SSJS: Create Config` broken by previous release.
+- Fixd `No file is currently open.` warning on start of Server Provider.
+
 ## [0.3.7] - 2024-02-16
 
 ### Added
