@@ -10,6 +10,8 @@ const json = require('./auxi/json');
 const vsc = require('./vsc.js');
 const dialogs = require('./dialogs');
 const checks = require('./checks');
+const telemetry = require('./telemetry');
+
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
 module.exports = class BaseCodeProvider {
@@ -32,17 +34,18 @@ module.exports = class BaseCodeProvider {
 			this.snippets.attachMc(this.mc);
 			// TODO: validate token:
 			if (testConnection === true) {
-				this.mc.validateApiKeys()
+				await this.mc.validateApi()
 						.then((data) => {
-							console.log(`API Keys OK.`);
-							if (!this.config.getSfmcUserId()) {
-								this.config.setSfmcUserId(data.body?.user?.id);
+							if (data.ok && !this.config.getSfmcUserId()) {
+								this.config.setSfmcUserId(data.userId);
+							} else if (!data.ok) {
+								vscode.window.showErrorMessage(data.message);
 							}
 						})
 						.catch((err) => {
+							vscode.window.showErrorMessage(`Unrecognized error while testing SFMC connection.`);
 							console.error('TEST SFMC-Connection ERR:', err);
-							let m = this.mc.parseRestError(err);
-							vscode.window.showErrorMessage(`SFMC API Credentials issue: \n${m}`);
+							telemetry.error('apiValidation', { error: err });
 						});
 			}
 		}

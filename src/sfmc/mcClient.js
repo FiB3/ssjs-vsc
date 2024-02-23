@@ -1,5 +1,20 @@
 const ET_Client = require('sfmc-fuelsdk-node');
 
+/*
+	list of required scopes per endpoint:
+  GET /platform/v1/configcontext, GET /platform/v1/tokenContext - no scopes
+  POST: /asset/v1/content/assets; POST, PATCH: /asset/v1/assets/
+			- saved_content_write, email_write, documents_and_images_read, documents_and_images_write
+		POST: /asset/v1/content/categories
+			- documents_and_images_write, documents_and_images_read
+*/
+const REQUIRED_SCOPES = [
+	'saved_content_write', 
+	'email_write',
+	'documents_and_images_read',
+	'documents_and_images_write'
+];
+
 module.exports = class McClient {
 	
 	constructor(subdomain, clientId, clientSecret, mid) {
@@ -126,8 +141,69 @@ module.exports = class McClient {
     return allItems;
 	}
 
+	async validateApi() {
+    let r = {
+        ok: true
+    };
+
+    try {
+        await this.validateScopes();
+        console.log(`API Scopes OK.`);
+    } catch (err) {
+        r.ok = false;
+				console.error('validateApiKeys error:', err);
+        if (Array.isArray(err)) {
+            r.message = `Installed Package is missing required scopes: \n${err.join(', ')}. Please update the package in SFMC and reopen VSCode.`;
+        } else {
+            let m = this.parseRestError(err);
+            r.message = `SFMC API Scopes issue: \n${m}`;
+        }
+        return r;
+    }
+
+    try {
+        const data = await this.validateApiKeys();
+        console.log(`API Keys OK.`);
+        r.userId = data.body?.user?.id;
+    } catch (err) {
+        r.ok = false;
+        let m = this.parseRestError(err);
+        r.message = `SFMC API Credentials issue: \n${m}`;
+    }
+    return r;
+	}
+
 	async validateApiKeys() {
 		return this._get(`/platform/v1/tokenContext`);
+	}
+
+	/**
+	 * Validates, if passed scopes are valid for SSJS Manager.
+	 * @returns {Promise<boolean|array|error>} - resolves with true, rejects missing scopes array or error.
+	 */
+	async validateScopes() {
+		return new Promise((resolve, reject) => {
+			this.client.FuelAuthClient.getAccessToken()
+					.then((data) => {
+						// console.log('validateApiKeys.getAccessToken.scopes: ', data.scope, '.');
+						let scopes = data.scope ? data.scope.split(' ') : [];
+						let missingScopes = [];
+						REQUIRED_SCOPES.forEach((reqScope) => {
+							if (!scopes.includes(reqScope)) {
+								missingScopes.push(reqScope);
+							}
+						});
+						if (missingScopes.length) {
+							reject(missingScopes);
+						} else {
+							resolve(true);
+						}
+					})
+					.catch((err) => {
+						console.error('validateApiKeys.getAccessToken error:', err);
+						resolve(err);
+					});
+		});
 	}
 
 	async _post(uri, body) {

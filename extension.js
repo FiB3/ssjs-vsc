@@ -145,9 +145,14 @@ const createConfig = async function(update = false) {
 		
 		let mc = new McClient(subdomain, clientId, clientSecret, mid);
 
-		await mc._get(`/platform/v1/configcontext`)
+		mc.validateApi()
 				.then((data) => {
+					if (!data.ok) {
+						vscode.window.showErrorMessage(data.message);
+						return;
+					}
 					console.log('createConfig() - API Response:', data);
+
 					vscode.window.showInformationMessage(`API Credentials validated!`);
 					// store credentials:
 					config.storeSfmcClientSecret(clientId, clientSecret);
@@ -175,7 +180,7 @@ const createConfig = async function(update = false) {
 					pickCodeProvider();
 				})
 				.catch((err) => {
-					console.log('ERR', err);
+					telemetry.error('createConfig', { error: err });
 					// Show error message:
 					vscode.window.showErrorMessage(`API Credentials invalid! Try again, please.`);
 				});
