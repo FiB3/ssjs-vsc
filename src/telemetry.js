@@ -27,7 +27,7 @@ class TelemetryHandler {
 	 */
 	log(eventName, properties = {}, measurements = {}) {
 		properties.isProd = this.isProd;
-		if (TELEMETRY_DEV_OFF) {
+		if (!this.isProd && TELEMETRY_DEV_OFF) {
 			console.log(`Telemetry.log: ${eventName}`, properties, measurements);
 			return;
 		}
@@ -42,7 +42,7 @@ class TelemetryHandler {
 	 */
 	error(errorName, properties = {}, measurements = {}) {
 		properties.isProd = this.isProd;
-		if (TELEMETRY_DEV_OFF) {
+		if (!this.isProd && TELEMETRY_DEV_OFF) {
 			console.log(`Telemetry.error: ${errorName}`, properties, measurements);
 			return;
 		}

@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.9] - 2024-02-23
+
+### Fixed
+- Telemetry dev mode off.
+
 ## [0.3.8] - 2024-02-23
 
 ### Added
