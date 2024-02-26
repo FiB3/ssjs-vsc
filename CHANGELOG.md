@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.10] - 2024-02-26
+
+### Added
+- AMPscript syntax highlight.
+
 ## [0.3.9] - 2024-02-23
 
 ### Fixed
