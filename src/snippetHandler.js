@@ -73,7 +73,7 @@ class SnippetHandler {
 		await this.mc._patch(`/asset/v1/assets/${devAssetId}`, asset)
 				.then((data) => {
 					assetId = data.body.id;
-					this.saveMetadata(filePath, data);
+					this.saveMetadata(filePath, data, true);
 					if (!devPageContext) {
 						vscode.window.showInformationMessage(`Asset Updated.`);
 					} else {
@@ -111,12 +111,23 @@ class SnippetHandler {
 		return scriptPath;
 	}
 
+	saveDevContext(filePath, devContext) {
+		this.addToMetadata(filePath, { devContext });
+	}
+
+	getDevContext(filePath) {
+		let meta = this.loadMetadata(filePath);
+		console.log(`getDevContext: meta.devContext: ${meta.devContext}.`, meta);
+		return meta.devContext || false;
+	}
+
 	/**
 	 * Save metadata file for the asset.
 	 * @param {*} filePath path of the script file (not metadata file)
 	 * @param {*} reqData data from asset creation/update request
+	 * @param {boolean} upsert - if true, the metadata file will be updated, if exists.
 	 */
-	saveMetadata(filePath, reqData) {
+	saveMetadata(filePath, reqData, upsert = false) {
 		let dt = {};
 		dt.id = reqData.body.id;
 		dt.name = reqData.body.name;
@@ -124,15 +135,37 @@ class SnippetHandler {
 		dt.category = reqData.body.category;
 		dt.enterpriseId = reqData.body.enterpriseId;
 		dt.id = reqData.body.id;
-
+		// TODO: make automatic upsert if file exists:
+		if (upsert === true) {
+			this.addToMetadata(filePath, dt);
+			return;
+		}
 		const metadataPath = this.getMetadataFileName(filePath);
 		console.log(`metadata-path: ${metadataPath}`);
 		json.save(metadataPath, dt);
 	}
 
-	// TODO: not finished yet:
+	/**
+	 * Add metadata to the metadata file.
+	 * @param {string} filePath - path of the file - gets metadata file path automatically.
+	 * @param {object} data
+	 */
+	addToMetadata(filePath, data) {
+		let dt = this.loadMetadata(filePath);
+		Object.assign(dt, data);
+		// console.log('addToMetadata:', dt);
+		const metadataPath = this.getMetadataFileName(filePath);
+		json.save(metadataPath, dt);
+	}
+
+	/**
+	 * Load metadata file for the asset.
+	 * @param {string} filePath path of the script file (not metadata file)
+	 * @returns {object} metadata object
+	 */
 	loadMetadata(filePath) {
 		let metaPath = this.getMetadataFileName(filePath);
+		// TODO: add validation for validity of the file (JSON, values, etc.)
 		return json.load(metaPath);
 	}
 

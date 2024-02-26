@@ -2,6 +2,7 @@ const vscode = require('vscode');
 
 const BaseCodeProvider = require('./baseCodeProvider');
 // const Config = require('./config');
+const dialogs = require('./dialogs');
 const checks = require('./checks');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
@@ -38,8 +39,16 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 			if (this.snippets.snippetExists(filePath)) {
 				await this.updateCode(filePath);
+
+				let savedDevContext = this.snippets.getDevContext(filePath);
+				console.log('savedDevContext:', savedDevContext);
+				if (!savedDevContext) {
+					await this.getDevContextPreference(filePath);
+				}
 			} else if (!autoUpload) {
 				await this.createNewBlock(filePath);
+				// find out the default dev context and save it:
+				await this.getDevContextPreference(filePath);
 			} else {
 				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
@@ -103,6 +112,13 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		// get templated file:
 		let scriptText = template.runScriptFile(filePath, this.config, true);
 		return await this.snippets.updateSfmcSnippet(meta.id, scriptText, false, filePath);
+	}
+
+	async getDevContextPreference(filePath) {
+		const defaultDevContext = await dialogs.getDevContextPreference();
+		if (defaultDevContext) {
+			this.snippets.saveDevContext(filePath, defaultDevContext);
+		}
 	}
 
 	_getDevUrl(devPageContext, metadata) {

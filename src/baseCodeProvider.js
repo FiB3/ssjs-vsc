@@ -273,11 +273,11 @@ module.exports = class BaseCodeProvider {
 		// TODO: pick asset also based on asset file
 		const filePath = vsc.getActiveEditor();
 		if (filePath && checks.isFileSupported(filePath)) {
-			let metadata = json.load(this.snippets.getMetadataFileName(filePath));
+			let metadata = this.snippets.loadMetadata(filePath);
 
 			let devPageContext;
 			if (this.config.isDevPageSet() && this.config.isDevResourceSet()) {
-				devPageContext = await dialogs.pickDevPageContext();
+				devPageContext = !metadata.devContext ? await dialogs.pickDevPageContext() : metadata.devContext;
 			} else if (this.config.isDevPageSet()) {
 				devPageContext = 'page';
 			} else if (this.config.isDevResourceSet()) {

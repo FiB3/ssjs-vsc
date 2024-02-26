@@ -232,6 +232,28 @@ module.exports = {
 		}
 	},
 
+	/**
+	 * Ask user to select the type of the Dev Page for default preview of given file.
+	 * @returns {Promise<string|boolean>} Selected dev types as string: 'page', 'text' or 'picker'. False if none selected.
+	 */
+	async getDevContextPreference() {
+		const cloudPageOptions = ['Pick every time', 'Cloud Page', 'Text Resource'];
+		const selected = await vscode.window.showQuickPick(cloudPageOptions, {
+			title: `Dev Preview Page Type`,
+			prompt: `Select which type Dev Page you prefer to use for this file.`,
+			placeHolder: 'Do I want to develop this file in Cloud Page and/or Text Resource?',
+			ignoreFocusOut: true
+		});
+
+		if (!selected) { return false; }
+		if (selected == 'Cloud Page') {
+			return 'page';
+		} else if (selected == 'Text Resource') {
+			return 'text';
+		}
+		return 'picker';
+	},
+
 	getFriendlyDevContext(devPageContext = 'page') {
 		return devPageContext == 'page' ? 'Cloud Page' : 'Text Resource';
 	}

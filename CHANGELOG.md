@@ -6,6 +6,7 @@ All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
 ### Added
 - AMPscript syntax highlight.
+- Preview (get dev page URL) choice can be stored (and used from) the script's metadata.
 
 ## [0.3.9] - 2024-02-23
 
