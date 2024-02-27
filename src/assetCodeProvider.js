@@ -45,10 +45,14 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				if (!savedDevContext) {
 					await this.getDevContextPreference(filePath);
 				}
+
+				telemetry.log('updateScript', { codeProvider: 'Asset', update: true });
 			} else if (!autoUpload) {
 				await this.createNewBlock(filePath);
 				// find out the default dev context and save it:
 				await this.getDevContextPreference(filePath);
+
+				telemetry.log('uploadScript', { codeProvider: 'Asset', update: false });
 			} else {
 				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
@@ -64,6 +68,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 		let deployments = this._getContextInfoForDeployment(prepResult, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
 		await this.runAnyScriptDeployments(deployments);
+
+		telemetry.log('deployAnyScript', { codeProvider: 'Asset' });
 	}
 
 	async updateAnyScript(silenced = false) {

@@ -57,6 +57,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		});
 		// run deployments:
 		await this.runAnyScriptDeployments(deployments);
+		telemetry.log('deployAnyScript', { codeProvider: 'Server' });
 	}
 
 	async updateAnyScript(silenced = false) {

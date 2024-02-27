@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.11] - 2024-02-27
+
+### Fixed
+- Error thrown when no Workspace is selected. Instead, a warning notification is shown.
+
 ## [0.3.10] - 2024-02-26
 
 ### Added

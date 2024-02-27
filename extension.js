@@ -82,6 +82,13 @@ function registerCommands(context, commands) {
 function registerFileActions(context) {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		let filePath = textDocument.uri.fsPath;
+
+		if (!Config.getUserWorkspacePath()) {
+			vscode.window.showWarningMessage(`It seems you are not using workspaces! To use full potential of this extension, please, open a folder and run command: "SSJS: Show Setup Walkthrough".`);
+			deactivateProviders({}, statusBar);
+			telemetry.log(`noWorkspace`);
+			return;
+		}
 		
 		if (Config.isConfigFile(filePath)) {
 			config.loadConfig();

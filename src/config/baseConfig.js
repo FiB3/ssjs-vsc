@@ -3,6 +3,7 @@ const path = require('path');
 const file = require('../auxi/file');
 const folder = require('../auxi/folder');
 const jsonHandler = require('../auxi/json');
+const telemetry = require('../telemetry');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FOLDER_NAME = '.vscode';
@@ -118,14 +119,12 @@ module.exports = class BaseConfig {
 
 	/**
 	 * Get the path to the workspace.
-	 * @returns {string} Path to the workspace.
+	 * @returns {string} Path to the workspace, or false if not set.
 	 */
 	static getUserWorkspacePath() {
 		const [workspaceFolder] = vscode.workspace.workspaceFolders || [];
-
     if (!workspaceFolder) {
-        vscode.window.showErrorMessage(`No workspace folder found!`);
-        return;
+        return false;
     }
 
     return workspaceFolder.uri.fsPath;
@@ -134,10 +133,13 @@ module.exports = class BaseConfig {
 	/**
 	 * Check if the file is in the current workspace.
 	 * @param {string} filePath Path to the file.
-	 * @returns {boolean} True if the file is in the workspace.
+	 * @returns {boolean} True if the file is in the workspace. false otherwise or if the workspace or file is not set.
 	 */
 	static isFileInWorkspace(filePath) {
 		const workspacePath = BaseConfig.getUserWorkspacePath();
+		if (!workspacePath || !filePath) {
+			return false;
+		}
     // Normalize paths to ensure consistent format
     const absoluteFilePath = path.resolve(filePath);
     const absoluteWorkspacePath = path.resolve(workspacePath);

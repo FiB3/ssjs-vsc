@@ -76,3 +76,4 @@ In such case, let me know on my [GitHub here!](https://github.com/fib3/ssjs-vsc/
 
 - Upcoming improvements to security of development Cloud Pages.
 - Client Secret not loading when VSCode is not up to date. Update your VSCode to fix.
+- Multi-root workspaces are not supported.
