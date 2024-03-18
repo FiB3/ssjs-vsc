@@ -21,7 +21,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async init(testConnection = false) {
-		super.init(true, testConnection);
+		await super.init(true, testConnection);
 	}
 
 	async uploadScript(autoUpload) {
@@ -79,7 +79,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			this.config.isDevResourceSet() ? contexts.push('text') : null;
 
 			let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
-			await this.runAnyScriptDeployments(deployments);
+			await this.runAnyScriptDeployments(deployments, silenced);
 		} catch (e) {
 			telemetry.error('updateAnyScript', { error: e.message, codeProvider: 'Asset' });
 		}

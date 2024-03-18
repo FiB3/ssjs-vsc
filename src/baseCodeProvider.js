@@ -161,7 +161,7 @@ module.exports = class BaseCodeProvider {
 			console.log(`View:`, view);
 			console.log(`Tokens:`, this.config.getDevPageAuth(devPageContext));
 
-			await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile);
+			await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile, silenced);
 			console.log(`${devPageContext} asset deployed`);
 		}
 	}
@@ -183,10 +183,10 @@ module.exports = class BaseCodeProvider {
 			// update existing asset:
 			console.log(`UPDATE DEV asset: ${devAssetId}`);
 			assetId = await this.updateSnippetBlock(devAssetId, snippetScript, devPageContext);
-			// TODO: ask if to re-deploy the Cloud Page (NO as default)
-			console.log(`${devPageContext}, 1`);
-			runCloudPage = await dialogs.yesNoConfirm(`Update deployment files?`, `Do you want to generate new deployment files for ${view['pageContextReadable']}?`);
-			console.log(`${devPageContext}, 2`);
+			// ask if to re-deploy the Cloud Page (NO as default)
+			if (!silenced) {
+				runCloudPage = await dialogs.yesNoConfirm(`Update deployment files?`, `Do you want to generate new deployment files for ${view['pageContextReadable']}?`);
+			}			
 		} else {
 			// create new asset:
 			console.log(`CREATE DEV asset`);
@@ -259,9 +259,7 @@ module.exports = class BaseCodeProvider {
 	 * @returns {number|false} assetId
 	 */
 	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
-		console.log(`${devPageContext}, 1.1`);
 		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
-		console.log(`${devPageContext}, 1.2`);
 		return await this.snippets.updateSfmcSnippet(devAssetId, scriptText, devPageContext, snippetPath);
 	}
 

@@ -68,7 +68,8 @@ async function loadConfiguration(context) {
 	} else {
 		config.loadConfig();
 		await checkSetup();
-		pickCodeProvider(true);
+		await pickCodeProvider(true, true);
+		await checkDevPageVersion();
 	}
 }
 
@@ -130,17 +131,21 @@ const deactivateProviders = async function() {
 	await provider.init();
 }
 
-const pickCodeProvider = async function(testApiKeys) {
+const pickCodeProvider = async function(testApiKeys, silent = false) {
 	// Handle the setting change here
 	const codeProvider = Config.getCodeProvider();
 	await deactivateProviders();
 
 	if (codeProvider === 'Asset') {
-		vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
-		activateAssetProvider(testApiKeys);
+		if (!silent) {
+			vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`)
+		};
+		await activateAssetProvider(testApiKeys);
 	} else if (codeProvider === 'Server') {
-		vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
-		activateServerProvider();
+		if (!silent) {
+			vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
+		};
+		await activateServerProvider();
 	} else {
 		vscode.window.showWarningMessage(`Code Providers switched off!`);
 	}
@@ -198,7 +203,7 @@ const createConfig = async function(update = false) {
 
 const checkSetup = async function() {
 	const minVersion = '0.3.0';
-	const currentVersion = config.config['extension-version'] || 'v0.0.0';
+	const currentVersion = config.getSetupFileVersion();
 
 	if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
 		console.log(`Setup file is up to date. Version: ${currentVersion}.`);
@@ -209,6 +214,20 @@ const checkSetup = async function() {
 	config.migrateSetup();
 	// show a warning message:
 	vscode.window.showWarningMessage(`Please, run 'SSJS: Install Dev Page' command to finish update. This is one time action.`);
+}
+
+const checkDevPageVersion = async function() {
+	const minVersion = '0.3.12';
+	const currentVersion = config.getSetupFileVersion();
+
+	if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
+		console.log(`Dev Page is up to date. Version: ${currentVersion}.`);
+		return;
+	}
+	console.log(`Update Dev Page from version: ${currentVersion} to ${minVersion}.`);
+	// update Dev Page:
+	provider.updateAnyScript(true);
+	config.setSetupFileVersion();
 }
 
 // This method is called when your extension is deactivated

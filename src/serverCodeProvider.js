@@ -18,7 +18,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	}
 
 	async init(testConnection = false) {
-		super.init(true, testConnection);
+		await super.init(true, testConnection);
 	}
 
 	async deployAnyScript() {
@@ -79,7 +79,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 				'basic-encrypted-secret': generateBasicAuthHeader(serverData.authUser, serverData.authPassword)
 			}			
 		});
-		await this.runAnyScriptDeployments(deployments);
+		await this.runAnyScriptDeployments(deployments, silenced);
 	}
 
 	async startServer() {

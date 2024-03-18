@@ -165,6 +165,14 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Get Setup File Version.
+	 * @returns {string}
+	 */
+	getSetupFileVersion() {
+		return this.config['extension-version'] || '0.0.0';
+	}
+
+	/**
 	 * Run a quick check, if the setup seems valid.
 	 * @returns {boolean}
 	 */
@@ -312,6 +320,15 @@ module.exports = class Config extends Preferences {
 
 	setSfmcUserId(userId) {
 		this.config['sfmc-user-id'] = userId || 0;
+		this.saveConfigFile();
+	}
+
+	/**
+	 * Set version within setup file.
+	 * @param {string} version
+	 */
+	setSetupFileVersion(version) {
+		this.config['extension-version'] = version || Preferences.getExtensionVersion();
 		this.saveConfigFile();
 	}
 
