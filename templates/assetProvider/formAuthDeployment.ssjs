@@ -86,7 +86,7 @@
 		Platform.Response.SetResponseHeader("X-Frame-Options", "Deny");
 		Platform.Response.SetResponseHeader("X-Content-Type-Options", "nosniff");
 		Platform.Response.SetResponseHeader("Referrer-Policy", "strict-origin-when-cross-origin");
-		Platform.Response.SetResponseHeader("Content-Security-Policy", "default-src 'self'");
+		/* Platform.Response.SetResponseHeader("Content-Security-Policy", "default-src 'self'"); */
   } catch(err) {
     Write("<br>" + Stringify(err));
   }

@@ -88,10 +88,11 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	async getDevUrl() {
 		try {
 			const pageDetails = await this._getContextForGetUrl();
-
+			console.log('pageDetails:', pageDetails);
 			if (pageDetails) {
 				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
 				vscode.env.clipboard.writeText(url);
+				telemetry.log('getDevUrl', { codeProvider: 'Asset', devPageContext: pageDetails.devPageContext });
 			}
 		} catch (e) {
 			telemetry.error('getDevUrl', { error: e.message, codeProvider: 'Asset' });
@@ -132,10 +133,12 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		let id = metadata.id;
 		let tkn;
 
+		console.log(`useAuth: ${tokenConfig.useAuth} && authType: ${tokenConfig.authType}.`, 'tokenConfig:', tokenConfig);
 		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
 			// TODO: this is not perfect, but good enough for now:
 			vscode.window.showInformationMessage(`URL in clipboard. Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`);
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
+			console.log(`Chose token auth.`);
 			vscode.window.showInformationMessage(`URL in clipboard.`);
 			tkn = tokenConfig.token;
 		}

@@ -1,13 +1,12 @@
 const vscode = require('vscode');
-var path = require('path');
 
 const BaseCodeProvider = require('./baseCodeProvider');
-const Config = require('./config');
 
 const { app, generateBasicAuthHeader } = require('./proxy');
 const dialogs = require('./dialogs');
 const vsc = require('./vsc');
 const checks = require('./checks');
+const telemetry = require('./telemetry');
 
 const DEPLOYMENT_TOKEN_TEMPLATE = './templates/serverProvider/tokenDeployment.ssjs';
 const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/serverProvider/formAuthDeployment.ssjs';
@@ -112,6 +111,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		if (pageDetails) {
 			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.filePath);
 			vscode.env.clipboard.writeText(url);
+			telemetry.log('getDevUrl', { codeProvider: 'Server', devPageContext: pageDetails.devPageContext });
 		}
 	}
 

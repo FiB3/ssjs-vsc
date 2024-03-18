@@ -36,7 +36,7 @@ exports.template = {
 		const htmlTemplate = textFile.load(pth);
 		const customTags = Config.getTemplatingTags();
 
-		let tokens = config.getTokens(isDev);
+		let tokens = config.getTemplatingView(isDev);
 
 		// loop through tokens, for each that starts with: `file://` replace value with loaded file's value
 		for (let [token, value] of Object.entries(tokens)) {
@@ -44,7 +44,7 @@ exports.template = {
 				let libPath = path.join(Config.getUserWorkspacePath(), value.substring(7));
 				let fileContent = textFile.load(libPath);
 				tokens[token] = fileContent;
-				console.log(`TOKEN: ${token}: ${libPath}; ${fileContent.substring(0, 25)}...`);
+				// console.log(`TOKEN: ${token}: ${libPath}; ${fileContent.substring(0, 100)}...`);
 			}
 		}
 

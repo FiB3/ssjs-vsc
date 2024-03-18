@@ -59,10 +59,12 @@ module.exports = class Config extends Preferences {
 	 * @param {boolean} isDev
 	 * @returns {object}
 	 */
-	getTokens(isDev = true) {
+	getTemplatingView(isDev = true) {
 		console.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
-		return Object.keys(this.config[tokensKey]) ? this.config[tokensKey] : {};
+		return Object.keys(this.config[tokensKey])
+				? Object.assign({}, this.config[tokensKey])
+				: {};
 	}
 
 	/**

@@ -276,8 +276,8 @@ module.exports = class BaseCodeProvider {
 			let metadata = this.snippets.loadMetadata(filePath);
 
 			let devPageContext;
-			if (this.config.isDevPageSet() && this.config.isDevResourceSet()) {
-				devPageContext = !metadata.devContext ? await dialogs.pickDevPageContext() : metadata.devContext;
+			if (metadata.devContext === 'picker' || (this.config.isDevPageSet() && this.config.isDevResourceSet())) {
+				devPageContext = await dialogs.pickDevPageContext();
 			} else if (this.config.isDevPageSet()) {
 				devPageContext = 'page';
 			} else if (this.config.isDevResourceSet()) {
