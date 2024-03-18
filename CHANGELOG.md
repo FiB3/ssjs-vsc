@@ -2,6 +2,19 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.3.11] - 2024-03-18
+
+### Added
+- Auto update of Dev Pages on start (if needed).
+
+### Changed
+- Removed `Content-Security-Policy` header from Dev Cloud Pages as this was breaking console logging within SSJS lib (by Email360).
+- Removed Notification about Code Provider on extension start.
+
+### Fixed
+- Stale Template Tokens for Libraries (inclusion of files into code was loading old file versions).
+- Get Dev Path (in Asset Code Provider) was ignoring "choose every time" option for Dev Page Context.
+
 ## [0.3.11] - 2024-02-27
 
 ### Fixed
