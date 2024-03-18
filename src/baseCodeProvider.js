@@ -5,7 +5,6 @@ const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SnippetHandler = require('./snippetHandler');
 const { template } = require('./template');
-const json = require('./auxi/json');
 
 const vsc = require('./vsc.js');
 const dialogs = require('./dialogs');
@@ -58,7 +57,7 @@ module.exports = class BaseCodeProvider {
 		this._checkCommand();
 	}
 
-	async updateAnyScript(silenced = false) {
+	async updateAnyScript() {
 		this._checkCommand();
 	}
 
@@ -301,6 +300,7 @@ module.exports = class BaseCodeProvider {
 	 * @param {String} webAppTemplatePath for future use
 	 * @returns {Array<Object>}
 	 */
+	// eslint-disable-next-line no-unused-vars
 	_getContextInfoForDeployment(contexts = ['page', 'text'], tokenTemplatePath, basicAuthTemplatePath, webAppTemplatePath) {
 		console.log(`Deploy any script prep:`, contexts, '.');
 		let deployments = [];
