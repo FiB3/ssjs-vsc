@@ -11,6 +11,7 @@ const ServerCodeProvider = require('./src/serverCodeProvider');
 const statusBar = require('./src/statusBar');
 const McClient = require('./src/sfmc/mcClient');
 const dialogs = require('./src/dialogs');
+const { showConfigPanel } = require('./src/configPanel/configPanel');
 
 let provider;
 let config;
@@ -27,8 +28,8 @@ async function activate(context) {
 
 	statusBar.create(context, config);
 
+	await launchConfigPanel(context);
 	await loadConfiguration(context);
-
 	watchForConfigurationChanges();
 
 	registerCommands(context, [
@@ -42,11 +43,28 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.deploy-any-path', callback: async () => await provider.deployAnyScript() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await provider.updateAnyScript() },
 		{ name: 'ssjs-vsc.getUrl', callback: async () => await provider.getDevUrl() },
-		{ name: 'ssjs-vsc.showWalkthrough', callback: showWalkthrough }
+		{ name: 'ssjs-vsc.showWalkthrough', callback: showWalkthrough },
+		{ name: 'ssjs-vsc.show-config', callback: () => showConfigPanel(context) }
 	]);
 
 	registerFileActions(context);
 	registerFormatters();
+}
+
+async function launchConfigPanel(context) {
+	const showPanelAutomatically = Config.showPanelAutomatically();
+	const workspaceSet = Config.isWorkspaceSet();
+	const configFileExists = Config.configFileExists();
+	const showChangelog = false; // for future use
+
+	console.log(`Launch Config Panel: ${showPanelAutomatically} && Workspace Set: ${workspaceSet} && Config File Does not Exists: ${!configFileExists}.`);
+	if (showPanelAutomatically && (!workspaceSet || !configFileExists || showChangelog)) {
+		showConfigPanel(context, {
+			workspaceSet,
+			configFileExists,
+			showChangelog
+		});
+	}
 }
 
 function watchForConfigurationChanges() {
@@ -96,7 +114,9 @@ function registerFileActions(context) {
 		} else if (Config.isAutoSaveEnabled() && Config.isFileInWorkspace(filePath)) {
 			await provider.uploadScript(true);
 		} else {
-			console.log(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
+			if (!filePath.endsWith('settings.json')) {
+				console.log(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
+			}
 		}
 	});
 	context.subscriptions.push(onSaveFile);

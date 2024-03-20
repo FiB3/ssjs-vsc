@@ -117,6 +117,10 @@ module.exports = class BaseConfig {
 		return packageJson?.['version'];
 	}
 
+	static isWorkspaceSet() {
+		return BaseConfig.getUserWorkspacePath() ? true : false;
+	}
+
 	/**
 	 * Get the path to the workspace.
 	 * @returns {string} Path to the workspace, or false if not set.

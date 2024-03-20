@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const path = require('path');
 
 const BaseConfig = require('./baseConfig');
+const { error } = require('console');
 
 const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
@@ -43,6 +44,14 @@ module.exports = class Preferences extends BaseConfig {
 
 	static isAutoSaveEnabled() {
 		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('autoSave') ?? false;
+	}
+
+	static showPanelAutomatically() {
+		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('showConfigPanelAutomatically') ?? false;
+	}
+
+	static async changeShowPanelAutomatically(newValue) {
+		await vscode.workspace.getConfiguration('ssjs-vsc.editor').update('showConfigPanelAutomatically', newValue, true)
 	}
 
 	static getTemplatingTags() {

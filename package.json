@@ -88,6 +88,10 @@
       {
         "command": "ssjs-vsc.showWalkthrough",
         "title": "SSJS: Show Setup Walkthrough"
+      },
+      {
+        "command": "ssjs-vsc.show-config",
+        "title": "SSJS: Show Extension Config"
       }
     ],
     "configuration": {
@@ -112,6 +116,11 @@
           "type": "boolean",
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
+        },
+        "ssjs-vsc.editor.showConfigPanelAutomatically": {
+          "type": "boolean",
+          "default": "true",
+          "description": "Keep showing Config Panel if the extension is not configured or there are news to share?"
         },
         "ssjs-vsc.editor.templatingTags": {
           "type": "string",
