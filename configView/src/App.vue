@@ -1,13 +1,17 @@
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, provide } from 'vue'
 import Config from './components/Config.vue'
 import Templating from './components/Templating.vue'
 import Changelog from './components/Changelog.vue'
 
 let currentTab = ref('config')
 let autoOpenEnabled = ref(false)
-let vscode = ref(null)
-// let logoUri = ref('')
+let vscode = ref(null);
+provide('vscode', vscode);
+
+const appInfo = ref({
+	workspaceSet: false
+});
 
 function autoShowSwitch() {
 	vscode.postMessage({
@@ -18,16 +22,16 @@ function autoShowSwitch() {
 
 onMounted(() => {
 	if (typeof(acquireVsCodeApi) === "function") {
-		vscode = acquireVsCodeApi();
+		vscode.value = acquireVsCodeApi();
 	} else {
-		vscode = {
+		vscode.value = {
 			postMessage: data => {
 				console.log("postMessage", data);
 			}
 		};
 	}
 
-	vscode.postMessage({
+	vscode.value.postMessage({
 		command: 'initialized'
 	});
 
@@ -36,6 +40,7 @@ onMounted(() => {
 		switch (message.command) {
 			case 'init':
 				console.log(`INIT Response:`, message);
+				appInfo.value.workspaceSet = message.workspaceSet;
 				autoOpenEnabled.value = message.showPanelAutomatically;
 				break;
 		}
@@ -145,9 +150,14 @@ onMounted(() => {
 
 	footer {
 		position: fixed;
+		left: 0;
 		right: 0;
 		bottom: 0;
+		width: calc(100% - 20px);
 		padding: 10px;
+		background-color: inherit;
+		opacity: 0.8;
+		text-align: right;
 	}
 
 	.footnote {

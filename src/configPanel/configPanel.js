@@ -24,6 +24,10 @@ function showConfigPanel(context, view) {
 							showPanelAutomatically: Config.showPanelAutomatically()
 						});
 
+						return;
+					case 'validateConnection':
+						validateApiCredentials(panel, message);
+						return;
 					case 'autoOpenChange':
 						handleAutoOpenChange(message.value);
 						return;
@@ -34,6 +38,16 @@ function showConfigPanel(context, view) {
 	);
 
 	panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
+}
+
+function validateApiCredentials(panel, sfmc) {
+	console.log('BE: validateApiCredentials', sfmc);
+
+	panel.webview.postMessage({
+		command: 'connectionValidated',
+		ok: false,
+		status: 'Not implemented yet.'
+	});
 }
 
 function handleAutoOpenChange(newValue) {

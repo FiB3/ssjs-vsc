@@ -1,4 +1,43 @@
-body {
-	width: 100%;
-	margin: 15px;
+
+
+
+
+/* .two-col {
+	display: flex;
+	justify-content: space-between;
 }
+.col {
+	flex: 1;
+}
+
+.form-group {
+  margin-bottom: 1em;
+	width: 30%;
+  min-width: 250px;
+}
+
+.form-group label {
+  display: block;
+}
+
+.form-group label {
+  width: 30%;
+  min-width: 250px;
+}
+
+.form-group input {
+  width: 30%;
+  min-width: 250px;
+  background-color: rgba(255, 255, 255, 0.5);
+}
+
+.button-group {
+  margin-top: 1em;
+}
+
+button {
+	background-color: transparent;
+	border: 1px solid;
+	padding: 0.25em 0.5em;
+	font-size: 1em;
+} */
