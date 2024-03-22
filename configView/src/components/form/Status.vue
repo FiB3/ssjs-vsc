@@ -1,7 +1,10 @@
 <template>
   <div :id="id">
 
-		<p>Status: {{ statusText }}</p>
+		<p>
+			<span v-if="ok" class="strong">✓</span><span v-else class="strong">✗</span>
+			<span class="strong"> Status:</span> {{ statusText }}
+		</p>
 	</div>
 </template>
 
@@ -25,5 +28,7 @@ export default {
 </script>
 
 <style scoped>
-
+	.strong {
+		font-weight: bold;
+	}
 </style>

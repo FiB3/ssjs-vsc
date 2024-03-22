@@ -18,6 +18,14 @@ let sfmcApiStatus = ref({
 	ok: false,
 	status: 'Not Configured'
 });
+let assetsStatus = ref({
+	ok: false,
+	status: 'Not Configured'
+});
+let devPagesStatus = ref({
+	ok: false,
+	status: 'Not Configured'
+});
 
 let sfmc = ref({
 	subdomain: '',
@@ -59,7 +67,7 @@ window.addEventListener('message', event => {
 
 		<Accordion>
 		<!-- WORKSPACE -->
-    <AccordionSection>
+    <AccordionSection :ok="workspaceStatus.ok">
       <template #title>
         VSCode Workspace
       </template>
@@ -84,7 +92,7 @@ window.addEventListener('message', event => {
       </template>
     </AccordionSection>
     <!-- SFMC API KEYS -->
-		<AccordionSection>
+		<AccordionSection :ok="sfmcApiStatus.ok">
       <template #title>
         SFMC API Keys
       </template>
@@ -154,7 +162,7 @@ window.addEventListener('message', event => {
       </template>
     </AccordionSection>
     <!-- CONTENT BUILDER -->
-		<AccordionSection>
+		<AccordionSection :ok="assetsStatus.ok">
       <template #title>
         Folder in Content Builder
       </template>
@@ -179,7 +187,7 @@ window.addEventListener('message', event => {
       </template>
     </AccordionSection>
 		<!-- CLOUD PAGES -->
-		<AccordionSection>
+		<AccordionSection :ok="devPagesStatus.ok">
       <template #title>
         Cloud Page Resources
       </template>

@@ -11,7 +11,7 @@ const ServerCodeProvider = require('./src/serverCodeProvider');
 const statusBar = require('./src/statusBar');
 const McClient = require('./src/sfmc/mcClient');
 const dialogs = require('./src/dialogs');
-const { showConfigPanel } = require('./src/configPanel/configPanel');
+const { showConfigPanel, isConfigPanelNeeded } = require('./src/configPanel/configPanel');
 
 let provider;
 let config;
@@ -44,7 +44,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await provider.updateAnyScript() },
 		{ name: 'ssjs-vsc.getUrl', callback: async () => await provider.getDevUrl() },
 		{ name: 'ssjs-vsc.showWalkthrough', callback: showWalkthrough },
-		{ name: 'ssjs-vsc.show-config', callback: () => showConfigPanel(context) }
+		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) }
 	]);
 
 	registerFileActions(context);
@@ -52,18 +52,9 @@ async function activate(context) {
 }
 
 async function launchConfigPanel(context) {
-	const showPanelAutomatically = Config.showPanelAutomatically();
-	const workspaceSet = Config.isWorkspaceSet();
-	const configFileExists = Config.configFileExists();
-	const showChangelog = false; // for future use
-
-	console.log(`Launch Config Panel: ${showPanelAutomatically} && Workspace Set: ${workspaceSet} && Config File Does not Exists: ${!configFileExists}.`);
-	if (showPanelAutomatically && (!workspaceSet || !configFileExists || showChangelog)) {
-		showConfigPanel(context, {
-			workspaceSet,
-			configFileExists,
-			showChangelog
-		});
+	const showPanel = await isConfigPanelNeeded();
+	if (showPanel) {
+		await showConfigPanel(context);
 	}
 }
 

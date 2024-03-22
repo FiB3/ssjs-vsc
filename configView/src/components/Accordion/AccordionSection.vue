@@ -1,9 +1,14 @@
 <script setup>
 import { ref } from 'vue'
 
-const props = withDefaults(defineProps(), {
-  disabled: Boolean
-})
+const props = defineProps({
+  disabled: {
+		type: Boolean,
+	},
+	ok: {
+		Boolean
+	}
+});
 
 let show = ref(false)
 
@@ -17,7 +22,11 @@ const toggleShow = () => {
 <template>
   <div>
     <div class="title" :class="{ 'title-open': show, 'title-disabled': props.disabled }" @click="toggleShow">
-      <slot name="title"></slot>
+      <span>
+				<span v-if="ok">✓</span><span v-else>✗</span>
+				<slot name="title"></slot>
+			</span>
+
       <div class="toggle-icon">
         <div class="plus" :class="{ 'plus-open': show }"></div>
       </div>

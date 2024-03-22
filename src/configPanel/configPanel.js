@@ -1,7 +1,10 @@
 const vscode = require('vscode');
 const Config = require('../config');
 
-function showConfigPanel(context, view) {
+const telemetry = require('../telemetry');
+
+async function showConfigPanel(context) {
+	const view = await getConfigPanelInfo();
 	const panel = vscode.window.createWebviewPanel(
 		'setup', // Identifies the type of the webview. Used internally
 		'SSJS Manager', // Title of the panel displayed to the user
@@ -76,6 +79,33 @@ function getWebviewContent(webview, extensionUri) {
 	return html;
 }
 
+/**
+ * Get the information needed to show the config panel.
+ * @returns {Promise<{workspaceSet: boolean, configFileExists: boolean, showChangelog: boolean}>}
+ */
+async function getConfigPanelInfo() {
+	const showPanelAutomatically = Config.showPanelAutomatically();
+	const workspaceSet = Config.isWorkspaceSet();
+	const configFileExists = Config.configFileExists();
+	const showChangelog = false; // for future use
+
+	return {
+		showPanelAutomatically,
+		workspaceSet,
+		configFileExists,
+		showChangelog
+	};
+}
+
+async function isConfigPanelNeeded() {
+	const panelInfo = await getConfigPanelInfo();
+
+	console.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Does not Exists: ${!panelInfo.configFileExists}.`);
+	return panelInfo.showPanelAutomatically
+			&& (!panelInfo.workspaceSet || !panelInfo.configFileExists || panelInfo.showChangelog);
+}
+
 module.exports = {
-	showConfigPanel
+	showConfigPanel,
+	isConfigPanelNeeded
 };
