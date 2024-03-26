@@ -18,7 +18,7 @@ let sfmcApiStatus = ref({
 	ok: false,
 	status: 'Not Configured'
 });
-let assetsStatus = ref({
+let folderStatus = ref({
 	ok: false,
 	status: 'Not Configured'
 });
@@ -32,13 +32,26 @@ let sfmc = ref({
 	clientId: '',
 	clientSecret: '',
 	mid: ''
-})
+});
+
+let folder = ref({
+	parentName: '',
+	newName: ''
+});
 
 function validateConnection() {
 	console.log('validateConnection', JSON.stringify(sfmc.value));
 	vscode.value.postMessage({
 		command: 'validateConnection',
 		...sfmc.value
+	});
+}
+
+function createFolder() {
+	console.log('createFolder', JSON.stringify(folder.value));
+	vscode.value.postMessage({
+		command: 'createFolder',
+		...folder.value
 	});
 }
 
@@ -55,12 +68,20 @@ window.addEventListener('message', event => {
 			if (message.configFileExists && message.sfmc) {
 				sfmc.value = message.sfmc;
 			}
+			if (message.configFileExists && message.folder && message.folder.id) {
+				folderStatus.value.ok = true;
+				folderStatus.value.status = `Folder exists: ${message.folder.folderPath}.`;
+			}
 			break;
 		case 'connectionValidated':
 			console.log(`Validation Response:`, message);
-			sfmcApiStatus.value = message;
 			sfmcApiStatus.value.ok = message.ok;
 			sfmcApiStatus.value.status = message.workspaceSet ? 'SFMC Connection Set.' : message.status;
+			break;
+		case 'folderCreated':
+			console.log(`Folder Created Response:`, message);
+			folderStatus.value.ok = message.ok;
+			folderStatus.value.status = message.status;
 			break;
 	}
 });
@@ -169,28 +190,44 @@ window.addEventListener('message', event => {
       </template>
     </AccordionSection>
     <!-- CONTENT BUILDER -->
-		<AccordionSection :ok="assetsStatus.ok">
+		<AccordionSection :ok="folderStatus.ok">
       <template #title>
         Folder in Content Builder
       </template>
       <template #content>
-				<div id="assets">
-					<p>
-						<< TODO: Explanation, why this is needed, how the keys are secured & type of creds (server-to-server + min scopes) >>
-					</p>
-
-					<label for="parentFolder">Parent folder Name:</label>
-					<input id="parentFolder" type="text">
-
-					<label for="assetFolder">New Folder Name:</label>
-					<input id="assetFolder" type="text">
-
-					<Input id="assetFolder" title="Parent folder Name" description="Create Content Builder Folder" />
-
+				<form id="assetFolder">
 					<div>
-						<Button id="createAssetFolder" onclick="createAssetFolder()" text="Create Content Builder Folder" />
+						<div class="hint">
+							<p>
+								SSJS Manager needs to create a folder in Content Builder to store the assets.
+								<br/>
+								We could use the root folder, but it's better to keep things organized.
+							</p>
+						</div>
+
+						<Input
+								id="parentFolder"
+								inputType="text"
+								title="Parent Folder Name"
+								description="Folder, within which we will create the new folder. Uses the 'Content Builder' folder if empty."
+								v-model="folder.parentName"
+							/>
+
+							<Input
+									id="newFolder"
+									inputType="text"
+									title="New Folder Name"
+									description="Folder, within which we will store the assets."
+									v-model="folder.newName"
+								/>
+
+						<div>
+							<Button id="createFolder" @click="createFolder()" text="Create Folder" />
+						</div>
+
+						<Status id="createFolderStatus" :statusText="folderStatus.status" :ok="folderStatus.ok" />
 					</div>
-				</div>
+				</form>
       </template>
     </AccordionSection>
 		<!-- CLOUD PAGES -->

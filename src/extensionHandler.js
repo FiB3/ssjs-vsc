@@ -110,6 +110,13 @@ class ExtensionHandler {
 				});
 		return res;
 	}
+
+	async createContentBuilderFolder(parentFolderName, folderName) {
+		if (!this.provider) {
+			return { ok: false, message: `Extension is missing configuration.` };
+		}
+		return await this.provider.snippets.createAssetFolderUi(parentFolderName, folderName);
+	}
 }
 
 module.exports = new ExtensionHandler();

@@ -245,6 +245,13 @@ module.exports = class Config extends Preferences {
 		return folderId;
 	}
 
+	getAssetFolder() {
+		return {
+			id: this.config['asset-folder-id'],
+			folderPath: this.config['asset-folder']
+		};
+	}
+
 	/**
 	 * Sets params for Dev Page/Resource. 
 	 */

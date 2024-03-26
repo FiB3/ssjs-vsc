@@ -179,6 +179,7 @@ class SnippetHandler {
 		}
 	}
 
+	// version for dialog
 	async createAssetFolder() {
 		const parentFolderName = await dialogs.getDevFolderParentName();
 		const folderName = await dialogs.getDevFolderName();
@@ -196,6 +197,42 @@ class SnippetHandler {
 			vscode.window.showInformationMessage(`Folder for Dev Assets created!`);
 			this.config.setAssetFolderId(f.body.id, `${parentFolderName} > ${folderName}`);
 			return true;
+		}
+	}
+
+	// version for Custom View
+	async createAssetFolderUi(parentFolderName = 'Content Builder', folderName) {
+		if (!folderName) {
+			return {
+				ok: false,
+				message: 'Folder name not provided.'
+			};
+		}
+		if (typeof(parentFolderName) === 'string' && parentFolderName.trim().length == 0) {
+			parentFolderName = 'Content Builder';
+		}
+		if (typeof(folderName) === 'string' && parentFolderName.trim().length == 0) {
+			return {
+				ok: false,
+				message: 'Requires Name of the new folder!'
+			};
+		}
+
+		let f = await this.createFolder(folderName, parentFolderName);
+
+		if (!f) {
+			console.log(`Could not create Content Builder Folder!`, f);
+			return {
+				ok: false,
+				message: 'Could not create Content Builder Folder!'
+			};
+		} else {
+			let fldrPath = `${parentFolderName} > ${folderName}`;
+			this.config.setAssetFolderId(f.body.id, fldrPath);
+			return {
+				ok: true,
+				message: `Folder for Dev Assets created at ${fldrPath}.`
+			};
 		}
 	}
 

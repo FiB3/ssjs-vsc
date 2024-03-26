@@ -5,6 +5,7 @@ let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
 
 const telemetry = require('../telemetry');
+const SnippetHandler = require('../snippetHandler');
 
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
@@ -31,6 +32,9 @@ async function showConfigPanel(context) {
 						return;
 					case 'validateConnection':
 						validateApiCredentials(panel, message);
+						return;
+					case 'createFolder':
+						handleAssetFolders(panel, message);
 						return;
 					case 'autoOpenChange':
 						handleAutoOpenChange(message.value);
@@ -62,6 +66,16 @@ async function validateApiCredentials(panel, sfmc) {
 
 	panel.webview.postMessage({
 		command: 'connectionValidated',
+		ok: r.ok,
+		status: r.message
+	});
+}
+
+async function handleAssetFolders(panel, message) {
+	console.log('BE: handleAssetFolders', message);
+	let r = await ext.createContentBuilderFolder(message.parentName, message.newName);
+	panel.webview.postMessage({
+		command: 'folderCreated',
 		ok: r.ok,
 		status: r.message
 	});
@@ -103,6 +117,7 @@ async function getConfigPanelInfo() {
 	const configFileExists = Config.configFileExists();
 	// const configFileValid = ext.config?.isSetupValid() || false;
 	const sfmc = await ext.config?.getSfmcInstanceData() || false;
+	const folder = ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` };
 	const showChangelog = false; // for future use
 
 	return {
@@ -111,6 +126,7 @@ async function getConfigPanelInfo() {
 		configFileExists,
 		// configFileValid,
 		sfmc,
+		folder,
 		showChangelog
 	};
 }
