@@ -26,5 +26,7 @@ export default {
 </script>
 
 <style scoped>
-
+	a {
+		max-width: 250px;
+	}
 </style>

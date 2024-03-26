@@ -263,5 +263,7 @@ window.addEventListener('message', event => {
 </template>
 
 <style scoped>
-
+	form {
+		max-width: 400px;
+	}
 </style>
