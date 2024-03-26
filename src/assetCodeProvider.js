@@ -2,7 +2,7 @@ const vscode = require('vscode');
 
 const BaseCodeProvider = require('./baseCodeProvider');
 // const Config = require('./config');
-const dialogs = require('./dialogs');
+const dialogs = require('./ui/dialogs');
 const checks = require('./checks');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');

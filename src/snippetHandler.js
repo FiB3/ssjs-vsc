@@ -2,7 +2,7 @@ const vscode = require('vscode');
 const path = require('path');
 const file = require('./auxi/file');
 const json = require('./auxi/json');
-const dialogs = require('./dialogs');
+const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
 
 const Config = require('./config');

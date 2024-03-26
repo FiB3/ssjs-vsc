@@ -3,7 +3,7 @@ const vscode = require('vscode');
 const BaseCodeProvider = require('./baseCodeProvider');
 
 const { app, generateBasicAuthHeader } = require('./proxy');
-const dialogs = require('./dialogs');
+const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const checks = require('./checks');
 const telemetry = require('./telemetry');

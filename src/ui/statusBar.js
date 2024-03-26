@@ -1,6 +1,6 @@
 const vscode = require('vscode');
 
-const Config = require('./config');
+const Config = require('../config');
 
 module.exports = {
 

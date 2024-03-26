@@ -1,10 +1,13 @@
 const vscode = require('vscode');
 const Config = require('../config');
 
+let McClient = require('../sfmc/mcClient');
+let ext = require('../extensionHandler');
+
 const telemetry = require('../telemetry');
 
 async function showConfigPanel(context) {
-	const view = await getConfigPanelInfo();
+	const getView = getConfigPanelInfo;
 	const panel = vscode.window.createWebviewPanel(
 		'setup', // Identifies the type of the webview. Used internally
 		'SSJS Manager', // Title of the panel displayed to the user
@@ -12,18 +15,16 @@ async function showConfigPanel(context) {
 		{
 			enableScripts: true,
 			retainContextWhenHidden: true
-		} // Webview options. More on these later.
+		} // Webview options
 	);
 
 	panel.webview.onDidReceiveMessage(
-			message => {
+			async message => {
 				switch (message.command) {
 					case 'initialized':
 						panel.webview.postMessage({
 							command: 'init',
-							workspaceSet: view.workspaceSet,
-							configFileExists: view.configFileExists,
-							showChangelog: view.showChangelog,
+							...await getView(),
 							showPanelAutomatically: Config.showPanelAutomatically()
 						});
 
@@ -43,13 +44,26 @@ async function showConfigPanel(context) {
 	panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
 }
 
-function validateApiCredentials(panel, sfmc) {
+async function validateApiCredentials(panel, sfmc) {
 	console.log('BE: validateApiCredentials', sfmc);
+	let { subdomain, clientId, clientSecret, mid } = sfmc;
+	subdomain = McClient.extractSubdomain(subdomain);
+	if (!subdomain || !clientId || !clientSecret) {
+		panel.webview.postMessage({
+			command: 'connectionValidated',
+			ok: false,
+			status: `Please, fill all fields: Subdomain, Client ID & Secret.`
+		});
+		return;
+	}
+
+	let r = await ext.handleNewSfmcCreds({ subdomain, clientId, clientSecret, mid }, false, 'ui', false);
+	console.log('BE: validateApiCredentials (2):', r);
 
 	panel.webview.postMessage({
 		command: 'connectionValidated',
-		ok: false,
-		status: 'Not implemented yet.'
+		ok: r.ok,
+		status: r.message
 	});
 }
 
@@ -87,12 +101,16 @@ async function getConfigPanelInfo() {
 	const showPanelAutomatically = Config.showPanelAutomatically();
 	const workspaceSet = Config.isWorkspaceSet();
 	const configFileExists = Config.configFileExists();
+	// const configFileValid = ext.config?.isSetupValid() || false;
+	const sfmc = await ext.config?.getSfmcInstanceData() || false;
 	const showChangelog = false; // for future use
 
 	return {
 		showPanelAutomatically,
 		workspaceSet,
 		configFileExists,
+		// configFileValid,
+		sfmc,
 		showChangelog
 	};
 }

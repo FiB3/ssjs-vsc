@@ -143,7 +143,8 @@ module.exports = class McClient {
 
 	async validateApi() {
     let r = {
-        ok: true
+      ok: true,
+			message: `API Connection OK.`
     };
 
     try {

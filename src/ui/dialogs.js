@@ -1,6 +1,6 @@
 const vscode = require('vscode');
-const checks = require('./checks');
-const McClient = require('./sfmc/mcClient');
+const checks = require('../checks');
+const McClient = require('../sfmc/mcClient');
 
 const DEV_FOLDER_PROMPT_TITLE = `Create Dev Assets Folder`;
 const DEV_PAGE_PROMPT_TITLE = `Set up Dev Cloud Page`;
@@ -34,14 +34,14 @@ module.exports = {
 				placeHolder: "Client ID from your Installed Package.",
 				ignoreFocusOut: true
 			});
-			if (!subdomain) { return false; }
+			if (!clientId) { return false; }
 			const clientSecret = await vscode.window.showInputBox({
 				title: title,
 				prompt: `Enter your API Client Secret:`,
 				placeHolder: "Client Secret from your Installed Package.",
 				ignoreFocusOut: true
 			});
-			if (!subdomain) { return false; }
+			if (!clientSecret) { return false; }
 			const mid = await vscode.window.showInputBox({
 				title: title,
 				prompt: `Business Unit MID:`,

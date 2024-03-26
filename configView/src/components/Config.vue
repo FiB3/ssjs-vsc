@@ -49,11 +49,18 @@ window.addEventListener('message', event => {
 			console.log(`INIT Response 2:`, message);
 			workspaceStatus.value.ok = message.workspaceSet;
 			workspaceStatus.value.status = message.workspaceSet ? 'Workspace set.' : 'Workspace not set. This is required to work with the extension.';
+			sfmcApiStatus.value.ok = message.configFileExists;
+			sfmcApiStatus.value.status = message.configFileExists ? 'SFMC Connection Set.' : 'SFMC Connection not set. This is required to work with the extension.';
+
+			if (message.configFileExists && message.sfmc) {
+				sfmc.value = message.sfmc;
+			}
 			break;
 		case 'connectionValidated':
-			console.log(`appInfo:`, appInfo.value);
 			console.log(`Validation Response:`, message);
 			sfmcApiStatus.value = message;
+			sfmcApiStatus.value.ok = message.ok;
+			sfmcApiStatus.value.status = message.workspaceSet ? 'SFMC Connection Set.' : message.status;
 			break;
 	}
 });

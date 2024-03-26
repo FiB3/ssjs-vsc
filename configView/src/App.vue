@@ -14,7 +14,7 @@ const appInfo = ref({
 });
 
 function autoShowSwitch() {
-	vscode.postMessage({
+	vscode.value.postMessage({
 		command: 'autoOpenChange',
 		value: autoOpenEnabled.value
 	});

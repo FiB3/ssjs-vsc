@@ -7,7 +7,7 @@ const SnippetHandler = require('./snippetHandler');
 const { template } = require('./template');
 
 const vsc = require('./vsc.js');
-const dialogs = require('./dialogs');
+const dialogs = require('./ui/dialogs');
 const checks = require('./checks');
 const telemetry = require('./telemetry');
 
