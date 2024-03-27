@@ -5,6 +5,7 @@ import AccordionSection from './Accordion/AccordionSection.vue'
 import Button from './form/Button.vue'
 import Input from './form/Input.vue'
 import Select from './form/Select.vue'
+import Checkbox from './form/Checkbox.vue'
 import Status from './form/Status.vue'
 
 const vscode = inject('vscode');
@@ -14,6 +15,7 @@ const securityOptions = ref([
 	{ value: 'auth', text: 'None' }
 ]);
 
+// TODO: redo to reactive (or watch?)
 let overall = ref({
 	ok: false,
 	status: 'Not Configured'
@@ -34,6 +36,14 @@ let folderStatus = ref({
 let devPagesStatus = ref({
 	ok: false,
 	status: 'Not Configured',
+});
+let anyScriptsDeployedStatus = ref({
+	ok: false,
+	status: 'Not Deployed (check me once done).',
+});
+let devReadStatus = ref({
+	ok: false,
+	status: 'READ ME.',
 });
 
 let sfmc = ref({
@@ -98,28 +108,22 @@ function setAnyScript() {
 }
 
 function validateAnyScriptConfig(message) {
-	console.log(`validateAnyScriptConfig()`);
 	if (message.cloudPageData.devPageUrl && message.cloudPageData.devAuth) {
-		console.log(`validateAnyScriptConfig: page.check`);
 		resources.value.pageUrl = message.cloudPageData.devPageUrl;
 		resources.value.pageSecurity = message.cloudPageData.devAuth;
 		if (message.cloudPageData.devSnippetId) {
 			resources.value.pageOk = true;
-			console.log(`validateAnyScriptConfig: page.ok`);
 		}
 	}
 	if (message.textResourceData.devPageUrl && message.textResourceData.devAuth) {
-		console.log(`validateAnyScriptConfig: text.check`);
 		resources.value.textUrl = message.textResourceData.devPageUrl;
 		resources.value.textSecurity = message.textResourceData.devAuth;
 		if (message.textResourceData.devSnippetId) {
 			resources.value.textOk = true;
-			console.log(`validateAnyScriptConfig: text.ok`);
 		}
 	}
 	if (resources.value.pageOk && resources.value.textOk) {
 		devPagesStatus.value.ok = true;
-		devPagesStatus.value.status = 'Cloud Page Resources Set.';
 	}
 }
 
@@ -128,6 +132,17 @@ function copyResourceCode(devPageContext = 'page') {
 		command: 'copyResourceCode',
 		devPageContext
 	});
+}
+
+function checkManualStep() {
+	vscode.value.postMessage({
+		command: 'manualStepDone',
+		anyScriptsDeployed: anyScriptsDeployedStatus.value.ok,
+		devRead: devReadStatus.value.ok
+	});
+
+	anyScriptsDeployedStatus.value.status = anyScriptsDeployedStatus.value.ok ? 'Deployed.' : 'Not Deployed (check me once done).';
+	devReadStatus.value.status = devReadStatus.value.ok ? 'Read.' : 'Not Read (check me once done).';
 }
 
 function checkCodeProviders(codeProvider) {
@@ -167,6 +182,10 @@ window.addEventListener('message', event => {
 				folderStatus.value.status = `Folder exists: ${message.folder.folderPath}.`;
 			}
 			validateAnyScriptConfig(message);
+			anyScriptsDeployedStatus.value.ok = message.anyScriptsDeployed;
+			anyScriptsDeployedStatus.value.status = message.anyScriptsDeployed ? 'Deployed.' : 'Not Deployed (check me once done).';
+			devReadStatus.value.ok = message.devRead;
+			devReadStatus.value.status = message.devRead ? 'Read.' : 'Not Read (check me once done).';
 			break;
 		case 'connectionValidated':
 			console.log(`Validation Response:`, message);
@@ -178,7 +197,7 @@ window.addEventListener('message', event => {
 			folderStatus.value.ok = message.ok;
 			folderStatus.value.status = message.status;
 			break;
-		case 'anyScriptSet':
+		case 'anyScriptsSet':
 			console.log(`Any Script Set Response:`, message);
 			// validateAnyScriptConfig(message);
 			devPagesStatus.value.ok = message.ok;
@@ -396,32 +415,47 @@ function emptyfy(value) {
 						<div>
 							<Button id="setAnyScript" @click="setAnyScript()" text="Set Dev Resources" />
 						</div>
-
 						<Status id="createFolderStatus" :statusText="devPagesStatus.status" :ok="devPagesStatus.ok" />
-
-						<div class="hint">
-							<p>
-								Once successful, fill both Cloud Page and Text Resource with the provided content.
-								<br/>
-								You can find the content in the following files or via buttons below.
-								<br/>
-								Once you've filled the content, publish both. You are done!
-								<ul>
-									<li>./vscode/deploy.me.page.ssjs</li>
-									<li>./vscode/deploy.me.text.ssjs</li>
-								</ul>
-							</p>
-						</div>
-						<div>
-							<Button id="getCloudPageCode" @click="copyResourceCode('page')" text="Get Cloud Page Code" />
-							<br/>
-							<Button id="getTextResourceCode" @click="copyResourceCode('text')" text="Get Text Resource Code" />
-						</div>
 					</form>
 				</div>
       </template>
     </AccordionSection>
-		<AccordionSection :ok="overall.ok">
+		<AccordionSection :ok="anyScriptsDeployedStatus.ok">
+      <template #title>
+        Deploy Cloud Page & Text Resource
+      </template>
+      <template #content>
+				<div id="develop">
+					<div class="hint">
+						<p>
+							Once successful, fill both Cloud Page and Text Resource with the provided content.
+							<br/>
+							You can find the content in the following files or via buttons below.
+							<br/>
+							Once you've filled the content, publish both. You are done!
+							<ul>
+								<li>./vscode/deploy.me.page.ssjs</li>
+								<li>./vscode/deploy.me.text.ssjs</li>
+							</ul>
+						</p>
+					</div>
+					<div>
+						<Button id="getCloudPageCode" @click="copyResourceCode('page')" text="Get Cloud Page Code" />
+						<br/>
+						<Button id="getTextResourceCode" @click="copyResourceCode('text')" text="Get Text Resource Code" />
+					</div>
+					<!-- TODO: Checkbox -->
+					<Checkbox
+							id="anyScriptsDeployed"
+							title="Scripts deployed?"
+							description="I have deployed both scripts to SFMC per instructions."
+							v-model="anyScriptsDeployedStatus.ok"
+							@change="checkManualStep()"
+						/>
+				</div>
+      </template>
+    </AccordionSection>
+		<AccordionSection :ok="devReadStatus.ok">
       <template #title>
         Develop
       </template>
@@ -442,6 +476,14 @@ function emptyfy(value) {
 							You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.
 						</p>
 					</div>
+					<!-- TODO: Checkbox -->
+					<Checkbox
+							id="devRead"
+							title="Dev Instructions Read?"
+							description="I have read the dev instuctions."
+							v-model="devReadStatus.ok"
+							@change="checkManualStep()"
+						/>
 				</div>
       </template>
     </AccordionSection>

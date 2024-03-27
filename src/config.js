@@ -174,6 +174,17 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Get Data about Config steps, that have to be done manually.
+	 * @returns {object}
+	 */
+	getManualConfigSteps() {
+		return {
+			'anyScriptsDeployed': Config.validateConfigValue(this.config?.['config-view']?.['any-script-deployed']),
+			'devRead': Config.validateConfigValue(this.config?.['config-view']?.['dev-read']),
+		}
+	}
+
+	/**
 	 * Run a quick check, if the setup seems valid.
 	 * @returns {boolean}
 	 */
@@ -337,6 +348,25 @@ module.exports = class Config extends Preferences {
 	 */
 	setSetupFileVersion(version) {
 		this.config['extension-version'] = version || Preferences.getExtensionVersion();
+		this.saveConfigFile();
+	}
+
+	/**
+	 * Set data about config steps, that have to be done manually.
+	 * @param {boolean|undefined} anyScriptsDeployed new value, doesn't change if undefined
+	 * @param {boolean|undefined} devRead new value, doesn't change if undefined
+	 */
+	setManualConfigSteps(anyScriptsDeployed, devRead) {
+		if (!this.config['config-view']) {
+			this.config['config-view'] = {};
+		}
+		if (anyScriptsDeployed !== undefined) {
+			this.config['config-view']['any-script-deployed'] = anyScriptsDeployed;
+		}
+		if (devRead !== undefined) {
+			this.config['config-view']['dev-read'] = devRead;
+		}
+		
 		this.saveConfigFile();
 	}
 

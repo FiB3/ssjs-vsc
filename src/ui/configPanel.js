@@ -42,7 +42,10 @@ async function showConfigPanel(context) {
 					return;
 				case 'copyResourceCode':
 					handleCopyResourceCode(panel, message);
-					return;	
+					return;
+				case 'manualStepDone':
+					setManualStepDone(message);
+					return;
 				case 'autoOpenChange':
 					handleAutoOpenChange(message.value);
 					return;
@@ -91,7 +94,7 @@ async function handleAnyScript(panel, message) {
 
 	let res = await ext.createDevAssets(message.pagesData);
 	panel.webview.postMessage({
-		command: 'anyScriptSet',
+		command: 'anyScriptsSet',
 		ok: res.ok,
 		status: res.message
 	});
@@ -103,6 +106,10 @@ function handleCopyResourceCode(panel, message) {
 	vscode.env.clipboard.writeText(code);
 	// Notification:
 	vscode.window.showInformationMessage(`Code copied to clipboard.`);
+}
+
+function setManualStepDone(message) {
+	ext.config?.setManualConfigSteps(message.anyScriptsDeployed, message.devRead);
 }
 
 function handleAutoOpenChange(newValue) {
@@ -135,6 +142,8 @@ function getWebviewContent(webview, extensionUri) {
  * @returns {Promise<{workspaceSet: boolean, configFileExists: boolean, showChangelog: boolean}>}
  */
 async function getConfigPanelInfo() {
+	let configViewData = ext.config?.getManualConfigSteps();
+
 	return {
 		showPanelAutomatically: Config.showPanelAutomatically(),
 		workspaceSet: Config.isWorkspaceSet(),
@@ -145,6 +154,8 @@ async function getConfigPanelInfo() {
 		folder: ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` },
 		cloudPageData: ext.config?.getDevPageInfo('page'),
 		textResourceData: ext.config?.getDevPageInfo('text'),
+		anyScriptsDeployed: configViewData?.anyScriptsDeployed,
+		devRead: configViewData?.devRead,
 		showChangelog: false
 	};
 }
