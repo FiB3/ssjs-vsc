@@ -22,7 +22,8 @@ module.exports = class Config extends Preferences {
 
 		return {
 			devPageUrl: Config.validateConfigValue(this.config?.[contextKey]?.['url']),
-			devSnippetId: Config.validateConfigValue(this.config?.[contextKey]?.['snippet-id'])
+			devSnippetId: Config.validateConfigValue(this.config?.[contextKey]?.['snippet-id']),
+			devAuth: Config.validateConfigValue(this.config?.[contextKey]?.['auth-type'])
 		};
 	}
 

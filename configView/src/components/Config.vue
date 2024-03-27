@@ -4,11 +4,20 @@ import Accordion from './Accordion/Accordion.vue'
 import AccordionSection from './Accordion/AccordionSection.vue'
 import Button from './form/Button.vue'
 import Input from './form/Input.vue'
+import Select from './form/Select.vue'
 import Status from './form/Status.vue'
 
 const vscode = inject('vscode');
+const securityOptions = ref([
+	{ value: 'token', text: 'Token-Protected' },
+	{ value: 'basic', text: 'Basic-Auth' },
+	{ value: 'auth', text: 'None' }
+]);
 
-let configStatus = ref('Not Configured')
+let overall = ref({
+	ok: false,
+	status: 'Not Configured'
+});
 
 let workspaceStatus = ref({
 	ok: false,
@@ -24,7 +33,7 @@ let folderStatus = ref({
 });
 let devPagesStatus = ref({
 	ok: false,
-	status: 'Not Configured'
+	status: 'Not Configured',
 });
 
 let sfmc = ref({
@@ -37,6 +46,15 @@ let sfmc = ref({
 let folder = ref({
 	parentName: '',
 	newName: ''
+});
+
+let resources = ref({
+	pageUrl: '',
+	pageSecurity: '',
+	pageOk: false,
+	textUrl: '',
+	textSecurity: '',
+	textOk: false
 });
 
 function validateConnection() {
@@ -55,13 +73,89 @@ function createFolder() {
 	});
 }
 
+function setAnyScript() {
+	let pagesData = [];
+	if (emptyfy(resources.value.pageUrl) && emptyfy(resources.value.pageSecurity)) {
+		pagesData.push({
+			devPageContext: 'page',
+			url: emptyfy(resources.value.pageUrl),
+			authOption: resources.value.pageSecurity
+		});
+	}
+
+	if (emptyfy(resources.value.textUrl) && emptyfy(resources.value.textSecurity)) {
+		pagesData.push({
+			devPageContext: 'text',
+			url: emptyfy(resources.value.textUrl),
+			authOption: emptyfy(resources.value.textSecurity)
+		});
+	}
+
+	vscode.value.postMessage({
+		command: 'setAnyScript',
+		pagesData
+	});
+}
+
+function validateAnyScriptConfig(message) {
+	console.log(`validateAnyScriptConfig()`);
+	if (message.cloudPageData.devPageUrl && message.cloudPageData.devAuth) {
+		console.log(`validateAnyScriptConfig: page.check`);
+		resources.value.pageUrl = message.cloudPageData.devPageUrl;
+		resources.value.pageSecurity = message.cloudPageData.devAuth;
+		if (message.cloudPageData.devSnippetId) {
+			resources.value.pageOk = true;
+			console.log(`validateAnyScriptConfig: page.ok`);
+		}
+	}
+	if (message.textResourceData.devPageUrl && message.textResourceData.devAuth) {
+		console.log(`validateAnyScriptConfig: text.check`);
+		resources.value.textUrl = message.textResourceData.devPageUrl;
+		resources.value.textSecurity = message.textResourceData.devAuth;
+		if (message.textResourceData.devSnippetId) {
+			resources.value.textOk = true;
+			console.log(`validateAnyScriptConfig: text.ok`);
+		}
+	}
+	if (resources.value.pageOk && resources.value.textOk) {
+		devPagesStatus.value.ok = true;
+		devPagesStatus.value.status = 'Cloud Page Resources Set.';
+	}
+}
+
+function copyResourceCode(devPageContext = 'page') {
+	vscode.value.postMessage({
+		command: 'copyResourceCode',
+		devPageContext
+	});
+}
+
+function checkCodeProviders(codeProvider) {
+	if (codeProvider === 'Asset') {
+		return true;
+	}
+	// disable UI:
+	overall.value.ok = false;
+
+	if (codeProvider === 'Server') {
+		overall.value.status = 'Server Code Provider is not supported within UI.';
+	} else {
+		overall.value.status = 'Only Asset Code Provider is currently supported within UI.';
+	}
+	return false;
+}
+
 window.addEventListener('message', event => {
 	const message = event.data;
 	switch (message.command) {
 		case 'init':
 			console.log(`INIT Response 2:`, message);
+			if (!checkCodeProviders(message.codeProvider)) {
+				return false;
+			}
 			workspaceStatus.value.ok = message.workspaceSet;
 			workspaceStatus.value.status = message.workspaceSet ? 'Workspace set.' : 'Workspace not set. This is required to work with the extension.';
+
 			sfmcApiStatus.value.ok = message.configFileExists;
 			sfmcApiStatus.value.status = message.configFileExists ? 'SFMC Connection Set.' : 'SFMC Connection not set. This is required to work with the extension.';
 
@@ -72,6 +166,7 @@ window.addEventListener('message', event => {
 				folderStatus.value.ok = true;
 				folderStatus.value.status = `Folder exists: ${message.folder.folderPath}.`;
 			}
+			validateAnyScriptConfig(message);
 			break;
 		case 'connectionValidated':
 			console.log(`Validation Response:`, message);
@@ -83,15 +178,30 @@ window.addEventListener('message', event => {
 			folderStatus.value.ok = message.ok;
 			folderStatus.value.status = message.status;
 			break;
+		case 'anyScriptSet':
+			console.log(`Any Script Set Response:`, message);
+			// validateAnyScriptConfig(message);
+			devPagesStatus.value.ok = message.ok;
+			devPagesStatus.value.status = message.status;
+			break;
 	}
 });
 
+function emptyfy(value) {
+	return !value || (typeof(value) === 'string' && value.trim() === '') ? false : value;
+}
 </script>
 
 <template>
   <div class="greetings">
-
-		<Status id="configStatus" :statusText="configStatus" :ok="false" />
+		<div class="hint">
+			<p>
+				To get the most out of the SSJS Manager (including the ability to preview your code within SFMC), you need to configure a few things.
+				<br/>
+				We will guide you through the process on this screen.
+			</p>
+		</div>
+		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
 
 		<Accordion>
 		<!-- WORKSPACE -->
@@ -237,25 +347,104 @@ window.addEventListener('message', event => {
       </template>
       <template #content>
 				<div id="cloudPageResources">
-					<p>
-						<< TODO: >>
-					</p>
+					<div class="hint">
+						<p>
+							To be able to preview your code within SFMC, we need to create a Cloud Page and a Text Code Resource.
+							<br/>
+							You can do this by navigating to "Web Studio" > "Cloud Pages" > Select Collection (we recommend you to have your own dev Collection).
+							<br/>
+							Now add a Cloud Page by "Add Content" > "Landing Page". Leave the template empty for now.
+							<br/>
+							Also, create a Text Code Resource by "Add Content" > "Code Resource" > "Text". Leave the content empty as well.
+						</p>
+					</div>
 
 					<form id="cloudPageResources">
 						
-						<div >
-							<!-- select from two options -->
-							<Input id="cloudPageResources" title="Cloud Page Resources" description="Select Cloud Page Resources" />
-						</div>
+						<Input
+								id="pageUrl"
+								inputType="url"
+								title="Cloud Page Url"
+								description="URL of the Cloud Page you've created."
+								v-model="resources.pageUrl"
+							/>
+
+						<Select
+								id="pageSecurity"
+								title="Cloud Page Security"
+								description="Security of the Cloud Page you've created."
+								:options="securityOptions"
+								v-model="resources.pageSecurity"
+							/>
+
+						<Input
+								id="textUrl"
+								inputType="url"
+								title="Cloud Text Resource Url"
+								description="URL of the Cloud Text Resource you've created."
+								v-model="resources.textUrl"
+							/>
+
+						<Select
+								id="textSecurity"
+								title="Text Resource Security"
+								description="Security of the Cloud Page you've created."
+								:options="securityOptions"
+								v-model="resources.textSecurity"
+							/>
 
 						<div>
-							<Button id="setDevResources" onclick="setDevResources()" text="Set Dev Resources" />
+							<Button id="setAnyScript" @click="setAnyScript()" text="Set Dev Resources" />
+						</div>
+
+						<Status id="createFolderStatus" :statusText="devPagesStatus.status" :ok="devPagesStatus.ok" />
+
+						<div class="hint">
+							<p>
+								Once successful, fill both Cloud Page and Text Resource with the provided content.
+								<br/>
+								You can find the content in the following files or via buttons below.
+								<br/>
+								Once you've filled the content, publish both. You are done!
+								<ul>
+									<li>./vscode/deploy.me.page.ssjs</li>
+									<li>./vscode/deploy.me.text.ssjs</li>
+								</ul>
+							</p>
+						</div>
+						<div>
+							<Button id="getCloudPageCode" @click="copyResourceCode('page')" text="Get Cloud Page Code" />
+							<br/>
+							<Button id="getTextResourceCode" @click="copyResourceCode('text')" text="Get Text Resource Code" />
 						</div>
 					</form>
 				</div>
       </template>
     </AccordionSection>
-
+		<AccordionSection :ok="overall.ok">
+      <template #title>
+        Develop
+      </template>
+      <template #content>
+				<div id="develop">
+					<div class="hint">
+						<p>
+							Now you are ready to develop your SSJS code.
+							<br/>
+							Develop your code in `.ssjs`, `.amp` or `.html` files.
+							<br/>
+							First deployment is done using the `SSJS: Upload Script` command (press: Ctrl+Shift+P or F1, then start typing the name of the desired command).
+							<br/>
+							Following deploys are automatically done on save.
+							<br/>
+							Run in your Cloud Page or Resource - one page for all scripts!
+							<br/>
+							You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.
+						</p>
+					</div>
+				</div>
+      </template>
+    </AccordionSection>
   </Accordion>
 
 

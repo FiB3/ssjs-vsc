@@ -69,7 +69,29 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		let deployments = this._getContextInfoForDeployment(prepResult, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
 		await this.runAnyScriptDeployments(deployments);
 
-		telemetry.log('deployAnyScript', { codeProvider: 'Asset' });
+		telemetry.log('deployAnyScript', { codeProvider: 'Asset', source: 'command' });
+	}
+
+	async deployAnyScriptUi(contexts) {
+		let res = { ok: true, message: '' };
+		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
+		let results = await this.runAnyScriptDeployments(deployments, true);
+		telemetry.log('deployAnyScript', { codeProvider: 'Asset', source: 'ui' });
+		
+		if (results) {
+			results.forEach(result => {
+					if (!result.ok) {
+							res.ok = false;
+							res.message += res.message ? ` Resource not deployed ${result.devPageContext}` : ' ' + result.message;
+					}
+			});
+			if (!res.ok) {
+					res.message = `Error: ` + res.message;
+			} else {
+				res.message = `All resources deployed.`;
+			}
+		}
+		return res;
 	}
 
 	async updateAnyScript(silenced = false) {

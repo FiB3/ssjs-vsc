@@ -149,11 +149,11 @@ onMounted(() => {
 	}
 
 	footer {
-		position: fixed;
-		left: 0;
+		position: absolute;
+		/* left: 0; */
 		right: 0;
-		bottom: 0;
-		width: calc(100% - 20px);
+		top: 0;
+		/* width: calc(100% - 20px); */
 		padding: 10px;
 		background-color: inherit;
 		opacity: 0.8;

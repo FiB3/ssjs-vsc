@@ -1,6 +1,8 @@
 const vscode = require('vscode');
-const Config = require('../config');
+let path = require('path');
 
+const Config = require('../config');
+let file = require('../auxi/file');
 let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
 
@@ -20,36 +22,40 @@ async function showConfigPanel(context) {
 	);
 
 	panel.webview.onDidReceiveMessage(
-			async message => {
-				switch (message.command) {
-					case 'initialized':
-						panel.webview.postMessage({
-							command: 'init',
-							...await getView(),
-							showPanelAutomatically: Config.showPanelAutomatically()
-						});
-
-						return;
-					case 'validateConnection':
-						validateApiCredentials(panel, message);
-						return;
-					case 'createFolder':
-						handleAssetFolders(panel, message);
-						return;
-					case 'autoOpenChange':
-						handleAutoOpenChange(message.value);
-						return;
-				}
-			},
-			undefined,
-			context.subscriptions
+		async message => {
+			console.log(`BE: ${message.command} -`, message);
+			switch (message.command) {
+				case 'initialized':
+					panel.webview.postMessage({
+						command: 'init',
+						...await getView()
+					});
+					return;
+				case 'validateConnection':
+					validateApiCredentials(panel, message);
+					return;
+				case 'createFolder':
+					handleAssetFolders(panel, message);
+					return;
+				case 'setAnyScript':
+					handleAnyScript(panel, message);
+					return;
+				case 'copyResourceCode':
+					handleCopyResourceCode(panel, message);
+					return;	
+				case 'autoOpenChange':
+					handleAutoOpenChange(message.value);
+					return;
+			}
+		},
+		undefined,
+		context.subscriptions
 	);
 
 	panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
 }
 
 async function validateApiCredentials(panel, sfmc) {
-	console.log('BE: validateApiCredentials', sfmc);
 	let { subdomain, clientId, clientSecret, mid } = sfmc;
 	subdomain = McClient.extractSubdomain(subdomain);
 	if (!subdomain || !clientId || !clientSecret) {
@@ -72,7 +78,6 @@ async function validateApiCredentials(panel, sfmc) {
 }
 
 async function handleAssetFolders(panel, message) {
-	console.log('BE: handleAssetFolders', message);
 	let r = await ext.createContentBuilderFolder(message.parentName, message.newName);
 	panel.webview.postMessage({
 		command: 'folderCreated',
@@ -81,12 +86,30 @@ async function handleAssetFolders(panel, message) {
 	});
 }
 
+async function handleAnyScript(panel, message) {
+	ext.setDevPageData(message.pagesData);
+
+	let res = await ext.createDevAssets(message.pagesData);
+	panel.webview.postMessage({
+		command: 'anyScriptSet',
+		ok: res.ok,
+		status: res.message
+	});
+}
+
+function handleCopyResourceCode(panel, message) {
+	let p = path.join(Config.getUserWorkspacePath(), `./.vscode/deploy.me.${message.devPageContext}.ssjs`);
+	let code = file.load(p);
+	vscode.env.clipboard.writeText(code);
+	// Notification:
+	vscode.window.showInformationMessage(`Code copied to clipboard.`);
+}
+
 function handleAutoOpenChange(newValue) {
 	Config.changeShowPanelAutomatically(newValue);
 }
 
 function getWebviewContent(webview, extensionUri) {
-	// const indexPath = path.join(Config.getExtensionSourceFolder(), PANEL_INDEX_HTML);
 	const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'configView', 'dist', 'main.js'));
 	const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'configView', 'dist', 'main.css'));
 	
@@ -112,22 +135,17 @@ function getWebviewContent(webview, extensionUri) {
  * @returns {Promise<{workspaceSet: boolean, configFileExists: boolean, showChangelog: boolean}>}
  */
 async function getConfigPanelInfo() {
-	const showPanelAutomatically = Config.showPanelAutomatically();
-	const workspaceSet = Config.isWorkspaceSet();
-	const configFileExists = Config.configFileExists();
-	// const configFileValid = ext.config?.isSetupValid() || false;
-	const sfmc = await ext.config?.getSfmcInstanceData() || false;
-	const folder = ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` };
-	const showChangelog = false; // for future use
-
 	return {
-		showPanelAutomatically,
-		workspaceSet,
-		configFileExists,
-		// configFileValid,
-		sfmc,
-		folder,
-		showChangelog
+		showPanelAutomatically: Config.showPanelAutomatically(),
+		workspaceSet: Config.isWorkspaceSet(),
+		codeProvider: Config.getCodeProvider(),
+		configFileExists: Config.configFileExists(),
+		configFileValid: ext.config?.isSetupValid() || false,
+		sfmc: await ext.config?.getSfmcInstanceData() || false,
+		folder: ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` },
+		cloudPageData: ext.config?.getDevPageInfo('page'),
+		textResourceData: ext.config?.getDevPageInfo('text'),
+		showChangelog: false
 	};
 }
 

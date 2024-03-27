@@ -117,6 +117,22 @@ class ExtensionHandler {
 		}
 		return await this.provider.snippets.createAssetFolderUi(parentFolderName, folderName);
 	}
+
+	setDevPageData(devPageContexts) {
+		for (let page of devPageContexts) {
+			this.config.setDevPageInfo(page.devPageContext, page.authOption, page.url);
+			this.config.generateDevTokens(page.devPageContext);
+		}
+	}
+
+	async createDevAssets(devPageContexts) {
+		if (!this.provider) {
+			return { ok: false, message: `Extension is missing configuration.` };
+		}
+		let contexts = devPageContexts.map((page) => page.devPageContext);
+		console.log(`createDevAssets: `, contexts);
+		return await this.provider.deployAnyScriptUi(contexts);
+	}
 }
 
 module.exports = new ExtensionHandler();

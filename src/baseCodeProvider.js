@@ -141,6 +141,7 @@ module.exports = class BaseCodeProvider {
 	 * @param {Array<>} pagesData
 	 */
 	async runAnyScriptDeployments(pagesData, silenced = false) {
+		let res = [];
 		const packageData = Config.getPackageJson();
 
 		for (let pageData of pagesData) {
@@ -160,15 +161,18 @@ module.exports = class BaseCodeProvider {
 			console.log(`View:`, view);
 			console.log(`Tokens:`, this.config.getDevPageAuth(devPageContext));
 
-			await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile, silenced);
-			console.log(`${devPageContext} asset deployed`);
+			let r = await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile, silenced);
+			res.push(r);
+			console.log(`${devPageContext} asset deployed`, r);
 		}
+		return res;
 	}
 
 	/**
 	 * Handles actual deployment of Any Scripts to SFMC, except building data (view) for the template. 
 	 */
 	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE, silenced = false) {
+		let res = { devPageContext };
 		// PREPARE ASSET FILE:
 		const snippetTemplatePath = path.join(Config.getExtensionSourceFolder(), assetFile);
 		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
@@ -198,6 +202,9 @@ module.exports = class BaseCodeProvider {
 				vscode.window.showWarningMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" could not have been finished!`);
 			}
 		}
+		if (assetId) {
+			res.ok = true;
+		}
 
 		if (runCloudPage) {
 			console.log(`Create Cloud Page for: ${devPageContext}`);
@@ -212,9 +219,12 @@ module.exports = class BaseCodeProvider {
 				"pageContextReadable": view['pageContextReadable']
 			});
 			// CREATE FILE:
-			this.snippets.saveScriptText(this.snippets.getDeploymentFileName(devPageContext), deploymentScript, true);
-			vscode.window.showInformationMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" almost complete - please follow steps from this file to finish.`);
+			this.snippets.saveScriptText(this.snippets.getDeploymentFileName(devPageContext), deploymentScript, !silenced);
+			if (!silenced) {
+				vscode.window.showInformationMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" almost complete - please follow steps from this file to finish.`);
+			}
 		}
+		return res;
 	}
 
 	buildScriptText(isDev) {
