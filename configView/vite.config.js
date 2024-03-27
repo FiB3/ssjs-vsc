@@ -20,7 +20,12 @@ export default defineConfig({
       output: {
         entryFileNames: `main.js`,
         chunkFileNames: `main.js`,
-        assetFileNames: `main.[ext]`
+				assetFileNames: (assetInfo) => {
+					if (assetInfo.name.endsWith('.css')) {
+						return `main.css`;
+					}
+					return `assets/[name].[ext]`;
+				}
       }
     },
     cssCodeSplit: false,

@@ -1,37 +1,44 @@
 <script setup>
-import { ref, onMounted, provide } from 'vue'
+import { ref, reactive, onMounted, provide } from 'vue'
 import Config from './components/Config.vue'
 import Templating from './components/Templating.vue'
 import Changelog from './components/Changelog.vue'
 
+import logoUri from './assets/logo.v1.2.png'
+
 let currentTab = ref('config')
 let autoOpenEnabled = ref(false)
-let vscode = ref(null);
-provide('vscode', vscode);
+let vscode;
+setVsCodeReference();
+
+function setVsCodeReference() {
+	let vsc;
+	if (typeof(acquireVsCodeApi) === "function") {
+		vsc = acquireVsCodeApi();
+	} else {
+		vsc = {
+			postMessage: data => {
+				console.log("postMessage", data);
+			}
+		};
+	}
+	vscode = reactive(vsc);
+	provide('vscode', vscode);
+}
 
 const appInfo = ref({
 	workspaceSet: false
 });
 
 function autoShowSwitch() {
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'autoOpenChange',
 		value: autoOpenEnabled.value
 	});
 }
 
 onMounted(() => {
-	if (typeof(acquireVsCodeApi) === "function") {
-		vscode.value = acquireVsCodeApi();
-	} else {
-		vscode.value = {
-			postMessage: data => {
-				console.log("postMessage", data);
-			}
-		};
-	}
-
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'initialized'
 	});
 
@@ -42,6 +49,7 @@ onMounted(() => {
 				console.log(`INIT Response:`, message);
 				appInfo.value.workspaceSet = message.workspaceSet;
 				autoOpenEnabled.value = message.showPanelAutomatically;
+				logoUri.value = message.logoUri;
 				break;
 		}
 	});
@@ -52,7 +60,7 @@ onMounted(() => {
   <div>
 		<header>
 			<div class="header-content">
-				<!-- <img :src="logoUri" alt="SSJS Icon" class="header-icon" /> -->
+				<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/logo.v1.2.png" class="header-icon" />
 				<h1 class="header-title">SSJS Manager</h1>
 			</div>
 

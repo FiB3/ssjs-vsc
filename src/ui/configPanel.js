@@ -6,9 +6,6 @@ let file = require('../auxi/file');
 let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
 
-const telemetry = require('../telemetry');
-const SnippetHandler = require('../snippetHandler');
-
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
 	const panel = vscode.window.createWebviewPanel(

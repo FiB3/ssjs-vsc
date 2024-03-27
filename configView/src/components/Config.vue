@@ -65,11 +65,6 @@ let resources = ref({
 	textOk: false
 });
 
-// TODO: redo to reactive (or watch?)
-// let overall = ref({
-// 	ok: false,
-// 	status: 'Not Configured'
-// });
 const overall = computed(() => {
 	let ok = workspaceStatus.value.ok && sfmcApiStatus.value.ok && folderStatus.value.ok && devPagesStatus.value.ok && anyScriptsDeployedStatus.value.ok && devReadStatus.ok;
 	return {
@@ -80,7 +75,7 @@ const overall = computed(() => {
 
 function validateConnection() {
 	console.log('validateConnection', JSON.stringify(sfmc.value));
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'validateConnection',
 		...sfmc.value
 	});
@@ -88,7 +83,7 @@ function validateConnection() {
 
 function createFolder() {
 	console.log('createFolder', JSON.stringify(folder.value));
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'createFolder',
 		...folder.value
 	});
@@ -112,7 +107,7 @@ function setAnyScript() {
 		});
 	}
 
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'setAnyScript',
 		pagesData
 	});
@@ -140,14 +135,14 @@ function validateAnyScriptConfig(message) {
 }
 
 function copyResourceCode(devPageContext = 'page') {
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'copyResourceCode',
 		devPageContext
 	});
 }
 
 function checkManualStep() {
-	vscode.value.postMessage({
+	vscode.postMessage({
 		command: 'manualStepDone',
 		anyScriptsDeployed: anyScriptsDeployedStatus.value.ok,
 		devRead: devReadStatus.ok
@@ -472,12 +467,12 @@ function emptyfy(value) {
         Develop
       </template>
       <template #content>
-				<div id="develop">
+				<div id="develop" class="flex-container">
 					<div class="hint">
 						<p>
 							Now you are ready to develop your SSJS code.
 							<br/>
-							Develop your code in `.ssjs`, `.amp` or `.html` files.
+							Use `.ssjs`, `.amp` or `.html` files.
 							<br/>
 							First deployment is done using the `SSJS: Upload Script` command (press: Ctrl+Shift+P or F1, then start typing the name of the desired command).
 							<br/>
@@ -487,15 +482,18 @@ function emptyfy(value) {
 							<br/>
 							You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.
 						</p>
+
+						<Checkbox
+								id="devRead"
+								title="Dev Instructions Read?"
+								description="I have read the dev instuctions."
+								v-model="devReadStatus.ok"
+								@change="checkManualStep()"
+							/>
 					</div>
-					<!-- TODO: Checkbox -->
-					<Checkbox
-							id="devRead"
-							title="Dev Instructions Read?"
-							description="I have read the dev instuctions."
-							v-model="devReadStatus.ok"
-							@change="checkManualStep()"
-						/>
+					<div>
+						<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif" class="config-example" />
+					</div>
 				</div>
       </template>
     </AccordionSection>
@@ -508,5 +506,20 @@ function emptyfy(value) {
 <style scoped>
 	form {
 		max-width: 400px;
+	}
+
+	.flex-container {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.flex-container > div {
+		flex: 1;
+		padding: 10px;
+		width: calc(100%/2 - 20px);
+	}
+
+	.flex-container > div > img {
+		width: 100%;
 	}
 </style>

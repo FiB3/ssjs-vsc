@@ -57,6 +57,10 @@
         "command": "ssjs-vsc.upload-script",
         "title": "SSJS: Upload Script to Dev"
       },
+			{
+        "command": "ssjs-vsc.getUrl",
+        "title": "SSJS: Get Dev Path"
+      },
       {
         "command": "ssjs-vsc.start",
         "title": "SSJS: Start"
@@ -64,6 +68,10 @@
       {
         "command": "ssjs-vsc.stop",
         "title": "SSJS: Stop"
+      },
+			{
+        "command": "ssjs-vsc.show-config",
+        "title": "SSJS: Show Config"
       },
       {
         "command": "ssjs-vsc.create-config",
@@ -82,16 +90,8 @@
         "title": "SSJS: Update Dev Page"
       },
       {
-        "command": "ssjs-vsc.getUrl",
-        "title": "SSJS: Get Dev Path"
-      },
-      {
         "command": "ssjs-vsc.showWalkthrough",
         "title": "SSJS: Show Setup Walkthrough"
-      },
-      {
-        "command": "ssjs-vsc.show-config",
-        "title": "SSJS: Show Extension Config"
       }
     ],
     "configuration": {
