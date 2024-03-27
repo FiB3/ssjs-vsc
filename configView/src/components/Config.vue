@@ -1,5 +1,5 @@
 <script setup>
-import { ref, inject, watch } from 'vue'
+import { ref, reactive, inject, computed } from 'vue'
 import Accordion from './Accordion/Accordion.vue'
 import AccordionSection from './Accordion/AccordionSection.vue'
 import Button from './form/Button.vue'
@@ -15,12 +15,10 @@ const securityOptions = ref([
 	{ value: 'auth', text: 'None' }
 ]);
 
-// TODO: redo to reactive (or watch?)
-let overall = ref({
+let providerStatus = ref({
 	ok: false,
-	status: 'Not Configured'
+	status: 'Unsupported Code Provider.'
 });
-
 let workspaceStatus = ref({
 	ok: false,
 	status: 'Workspace not set.'
@@ -41,7 +39,7 @@ let anyScriptsDeployedStatus = ref({
 	ok: false,
 	status: 'Not Deployed (check me once done).',
 });
-let devReadStatus = ref({
+let devReadStatus = reactive({
 	ok: false,
 	status: 'READ ME.',
 });
@@ -65,6 +63,19 @@ let resources = ref({
 	textUrl: '',
 	textSecurity: '',
 	textOk: false
+});
+
+// TODO: redo to reactive (or watch?)
+// let overall = ref({
+// 	ok: false,
+// 	status: 'Not Configured'
+// });
+const overall = computed(() => {
+	let ok = workspaceStatus.value.ok && sfmcApiStatus.value.ok && folderStatus.value.ok && devPagesStatus.value.ok && anyScriptsDeployedStatus.value.ok && devReadStatus.ok;
+	return {
+		ok,
+		status: ok ? 'All Configured.' : 'Not Configured'
+	};
 });
 
 function validateConnection() {
@@ -124,6 +135,7 @@ function validateAnyScriptConfig(message) {
 	}
 	if (resources.value.pageOk && resources.value.textOk) {
 		devPagesStatus.value.ok = true;
+		devPagesStatus.value.status = 'Resources Set.';
 	}
 }
 
@@ -138,11 +150,11 @@ function checkManualStep() {
 	vscode.value.postMessage({
 		command: 'manualStepDone',
 		anyScriptsDeployed: anyScriptsDeployedStatus.value.ok,
-		devRead: devReadStatus.value.ok
+		devRead: devReadStatus.ok
 	});
 
 	anyScriptsDeployedStatus.value.status = anyScriptsDeployedStatus.value.ok ? 'Deployed.' : 'Not Deployed (check me once done).';
-	devReadStatus.value.status = devReadStatus.value.ok ? 'Read.' : 'Not Read (check me once done).';
+	devReadStatus.status = devReadStatus.ok ? 'Read.' : 'Not Read (check me once done).';
 }
 
 function checkCodeProviders(codeProvider) {
@@ -150,12 +162,12 @@ function checkCodeProviders(codeProvider) {
 		return true;
 	}
 	// disable UI:
-	overall.value.ok = false;
+	providerStatus.value.ok = false;
 
 	if (codeProvider === 'Server') {
-		overall.value.status = 'Server Code Provider is not supported within UI.';
+		providerStatus.value.status = 'Server Code Provider is not supported within UI.';
 	} else {
-		overall.value.status = 'Only Asset Code Provider is currently supported within UI.';
+		providerStatus.value.status = 'Only Asset Code Provider is currently supported within UI.';
 	}
 	return false;
 }
@@ -184,8 +196,8 @@ window.addEventListener('message', event => {
 			validateAnyScriptConfig(message);
 			anyScriptsDeployedStatus.value.ok = message.anyScriptsDeployed;
 			anyScriptsDeployedStatus.value.status = message.anyScriptsDeployed ? 'Deployed.' : 'Not Deployed (check me once done).';
-			devReadStatus.value.ok = message.devRead;
-			devReadStatus.value.status = message.devRead ? 'Read.' : 'Not Read (check me once done).';
+			devReadStatus.ok = message.devRead;
+			devReadStatus.status = message.devRead ? 'Read.' : 'Not Read (check me once done).';
 			break;
 		case 'connectionValidated':
 			console.log(`Validation Response:`, message);
