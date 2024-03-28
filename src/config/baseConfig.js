@@ -40,20 +40,23 @@ module.exports = class BaseConfig {
 
 	/**
 	 * Load the configuration file to .config property.
-	 * @returns {Object} Configuration object.
+	 * @returns {Object|false} Configuration object, or false if the file is not found.
 	 */
 	loadConfig() {
 		const configPath = BaseConfig.getUserConfigPath();
 		console.log(`Loading Config File...:`, configPath);
-		const config = jsonHandler.load(configPath);
+		if (file.exists(configPath)) {
+			const config = jsonHandler.load(configPath);
 
-		if (config.error) {
-			throw `No SSJS Setup File found. Use "create-config" command to create the ${SETUP_FILE_NAME} file.`;
-		} else {
-			console.log(`Config Reloaded.`);
+			if (config.error) {
+				throw `No SSJS Setup File found. Use "SSJS: Show Config" command to setup the extension.`;
+			} else {
+				console.log(`Config Reloaded.`);
+			}
+			this.config = config;
+			return config;
 		}
-		this.config = config;
-		return config;
+		return false;
 	}
 
 	/**

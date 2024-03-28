@@ -27,11 +27,8 @@ module.exports = {
 		const extension = vscode.extensions.getExtension(BEAUTY_AMP_ID);
 		telemetry.log(`BeautyAmpCheck`, { isActive: extension ? true : false });
 		if (extension) {
-			console.log(`Extension ${BEAUTY_AMP_ID} IS installed and enabled.`);
-			// console.log(`IsActive()`, extension.isActive, '.');
 			return true;
 		} else {
-			console.log(`Extension ${BEAUTY_AMP_ID} IS NOT installed nor enabled.`);
 			return false;
 		}
 	},

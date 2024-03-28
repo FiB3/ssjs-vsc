@@ -137,11 +137,9 @@ module.exports = class Config extends Preferences {
 	}
 
 	async getSfmcInstanceData() {
-		const config = this.loadConfig();
-	
-		const subdomain = config['sfmc-domain'];
-		const clientId = config['sfmc-client-id'];
-		const mid = config['sfmc-mid'];
+		const subdomain = this.config['sfmc-domain'];
+		const clientId = this.config['sfmc-client-id'];
+		const mid = this.config['sfmc-mid'];
 
 		let SECRET_NAME = `ssjs-vsc.${clientId}`;
 		let clientSecret = await this.context.secrets.get(SECRET_NAME);

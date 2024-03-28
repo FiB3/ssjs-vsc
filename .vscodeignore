@@ -19,3 +19,7 @@ images/walkthrough/
 images/logo.png
 
 # node_modules
+
+# Custom webview source:
+configView/**
+!configView/dist/**

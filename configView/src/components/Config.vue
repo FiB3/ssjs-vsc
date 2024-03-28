@@ -10,8 +10,8 @@ import Status from './form/Status.vue'
 
 const vscode = inject('vscode');
 const securityOptions = ref([
-	{ value: 'token', text: 'Token-Protected' },
-	{ value: 'basic', text: 'Basic-Auth' },
+	{ value: 'token', text: 'Token-Protected (Token in URL / Headers)' },
+	{ value: 'basic', text: 'Login Form (Basic-Auth)' },
 	{ value: 'auth', text: 'None' }
 ]);
 
@@ -58,10 +58,10 @@ let folder = ref({
 
 let resources = ref({
 	pageUrl: '',
-	pageSecurity: '',
+	pageSecurity: 'token',
 	pageOk: false,
 	textUrl: '',
-	textSecurity: '',
+	textSecurity: 'token',
 	textOk: false
 });
 
@@ -225,10 +225,10 @@ function emptyfy(value) {
 				To utilize the SSJS Manager fully (including code previews within SFMC), configuration is necessary.
 				<br/>
 				This is a one-time setup per project.
+				<!-- <br/>
+				We'll provide step-by-step guidance on this screen. -->
 				<br/>
-				We'll provide step-by-step guidance on this screen.
-				<br/>
-				NOTE: Commands are available via the Command Palette (Ctrl+Shift+P or CMD+Shift+P or F1).
+				NOTE: "Commands" are available via the Command Palette (Ctrl+Shift+P or CMD+Shift+P or F1).
 			</p>
 		</div>
 		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />

@@ -64,7 +64,7 @@ async function loadConfiguration(context) {
 	if (!Config.configFileExists()) {
 		console.log(`Setup file does not exists.`);
 		ext.deactivateProviders({});
-		vscode.window.showInformationMessage(`No setup file found. Run 'Create Config' command to create it.`);
+		vscode.window.showInformationMessage(`No setup file found. Use Config panel to set it ("SSJS: Show Config" command).`);
 	} else {
 		ext.config.loadConfig();
 		await checkSetup();
