@@ -3,7 +3,7 @@
 
 <template>
   <div>
-    <h2>v0.4.0: Visual Setup for SSJS Manager</h2>
+    <h2>v0.4.0: Visual Config for SSJS Manager</h2>
 
 		<p>
 			You can now visually configure your SSJS Manager settings in the Config panel.

@@ -2,6 +2,15 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.4.1] - 2024-03-28
+
+### Added
+- Custom Config Panel to enable full Setup of SSJS Manager.
+- Config Panel launches on startup, if some setup is missing (this can be disabled in Preferences or in the Config panel).
+
+### Fixed:
+- Minor fixes.
+
 ## [0.3.11] - 2024-03-18
 
 ### Added
