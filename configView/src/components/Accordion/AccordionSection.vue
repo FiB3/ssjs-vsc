@@ -31,13 +31,34 @@ const toggleShow = () => {
         <div class="plus" :class="{ 'plus-open': show }"></div>
       </div>
     </div>
-    <div v-show="show" class="content">
-      <slot name="content"></slot>
-    </div>
+		<div class="flex-container">
+			<div v-show="show" class="content">
+				<slot name="content"></slot>
+			</div>
+			<div v-show="show" class="right-side">
+				<slot name="right-side"></slot>
+			</div>
+		</div>
   </div>
 </template>
 
 <style scoped>
+
+.flex-container {
+	display: flex;
+	justify-content: space-between;
+}
+
+.flex-container > div {
+	flex: 1;
+	padding: 10px;
+	width: calc(100%/2 - 20px);
+}
+
+.flex-container > div > img {
+	width: 100%;
+}
+
 .title {
   font-size: 1.5em;
   /* border: 1px solid black; */

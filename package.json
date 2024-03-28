@@ -150,7 +150,7 @@
       {
         "id": "setup-ssjs-manager",
         "title": "Setup SSJS Manager",
-        "description": "Quick guide on initial setup of the SSJS Manager using default preferences.",
+        "description": "Quick guide on initial setup of the SSJS Manager using default preferences. You can now also use the `SSJS: Show Config` command to guide you through these steps.",
         "steps": [
           {
             "id": "get-installed-package",

@@ -222,9 +222,13 @@ function emptyfy(value) {
   <div class="greetings">
 		<div class="hint">
 			<p>
-				To get the most out of the SSJS Manager (including the ability to preview your code within SFMC), you need to configure a few things.
+				To utilize the SSJS Manager fully (including code previews within SFMC), configuration is necessary.
 				<br/>
-				We will guide you through the process on this screen.
+				This is a one-time setup per project.
+				<br/>
+				We'll provide step-by-step guidance on this screen.
+				<br/>
+				NOTE: Commands are available via the Command Palette (Ctrl+Shift+P or CMD+Shift+P or F1).
 			</p>
 		</div>
 		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
@@ -239,19 +243,22 @@ function emptyfy(value) {
         <div id="workspace">
 					<div class="hint">
 						<p>
-							A Visual Studio Code workspace is basically just the folder you are working in.
+							A Visual Studio Code workspace is essentially the folder you're working in. 
 							<br/>
-							It's required by many extensions to work properly, but also to organize projects, customize settings per project and more.
+							It's vital for extensions to function correctly and for organizing projects, customizing settings, and more.
 						</p>
 						<p>
-							To create a workspace you only need to open a folder in VSCode.
+							To create a workspace, simply open a folder in VSCode. 
 							<br/>
-							You can do that either by: "File" > "Open Folder" or by using the "Explorer" on the left sidebar > "Open Folder".
+							You can do this via "File" > "Open Folder" or using the "Explorer" on the left sidebar > "Open Folder".
 						</p>
-						<!-- TODO: add an image to demonstrate -->
 					</div>
-
 					<Status id="workspaceStatus" :statusText="workspaceStatus.status" :ok="workspaceStatus.ok" />
+				</div>
+      </template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/noWorkspace.png" />
 				</div>
       </template>
     </AccordionSection>
@@ -265,17 +272,17 @@ function emptyfy(value) {
 					<div>
 						<div class="hint">
 							<p>
-								We need your Salesforce Marketing Cloud API keys to connect to your account.
+								We require your Salesforce Marketing Cloud API keys for account connection.
 								<br/>
-								The Client Secret is safely stored in the VSCode Secret Storage. It is only transmitted to the SFMC Auth API.
-							</p>
-							<p>
-								To get your API keys, you need to create a new installed package in your SFMC account.
-								We recommend to create a new package for each developer.
+								The Client Secret is securely stored in VSCode Secret Storage and is only transmitted to the SFMC Auth API.
+								<p>
+									To obtain your API keys, create a new installed package in your SFMC account.
+								</p>
+								We suggest creating a new package for each developer.
 								<br/>
-								The Installed Package must be of Server-to-Server type.
+								The Installed Package should be of Server-to-Server type.
 								<br/>
-								The minimum required scopes (at the moment) are:
+								The minimum required scopes (currently) are:
 								<ul>
 									<li>Email: write</li>
 									<li>Saved Content: write</li>
@@ -324,6 +331,11 @@ function emptyfy(value) {
 					</div>
 				</form>
       </template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/installedPackage.png" />
+				</div>
+      </template>
     </AccordionSection>
     <!-- CONTENT BUILDER -->
 		<AccordionSection :ok="folderStatus.ok">
@@ -335,9 +347,9 @@ function emptyfy(value) {
 					<div>
 						<div class="hint">
 							<p>
-								SSJS Manager needs to create a folder in Content Builder to store the assets.
+								SSJS Manager needs to create a new folder in Content Builder to store the assets.
 								<br/>
-								We could use the root folder, but it's better to keep things organized.
+								This is to keep your assets organized.
 							</p>
 						</div>
 
@@ -345,7 +357,7 @@ function emptyfy(value) {
 								id="parentFolder"
 								inputType="text"
 								title="Parent Folder Name"
-								description="Folder, within which we will create the new folder. Uses the 'Content Builder' folder if empty."
+								description="Folder, within which to create the new folder. Defaults to 'Content Builder' (if empty)."
 								v-model="folder.parentName"
 							/>
 
@@ -365,6 +377,11 @@ function emptyfy(value) {
 					</div>
 				</form>
       </template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/assetFolder.png" />
+				</div>
+      </template>
     </AccordionSection>
 		<!-- CLOUD PAGES -->
 		<AccordionSection :ok="devPagesStatus.ok">
@@ -375,13 +392,15 @@ function emptyfy(value) {
 				<div id="cloudPageResources">
 					<div class="hint">
 						<p>
-							To be able to preview your code within SFMC, we need to create a Cloud Page and a Text Code Resource.
+							To preview your code in SFMC, create a Cloud Page and a Text Code Resource.
 							<br/>
-							You can do this by navigating to "Web Studio" > "Cloud Pages" > Select Collection (we recommend you to have your own dev Collection).
+							Navigate to "Web Studio" > "Cloud Pages" > Choose Collection (preferably your dev Collection).
 							<br/>
-							Now add a Cloud Page by "Add Content" > "Landing Page". Leave the template empty for now.
+							Add a Cloud Page via "Add Content" > "Landing Page" (leave the template empty).
 							<br/>
-							Also, create a Text Code Resource by "Add Content" > "Code Resource" > "Text". Leave the content empty as well.
+							Also, create a Text Code Resource via "Add Content" > "Code Resource" > "Text" (leave content empty).
+							<br/>
+							You will need the published URLs of both.
 						</p>
 					</div>
 
@@ -398,7 +417,7 @@ function emptyfy(value) {
 						<Select
 								id="pageSecurity"
 								title="Cloud Page Security"
-								description="Security of the Cloud Page you've created."
+								description="Security mechanism for the Cloud Page you've created."
 								:options="securityOptions"
 								v-model="resources.pageSecurity"
 							/>
@@ -414,7 +433,7 @@ function emptyfy(value) {
 						<Select
 								id="textSecurity"
 								title="Text Resource Security"
-								description="Security of the Cloud Page you've created."
+								description="Security mechanism for the Cloud Text Resource you've created."
 								:options="securityOptions"
 								v-model="resources.textSecurity"
 							/>
@@ -426,6 +445,11 @@ function emptyfy(value) {
 					</form>
 				</div>
       </template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createCloudPage.png" />
+				</div>
+      </template>
     </AccordionSection>
 		<AccordionSection :ok="anyScriptsDeployedStatus.ok">
       <template #title>
@@ -435,11 +459,11 @@ function emptyfy(value) {
 				<div id="develop">
 					<div class="hint">
 						<p>
-							Once successful, fill both Cloud Page and Text Resource with the provided content.
+							After successful creation, populate both the Cloud Page and Text Resource with the provided content.
 							<br/>
-							You can find the content in the following files or via buttons below.
+							You can access the content in the following files or via buttons below.
 							<br/>
-							Once you've filled the content, publish both. You are done!
+							Once the content is filled, publish both. Your task is complete!
 							<ul>
 								<li>./vscode/deploy.me.page.ssjs</li>
 								<li>./vscode/deploy.me.text.ssjs</li>
@@ -452,6 +476,7 @@ function emptyfy(value) {
 						<Button id="getTextResourceCode" @click="copyResourceCode('text')" text="Get Text Resource Code" />
 					</div>
 					<!-- TODO: Checkbox -->
+					<br/>
 					<Checkbox
 							id="anyScriptsDeployed"
 							title="Scripts deployed?"
@@ -461,39 +486,46 @@ function emptyfy(value) {
 						/>
 				</div>
       </template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/setCloudPage.png" />
+				</div>
+      </template>
     </AccordionSection>
 		<AccordionSection :ok="devReadStatus.ok">
       <template #title>
         Develop
       </template>
       <template #content>
-				<div id="develop" class="flex-container">
+				<div id="develop">
 					<div class="hint">
 						<p>
-							Now you are ready to develop your SSJS code.
+							Ready to develop SSJS code!
 							<br/>
-							Use `.ssjs`, `.amp` or `.html` files.
+							Use `.ssjs`, `.amp`, or `.html` files.
 							<br/>
-							First deployment is done using the `SSJS: Upload Script` command (press: Ctrl+Shift+P or F1, then start typing the name of the desired command).
+							First deployment via `SSJS: Upload Script` command (Ctrl+Shift+P or CMD+Shift+P or F1, then type command name).
 							<br/>
-							Following deploys are automatically done on save.
+							Subsequent deployments automatic on file save (Ctrl + S or CMD + S).
 							<br/>
-							Run in your Cloud Page or Resource - one page for all scripts!
+							Run in Cloud Page or Resource - one page for all scripts!
 							<br/>
-							You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.
+							Get page parameters to clipboard with `SSJS: Get Dev Path` command.
 						</p>
+					</div>
 
-						<Checkbox
-								id="devRead"
-								title="Dev Instructions Read?"
-								description="I have read the dev instuctions."
-								v-model="devReadStatus.ok"
-								@change="checkManualStep()"
-							/>
-					</div>
-					<div>
-						<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif" class="config-example" />
-					</div>
+					<Checkbox
+							id="devRead"
+							title="Dev Instructions Read?"
+							description="I have read the dev instuctions."
+							v-model="devReadStatus.ok"
+							@change="checkManualStep()"
+						/>
+				</div>
+			</template>
+			<template #right-side>	
+				<div>
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif" />
 				</div>
       </template>
     </AccordionSection>
@@ -508,18 +540,7 @@ function emptyfy(value) {
 		max-width: 400px;
 	}
 
-	.flex-container {
-		display: flex;
-		justify-content: space-between;
-	}
-
-	.flex-container > div {
-		flex: 1;
-		padding: 10px;
-		width: calc(100%/2 - 20px);
-	}
-
-	.flex-container > div > img {
+	img {
 		width: 100%;
 	}
 </style>
