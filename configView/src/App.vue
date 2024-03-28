@@ -4,8 +4,6 @@ import Config from './components/Config.vue'
 import Templating from './components/Templating.vue'
 import Changelog from './components/Changelog.vue'
 
-import logoUri from './assets/logo.v1.2.png'
-
 let currentTab = ref('config')
 let autoOpenEnabled = ref(false)
 let vscode;
@@ -76,7 +74,6 @@ onMounted(() => {
 					class="tab"
 					:class="{ 'tab-selected': currentTab === 'templating' }"
 					@click="currentTab = 'templating'"
-					disabled
 				>
 					Templating
 				</button>
@@ -84,9 +81,8 @@ onMounted(() => {
 					class="tab"
 					:class="{ 'tab-selected': currentTab === 'changelog' }"
 					@click="currentTab = 'changelog'"
-					disabled
 				>
-					Changelog
+					Latest Changes
 				</button>
 			</nav>
 		</header>
