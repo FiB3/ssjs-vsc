@@ -203,7 +203,7 @@ module.exports = class Config extends Preferences {
 		}
 		let valid = sfmcValid && serverProviderValid && assetFolderValid && devContextsValid;
 		console.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
-		return valid;	
+		return valid;
 	}
 
 	isDevPageSet() {
@@ -396,9 +396,9 @@ module.exports = class Config extends Preferences {
 		newConfig['proxy-any-file'] = {
 			'public-domain': Config.validateConfigValue(this.config['public-domain'], '<< publicly accessible domain, e.g. NGROK forwarding domain >>'),
 			'port': Config.validateConfigValue(this.config['port'], 4000),
-			'main-path': Config.validateConfigValue(this.config['proxy-any-file']['main-path'], '/all-in-dev'),
-			'auth-username': Config.validateConfigValue(this.config['proxy-any-file']['auth-username'], 'user'),
-			'auth-password': Config.validateConfigValue(this.config['proxy-any-file']['auth-password'], generator.generate({ length: 16, numbers: true }))
+			'main-path': Config.validateConfigValue(this.config['proxy-any-file']?.['main-path'], '/all-in-dev'),
+			'auth-username': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-username'], 'user'),
+			'auth-password': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-password'], generator.generate({ length: 16, numbers: true }))
 		};
 
 		// save setup file

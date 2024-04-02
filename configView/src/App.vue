@@ -47,7 +47,6 @@ onMounted(() => {
 				console.log(`INIT Response:`, message);
 				appInfo.value.workspaceSet = message.workspaceSet;
 				autoOpenEnabled.value = message.showPanelAutomatically;
-				logoUri.value = message.logoUri;
 				break;
 		}
 	});

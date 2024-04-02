@@ -114,14 +114,14 @@ function setAnyScript() {
 }
 
 function validateAnyScriptConfig(message) {
-	if (message.cloudPageData.devPageUrl && message.cloudPageData.devAuth) {
+	if (message.cloudPageData?.devPageUrl && message.cloudPageData?.devAuth) {
 		resources.value.pageUrl = message.cloudPageData.devPageUrl;
 		resources.value.pageSecurity = message.cloudPageData.devAuth;
 		if (message.cloudPageData.devSnippetId) {
 			resources.value.pageOk = true;
 		}
 	}
-	if (message.textResourceData.devPageUrl && message.textResourceData.devAuth) {
+	if (message.textResourceData?.devPageUrl && message.textResourceData?.devAuth) {
 		resources.value.textUrl = message.textResourceData.devPageUrl;
 		resources.value.textSecurity = message.textResourceData.devAuth;
 		if (message.textResourceData.devSnippetId) {
@@ -178,9 +178,13 @@ window.addEventListener('message', event => {
 			workspaceStatus.value.ok = message.workspaceSet;
 			workspaceStatus.value.status = message.workspaceSet ? 'Workspace set.' : 'Workspace not set. This is required to work with the extension.';
 
-			sfmcApiStatus.value.ok = message.configFileExists;
-			sfmcApiStatus.value.status = message.configFileExists ? 'SFMC Connection Set.' : 'SFMC Connection not set. This is required to work with the extension.';
-
+			if (message.sfmc) {
+				sfmcApiStatus.value.ok = true;
+				sfmcApiStatus.value.status = sfmcApiStatus.value.ok
+						? 'SFMC Connection Set.'
+						: 'SFMC Connection not set. This is required to work with the extension.';
+			}
+			
 			if (message.configFileExists && message.sfmc) {
 				sfmc.value = message.sfmc;
 			}
