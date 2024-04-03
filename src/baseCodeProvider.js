@@ -1,6 +1,8 @@
 const vscode = require('vscode');
 var path = require('path');
 
+const NoCodeProvider = require('./noCodeProvider');
+
 const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SnippetHandler = require('./snippetHandler');
@@ -13,11 +15,10 @@ const telemetry = require('./telemetry');
 
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
-module.exports = class BaseCodeProvider {
+module.exports = class BaseCodeProvider extends NoCodeProvider {
 
 	constructor(config, statusBar) {
-		this.config = config;
-		this.statusBar = statusBar;
+		super(config, statusBar);
 		this.mc = null;
 		this.snippets = new SnippetHandler(this.config);
 	}
@@ -53,14 +54,6 @@ module.exports = class BaseCodeProvider {
 	async deactivate() {
 	}
 
-	async deployAnyScript() {
-		this._checkCommand();
-	}
-
-	async updateAnyScript() {
-		this._checkCommand();
-	}
-
 	async uploadToProduction() {
 		// base provider will only be able to build to clipboard
 		// other providers will need to have more checks.
@@ -71,24 +64,6 @@ module.exports = class BaseCodeProvider {
 			// script was not uploaded:
 			vscode.window.showWarningMessage(`Script cannot be built for Production! Maybe it's the file format?`);
 		}
-	}
-
-	async uploadScript(autoUpload) {
-		if (!autoUpload) {
-			this._checkCommand();
-		}
-	}
-
-	async startServer() {
-		this._checkCommand();
-	}
-
-	async stopServer() {
-		this._checkCommand();
-	}
-
-	async getDevUrl() {
-		this._checkCommand();
 	}
 
 	/**

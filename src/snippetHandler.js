@@ -231,7 +231,9 @@ class SnippetHandler {
 			this.config.setAssetFolderId(f.body.id, fldrPath);
 			return {
 				ok: true,
-				message: `Folder for Dev Assets created at ${fldrPath}.`
+				message: f.body.existing
+						? `Using existing folder at ${fldrPath}.`
+						: `Folder for Dev Assets created at ${fldrPath}.`
 			};
 		}
 	}
@@ -242,7 +244,16 @@ class SnippetHandler {
 	 * @param {string} folderName 
 	 */
 	async createFolder(folderName, parentFolderName) {
-		let parent = await this.getFolder(parentFolderName);
+		let newFolder = await this.getFolder(folderName);
+		if (newFolder) {
+			vscode.window.showInformationMessage(`Using existsting folder.`);
+			newFolder.existing = true;
+			return {
+				body: newFolder
+			};
+		}
+
+		let parent = await this.getFolder(parentFolderName, false);
 		if (!parent) {
 			vscode.window.showWarningMessage(`Parent Folder not found!`);
 			return false;
@@ -250,6 +261,7 @@ class SnippetHandler {
 
 		let r;
 		try {
+			// returns body
 			r = await this.mc.createAssetFolder(folderName, parent.id);
 		} catch (err) {
 			console.log(`Error on creating Asset folder:`, err);

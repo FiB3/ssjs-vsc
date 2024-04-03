@@ -47,5 +47,9 @@
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
   },
+	"config-view": {
+    "any-script-deployed": false,
+    "dev-read": false
+  },
   "extension-version": "0.0.0"
 }

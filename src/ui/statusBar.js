@@ -19,13 +19,11 @@ module.exports = {
 	setEmpty() {
 	},
 
-	setEnabled() {
-		console.log(`getCodeProvider(): ${Config.getCodeProvider()}.`);
-
-		if (Config.isServerProvider()) {
-			this.setMessage(`SSJS Active`, `SSJS Server ready.`);
-		} else if (Config.isAssetProvider()) {
+	setEnabled(isNoneProvider = false) {
+		if (!isNoneProvider && Config.isAssetProvider()) {
 			this.setMessage(`SSJS Connected`, `Script upload enabled.`);
+		} else if (!isNoneProvider && Config.isServerProvider()) {
+			this.setMessage(`SSJS Active`, `SSJS Server ready.`);
 		} else {
 			this.setMessage(`SSJS file`, `SSJS Supported File.`);
 		}

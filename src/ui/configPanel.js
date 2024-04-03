@@ -141,13 +141,18 @@ function getWebviewContent(webview, extensionUri) {
 async function getConfigPanelInfo() {
 	let configViewData = ext.config?.getManualConfigSteps();
 
+	const configValid = ext.config?.isSetupValid() || false;
+	console.log(`Config Valid:`, configValid);
+	const sfmc = await ext.config?.getSfmcInstanceData() || false;
+	// console.log(`SFMC Data:`, sfmc);
+
 	return {
 		showPanelAutomatically: Config.showPanelAutomatically(),
 		workspaceSet: Config.isWorkspaceSet(),
 		codeProvider: Config.getCodeProvider(),
 		configFileExists: Config.configFileExists(),
-		configFileValid: ext.config?.isSetupValid() || false,
-		sfmc: await ext.config?.getSfmcInstanceData() || false,
+		configFileValid: configValid,
+		sfmc: sfmc,
 		folder: ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` },
 		cloudPageData: ext.config?.getDevPageInfo('page'),
 		textResourceData: ext.config?.getDevPageInfo('text'),
@@ -158,11 +163,16 @@ async function getConfigPanelInfo() {
 }
 
 async function isConfigPanelNeeded() {
-	const panelInfo = await getConfigPanelInfo();
+	const panelInfo = {
+		showPanelAutomatically: Config.showPanelAutomatically(),
+		workspaceSet: Config.isWorkspaceSet(),
+		configFileValid: ext.config.isSetupValid() || false,
+		showChangelog: false
+	};
 
-	console.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Does not Exists: ${!panelInfo.configFileExists}.`);
+	console.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Valid: ${panelInfo.configFileValid}.`);
 	return panelInfo.showPanelAutomatically
-			&& (!panelInfo.workspaceSet || !panelInfo.configFileExists || panelInfo.showChangelog);
+			&& (!panelInfo.workspaceSet || !panelInfo.configFileValid || panelInfo.showChangelog);
 }
 
 module.exports = {

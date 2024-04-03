@@ -36,7 +36,8 @@ module.exports = class McClient {
 				null,
 				clientSetup
 		);
-
+		
+		this.folders = false;
 	}
 
 	/*
@@ -93,10 +94,13 @@ module.exports = class McClient {
 		return await this._post('/asset/v1/content/categories', b);
 	}
 
-	async getAssetFolder(folderName) {
-		let folders = await this.getAssetFolders();
+	async getAssetFolder(folderName, refresh = true) {
+		if (refresh || !this.folders) {
+			console.log('Refreshing Asset Folders...');
+			this.folders = await this.getAssetFolders();
+		}
 		
-		let filtered = folders.filter((fldr) => {
+		let filtered = this.folders.filter((fldr) => {
 			return fldr.name === folderName;
 		});
 		console.log('Filtered Asset Folders:', filtered);

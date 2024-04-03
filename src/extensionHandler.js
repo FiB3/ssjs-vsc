@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 
 const Config = require('./config');
+const NoCodeProvider = require('./noCodeProvider');
 const BaseCodeProvider = require('./baseCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const ServerCodeProvider = require('./serverCodeProvider');
@@ -32,28 +33,76 @@ class ExtensionHandler {
 	}
 	
 	async deactivateProviders() {
-		this.provider = new BaseCodeProvider(this.config, this.statusBar);
+		console.log(`Deactivating Providers...`);
+		this.provider = new NoCodeProvider(this.config, this.statusBar);
 		await this.provider.init();
 	}
 	
 	async pickCodeProvider(testApiKeys, silent = false) {
-		// Handle the setting change here
-		const codeProvider = Config.getCodeProvider();
 		await this.deactivateProviders();
 	
-		if (codeProvider === 'Asset') {
+		if (!Config.isWorkspaceSet() || !Config.configFileExists() || !this.config?.isSfmcValid()) {
+			console.log(`No valid setup found. Code Providers switched off!`);
+		} else if (Config.isAssetProvider()) {
 			if (!silent) {
 				vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`)
 			};
 			await this.activateAssetProvider(testApiKeys);
-		} else if (codeProvider === 'Server') {
+		} else if (Config.isServerProvider()) {
 			if (!silent) {
 				vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
 			};
 			await this.activateServerProvider();
 		} else {
-			vscode.window.showWarningMessage(`Code Providers switched off!`);
+			if (!silent) {
+				vscode.window.showWarningMessage(`Code Providers switched off!`);
+			} else {
+				console.log(`Code Providers switched off!`);
+			}
 		}
+	}
+
+	async workspaceOk() {
+		if (!Config.isWorkspaceSet()) {
+			console.log(`Workspace is not set.`);
+			vscode.window.showInformationMessage(`No workspace found. Use "Open Folder" to set it.`);
+			telemetry.log(`noWorkspace`);
+			await this.deactivateProviders();
+			return false;
+		}
+		return true;
+	}
+
+	async loadConfiguration(context) {
+		this.config = new Config(context);
+
+		if (!Config.configFileExists()) {
+			console.log(`Setup file does not exists - creating empty.`);
+			this.config.deployConfigFile();
+			return false;
+		}
+
+		this.config.loadConfig();
+		if (!this.config.isSfmcValid()) {
+			console.log(`SFMC Setup is invalid.`);
+			// might need to add all basic empty props from the setup file template & re-load config
+			return false;
+		}
+
+		if (!this.config.isSetupValid()) {
+			console.log(`Setup file is invalid.`);
+			// might need to add all basic empty props from the setup file template & re-load config
+			return false;
+		}
+
+		if (!this.config.isManualConfigValid()) {
+			console.log(`Manual setup is invalid.`);
+			return false;
+		}
+	
+		console.log(`Setup file is (at least mostly) valid.`);
+		this.checkSetup();
+		return true;
 	}
 
 	/**
@@ -132,6 +181,35 @@ class ExtensionHandler {
 		let contexts = devPageContexts.map((page) => page.devPageContext);
 		console.log(`createDevAssets: `, contexts);
 		return await this.provider.deployAnyScriptUi(contexts);
+	}
+
+	async checkSetup() {
+		const minVersion = '0.3.0';
+		const currentVersion = this.config.getSetupFileVersion();
+	
+		if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
+			console.log(`Setup file is up to date. Version: ${currentVersion}.`);
+			return;
+		}
+		console.log(`Migrate setup file from version: ${currentVersion} to ${minVersion}.`);
+		// migrate setup:
+		this.config.migrateSetup();
+		// show a warning message:
+		vscode.window.showWarningMessage(`Please, run 'SSJS: Install Dev Page' command to finish update. This is one time action.`);
+	}
+	
+	async checkDevPageVersion() {
+		const minVersion = '0.3.12';
+		const currentVersion = this.config.getSetupFileVersion();
+	
+		if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
+			console.log(`Dev Page is up to date. Version: ${currentVersion}.`);
+			return;
+		}
+		console.log(`Update Dev Page from version: ${currentVersion} to ${minVersion}.`);
+		// update Dev Page:
+		this.provider.updateAnyScript(true);
+		this.config.setSetupFileVersion();
 	}
 }
 

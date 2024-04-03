@@ -361,20 +361,20 @@ function emptyfy(value) {
 								id="parentFolder"
 								inputType="text"
 								title="Parent Folder Name"
-								description="Folder, within which to create the new folder. Defaults to 'Content Builder' (if empty)."
+								description="Folder, where to create the new folder. Defaults to 'Content Builder' (if empty). Don't set if using existing folder."
 								v-model="folder.parentName"
 							/>
 
 							<Input
 									id="newFolder"
 									inputType="text"
-									title="New Folder Name"
-									description="Folder, within which we will store the assets."
+									title="Folder Name"
+									description="Folder, within which we will store the assets - new or existing."
 									v-model="folder.newName"
 								/>
 
 						<div>
-							<Button id="createFolder" @click="createFolder()" text="Create Folder" />
+							<Button id="createFolder" @click="createFolder()" text="Create/Set Folder" />
 						</div>
 
 						<Status id="createFolderStatus" :statusText="folderStatus.status" :ok="folderStatus.ok" />

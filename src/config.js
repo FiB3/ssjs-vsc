@@ -137,9 +137,9 @@ module.exports = class Config extends Preferences {
 	}
 
 	async getSfmcInstanceData() {
-		const subdomain = this.config['sfmc-domain'];
-		const clientId = this.config['sfmc-client-id'];
-		const mid = this.config['sfmc-mid'];
+		const subdomain = Config.validateConfigValue(this.config['sfmc-domain']);
+		const clientId = Config.validateConfigValue(this.config['sfmc-client-id']);
+		const mid = Config.validateConfigValue(this.config['sfmc-mid'], '');
 
 		let SECRET_NAME = `ssjs-vsc.${clientId}`;
 		let clientSecret = await this.context.secrets.get(SECRET_NAME);
@@ -183,35 +183,54 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Check if SFMC data is valid.
+	 * @returns {Promise<boolean>}
+	 * @async
+	 */
+	async isSfmcValid() {
+		const { subdomain, clientId, clientSecret } = await this.getSfmcInstanceData();
+		let valid = checks.isUrl(subdomain) && clientId && clientSecret;
+		return valid;
+	}
+
+	isDevPageSet() {
+		const urlValid = checks.isUrl(this.config['dev-page']?.['url']);
+		const snippetIdValid = Config.validateConfigValue(this.config['dev-page']?.['snippet-id']) ? true : false;
+		return urlValid && snippetIdValid;
+	}
+
+	isDevResourceSet() {
+		const urlValid = checks.isUrl(this.config['dev-resource']?.['url']);
+		const snippetIdValid = Config.validateConfigValue(this.config['dev-resource']?.['snippet-id']) ? true : false;
+		return urlValid && snippetIdValid;
+	}
+
+	/**
 	 * Run a quick check, if the setup seems valid.
 	 * @returns {boolean}
 	 */
 	isSetupValid() {
-		let sfmcValid = this.config['sfmc-domain'] && this.config['sfmc-client-id'] ? true : false;
+		let sfmcValid = Config.validateConfigValue(this.config['sfmc-domain']) && Config.validateConfigValue(this.config['sfmc-client-id']);
 		let serverProviderValid = true;
 		if (Config.isServerProvider()) {
 			serverProviderValid = Boolean(this.config['proxy-any-file']?.['public-domain']);
 		}
 		const assetFolderValid = Boolean(this.config['asset-folder-id']);
 
-		let devContextsValid = this.isDevPageSet()
-				? Boolean(this.config['dev-page']?.['url'] && this.config['dev-page']?.['snippet-id'])
-				: true;
+		let devContextsValid = this.isDevPageSet() || this.isDevResourceSet();
 
-		if (this.isDevResourceSet()) {
-			devContextsValid = devContextsValid && Boolean(this.config['dev-resource']?.['url'] && this.config['dev-resource']?.['snippet-id']);
-		}
 		let valid = sfmcValid && serverProviderValid && assetFolderValid && devContextsValid;
 		console.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
 		return valid;
 	}
 
-	isDevPageSet() {
-		return this.config['dev-page']?.['snippet-id'] ? true : false;
-	}
-
-	isDevResourceSet() {
-		return this.config['dev-resource']?.['snippet-id']  ? true : false;
+	/**
+	 * Check if the manual steps are confirmed.
+	 * @returns {boolean}
+	 */
+	isManualConfigValid() {
+		let c = this.getManualConfigSteps();
+		return c.anyScriptsDeployed && c.devRead;
 	}
 
 	/**
@@ -385,6 +404,7 @@ module.exports = class Config extends Preferences {
 			'dev-page': {},
 			'dev-resource': {},
 			'proxy-any-file': {},
+			'config-view': {},
 			'extension-version': Config.getExtensionVersion()
 		};
 

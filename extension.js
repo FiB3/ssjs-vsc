@@ -20,9 +20,7 @@ async function activate(context) {
 
 	telemetry.init(context);
 
-	await launchConfigPanel(context);
-	await loadConfiguration(context);
-	watchForConfigurationChanges();
+	registerFormatters();
 
 	registerCommands(context, [
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
@@ -38,13 +36,27 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) }
 	]);
 
+	if (!ext.workspaceOk()) {
+		await launchConfigPanel(context);
+		return;
+	}
+	// IF WORKSPACE EXISTS:
+	let configOk = await ext.loadConfiguration(context);
+	if (!configOk) {
+		await launchConfigPanel(context);
+	}
+	
+	await ext.pickCodeProvider(true, true);
+	if (configOk) {
+		await ext.checkDevPageVersion();
+	}
+
+	watchForConfigurationChanges();
 	registerFileActions(context);
-	registerFormatters();
 }
 
 async function launchConfigPanel(context) {
-	const showPanel = await isConfigPanelNeeded();
-	if (showPanel) {
+	if (Config.showPanelAutomatically()) {
 		await showConfigPanel(context);
 	}
 }
@@ -58,21 +70,6 @@ function watchForConfigurationChanges() {
 	});
 }
 
-async function loadConfiguration(context) {
-	ext.config = new Config(context);
-
-	if (!Config.configFileExists()) {
-		console.log(`Setup file does not exists.`);
-		ext.deactivateProviders({});
-		vscode.window.showInformationMessage(`No setup file found. Use Config panel to set it ("SSJS: Show Config" command).`);
-	} else {
-		ext.config.loadConfig();
-		await checkSetup();
-		await ext.pickCodeProvider(true, true);
-		await checkDevPageVersion();
-	}
-}
-
 function registerCommands(context, commands) {
 	commands.forEach(({ name, callback }) => {
 		const command = vscode.commands.registerCommand(name, callback);
@@ -84,7 +81,7 @@ function registerFileActions(context) {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		let filePath = textDocument.uri.fsPath;
 
-		if (!Config.getUserWorkspacePath()) {
+		if (!Config.isWorkspaceSet()) {
 			vscode.window.showWarningMessage(`It seems you are not using workspaces! To use full potential of this extension, please, open a folder and run command: "SSJS: Show Setup Walkthrough".`);
 			ext.deactivateProviders({});
 			telemetry.log(`noWorkspace`);
@@ -132,35 +129,6 @@ const createConfig = async function(update = false) {
 	}	catch (e) {
 		telemetry.error('createConfig', { error: e.message });
 	}
-}
-
-const checkSetup = async function() {
-	const minVersion = '0.3.0';
-	const currentVersion = ext.config.getSetupFileVersion();
-
-	if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
-		console.log(`Setup file is up to date. Version: ${currentVersion}.`);
-		return;
-	}
-	console.log(`Migrate setup file from version: ${currentVersion} to ${minVersion}.`);
-	// migrate setup:
-	ext.config.migrateSetup();
-	// show a warning message:
-	vscode.window.showWarningMessage(`Please, run 'SSJS: Install Dev Page' command to finish update. This is one time action.`);
-}
-
-const checkDevPageVersion = async function() {
-	const minVersion = '0.3.12';
-	const currentVersion = ext.config.getSetupFileVersion();
-
-	if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
-		console.log(`Dev Page is up to date. Version: ${currentVersion}.`);
-		return;
-	}
-	console.log(`Update Dev Page from version: ${currentVersion} to ${minVersion}.`);
-	// update Dev Page:
-	ext.provider.updateAnyScript(true);
-	ext.config.setSetupFileVersion();
 }
 
 // This method is called when your extension is deactivated
