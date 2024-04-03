@@ -24,16 +24,9 @@ Project wide settings is done per project via `./vscode/ssjs-setup.json` file wh
 
 ### Project Setup
 
-You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you install connection to SFMC. This connection consists of Installed Package, Cloud Page & Text Resource.
+You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you must install connection to SFMC. This connection consists of Installed Package, Cloud Page & Text Resource.
 
-You can see a guide using `SSJS: Show Setup Walkthrough` command for the default functionality. It takes just five minutes.
-
-**Setup Cheatsheet:**
-1) Create Installed Package (preferably your own).
-2) Create your own Cloud Page and Cloud Text Resource in SFMC.
-3) Run `SSJS: Create Config` command withing VSCode to create your setup file (and store SFMC Credentials safely).
-4) Run the `SSJS: Install Dev Page` command that will help you to deploy your Dev environment in Web Studio.
-5) Save content of `.vscode/dploy.me.` files to Cloud Page and Text resource - don't forget to Publish.
+You can see a guide using the new `SSJS: Show Config` command for interactive config or `SSJS: Show Setup Walkthrough` command for setup guide.
 
 ## Development
 
@@ -42,8 +35,9 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to open
 
 ## Commands
 
-To be run using `Ctrl` + `Shift` + `P`.
+To be run using `Ctrl` + `Shift` + `P` (Win) / `CMD` + `Shift` + `P` (Mac) / F1.
 
+- `SSJS: Show Config` - Shows an UI guide which lets you set the extension.
 - `SSJS: Show Setup Walkthrough` - Shows a guide on how to setup the extension.
 - `SSJS: Production deployment` - Uploads the script to given SFMC resource - currently to Clipboard only.
 - `SSJS: Upload Script to Dev` - Uploads the script on Asset Provider. After first upload (per script) is run automatically on file save.

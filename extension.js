@@ -36,7 +36,9 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) }
 	]);
 
-	if (!ext.workspaceOk()) {
+	let workspaceOk = await ext.workspaceOk();
+	console.log(`Workspace is ok: ${workspaceOk}.`);
+	if (!workspaceOk) {
 		await launchConfigPanel(context);
 		return;
 	}
