@@ -9,9 +9,7 @@
 			<div class="setting-indicators-container" role="toolbar" style="display: none;"></div>
 		</div>
 		<div class="setting-item-description">
-			<div class="rendered-markdown setting-item-markdown">
-				<p>{{ description }}</p>
-			</div>
+			{{ description }}
 		</div>
 		<div class="setting-item-enumDescription"></div>
 		<div class="setting-item-modified-indicator" title="The setting has been configured in the current scope."></div>

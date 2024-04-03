@@ -1,9 +1,9 @@
 <template>
-	<div class="setting-item-contents settings-row-inner-container" data-key="editor.fontSize"
+	<div class="setting-item-contents settings-row-inner-container"
 		data-id="commonlyUsed_editor_fontSize">
 		<div class="setting-item-title">
-			<div class="setting-item-cat-label-container"><span class="setting-item-category" title="editor.fontSize">{{ title }}
-				</span><span class="setting-item-label" title="editor.fontSize">{{ title2 }}</span></div>
+			<div class="setting-item-cat-label-container"><span class="setting-item-category" :title="title">{{ title }}
+				</span><span class="setting-item-label" :title="title">{{ title2 }}</span></div>
 			<div class="setting-indicators-container" role="toolbar" style="display: none;"></div>
 		</div>
 		<div class="setting-item-description">{{ description }}</div>
@@ -17,6 +17,7 @@
 							autocapitalize="off" spellcheck="false" :type="inputType" wrap="off" tabindex="0" step="any"
 							aria-label="editor.fontSize"
 							style="background-color: inherit; color: var(--vscode-settings-numberInputForeground);"
+							:placeholder="placeholder"
 							v-model="value"
 						>
 					</div>
@@ -51,6 +52,10 @@ defineProps({
 	description: {
 		type: String,
 		required: true
+	},
+	placeholder: {
+		type: String,
+		required: false
 	},
 	inputType: {
 		type: String,

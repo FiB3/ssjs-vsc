@@ -300,6 +300,7 @@ function emptyfy(value) {
 								inputType="text"
 								title="Subdomain / Auth URL"
 								description="Provide Subdomain or Auth URL of SFMC instance."
+								placeholder="e.g.: https://YOUR_SUBDOMAIN.auth.marketingcloudapis.com/"
 								v-model="sfmc.subdomain"
 							/>
 
@@ -308,6 +309,7 @@ function emptyfy(value) {
 								inputType="text"
 								title="Client ID"
 								description="Provide Client ID of your Installed Package."
+								placeholder="Your Client ID"
 								v-model="sfmc.clientId"
 							/>
 
@@ -316,6 +318,7 @@ function emptyfy(value) {
 								inputType="password"
 								title="Subdomain / Auth URL"
 								description="Provide Client Secret of your Installed Package."
+								placeholder="Your Client Secret"
 								v-model="sfmc.clientSecret"
 							/>
 
@@ -324,6 +327,7 @@ function emptyfy(value) {
 									inputType="text"
 									title="MID"
 									description="Your Business Unit MID. You can leave it empty, if you want to work with the BU that created the package."
+									placeholder="Business Unit MID"
 									v-model="sfmc.mid"
 								/>
 
@@ -362,6 +366,7 @@ function emptyfy(value) {
 								inputType="text"
 								title="Parent Folder Name"
 								description="Folder, where to create the new folder. Defaults to 'Content Builder' (if empty). Don't set if using existing folder."
+								placeholder="Folder Name in Content Builder (optional)."
 								v-model="folder.parentName"
 							/>
 
@@ -370,6 +375,7 @@ function emptyfy(value) {
 									inputType="text"
 									title="Folder Name"
 									description="Folder, within which we will store the assets - new or existing."
+									placeholder="Name of new or existing folder."
 									v-model="folder.newName"
 								/>
 
@@ -415,6 +421,7 @@ function emptyfy(value) {
 								inputType="url"
 								title="Cloud Page Url"
 								description="URL of the Cloud Page you've created."
+								placeholder="e.g.: https://YOUR_SUBDOMAIN.pub.sfmc-content.com/page-abcd1234"
 								v-model="resources.pageUrl"
 							/>
 
@@ -431,6 +438,7 @@ function emptyfy(value) {
 								inputType="url"
 								title="Cloud Text Resource Url"
 								description="URL of the Cloud Text Resource you've created."
+								placeholder="e.g.: https://YOUR_SUBDOMAIN.pub.sfmc-content.com/resource-abcd1234"
 								v-model="resources.textUrl"
 							/>
 
