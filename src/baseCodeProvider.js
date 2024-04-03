@@ -256,13 +256,17 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		const filePath = vsc.getActiveEditor();
 		if (filePath && checks.isFileSupported(filePath)) {
 			let metadata = this.snippets.loadMetadata(filePath);
+			let isDevPageSet = this.config.isDevPageSet();
+			let isDevResourceSet = this.config.isDevResourceSet();
 
 			let devPageContext;
-			if (metadata.devContext === 'picker' || (this.config.isDevPageSet() && this.config.isDevResourceSet())) {
+			if (metadata.devContext === 'picker' || (metadata.devContext == undefined && isDevPageSet && isDevResourceSet)) {
 				devPageContext = await dialogs.pickDevPageContext();
-			} else if (this.config.isDevPageSet()) {
+			} else if ((metadata.devContext === 'page' || metadata.devContext === 'text') && isDevPageSet && isDevResourceSet) {
+				devPageContext = metadata.devContext;
+			} else if (isDevPageSet) {
 				devPageContext = 'page';
-			} else if (this.config.isDevResourceSet()) {
+			} else if (isDevResourceSet) {
 				devPageContext = 'text';
 			} else {
 				vscode.window.showErrorMessage('No Dev Page or Resource is set.');
