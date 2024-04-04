@@ -51,47 +51,58 @@
     "commands": [
       {
         "command": "ssjs-vsc.upload-to-prod",
-        "title": "SSJS: Production deployment"
+        "title": "Production deployment",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.upload-script",
-        "title": "SSJS: Upload Script to Dev"
+        "title": "Upload Script to Dev",
+				"category": "SSJS"
       },
 			{
-        "command": "ssjs-vsc.getUrl",
-        "title": "SSJS: Get Dev Path"
+        "command": "ssjs-vsc.get-url",
+        "title": "Get Dev Path",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.start",
-        "title": "SSJS: Start"
+        "title": "Start",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.stop",
-        "title": "SSJS: Stop"
+        "title": "Stop",
+				"category": "SSJS"
       },
 			{
         "command": "ssjs-vsc.show-config",
-        "title": "SSJS: Show Config"
+        "title": "Show Config",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.create-config",
-        "title": "SSJS: Create Config"
+        "title": "Create Config",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.update-config",
-        "title": "SSJS: Update API Credentials"
+        "title": "Update API Credentials",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.deploy-any-path",
-        "title": "SSJS: Install Dev Page"
+        "title": "Install Dev Page",
+				"category": "SSJS"
       },
       {
         "command": "ssjs-vsc.update-any-path",
-        "title": "SSJS: Update Dev Page"
+        "title": "Update Dev Page",
+				"category": "SSJS"
       },
       {
-        "command": "ssjs-vsc.showWalkthrough",
-        "title": "SSJS: Show Setup Walkthrough"
+        "command": "ssjs-vsc.show-walkthrough",
+        "title": "Show Setup Walkthrough",
+				"category": "SSJS"
       }
     ],
     "configuration": {

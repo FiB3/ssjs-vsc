@@ -31,8 +31,8 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.update-config', callback: () => createConfig(true) },
 		{ name: 'ssjs-vsc.deploy-any-path', callback: async () => await ext.provider.deployAnyScript() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await ext.provider.updateAnyScript() },
-		{ name: 'ssjs-vsc.getUrl', callback: async () => await ext.provider.getDevUrl() },
-		{ name: 'ssjs-vsc.showWalkthrough', callback: showWalkthrough },
+		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl() },
+		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
 		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) }
 	]);
 
