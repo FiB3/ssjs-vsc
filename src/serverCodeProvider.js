@@ -15,6 +15,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
 	constructor(config, statusBar) {
 		super(config, statusBar);
+		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'Server');
 	}
 
 	async init(testConnection = false) {

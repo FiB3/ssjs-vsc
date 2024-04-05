@@ -18,6 +18,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	constructor(config, statusBar) {
 		super(config, statusBar);
 		this.folderId;
+		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'Asset');
 	}
 
 	async init(testConnection = false) {

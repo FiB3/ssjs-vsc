@@ -11,6 +11,10 @@ module.exports = class NoCodeProvider {
 
 	async init() {
 		this.statusBar.setEnabled(true);
+		/* needs to be set in each provider since provider from config might be different from the activated one
+		 *e.g.: if the extension is not set up correctly
+		 */
+		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'None');
 	}
 
 	async deactivate() {

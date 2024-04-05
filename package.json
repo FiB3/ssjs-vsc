@@ -62,7 +62,8 @@
 			{
         "command": "ssjs-vsc.get-url",
         "title": "Get Dev Path",
-				"category": "SSJS"
+				"category": "SSJS",	
+				"icon": "$(clippy)"
       },
       {
         "command": "ssjs-vsc.start",
@@ -105,6 +106,45 @@
 				"category": "SSJS"
       }
     ],
+		"menus": {
+			"commandPalette": [
+				{
+					"command": "ssjs-vsc.upload-to-prod",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				},
+				{
+					"command": "ssjs-vsc.upload-script",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				},
+				{
+					"command": "ssjs-vsc.get-url",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				},
+				{
+					"command": "ssjs-vsc.start",
+					"when": "ssjs-vsc.codeProvider == 'Server'"
+				},
+				{
+					"command": "ssjs-vsc.stop",
+					"when": "ssjs-vsc.codeProvider == 'Server'"
+				},
+				{
+					"command": "ssjs-vsc.deploy-any-path",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				},
+				{
+					"command": "ssjs-vsc.update-any-path",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				}
+			],
+			"editor/title": [
+				{
+					"command": "ssjs-vsc.get-url",
+					"group": "navigation",
+					"when": "resourceExtname == .ssjs || resourceExtname == .amp || resourceExtname == .ampscript || resourceExtname == .html"
+				}
+			]
+		},
     "configuration": {
       "title": "SSJS Manager",
       "properties": {
