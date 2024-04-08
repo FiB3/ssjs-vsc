@@ -237,8 +237,9 @@ function handleTemplatingTags(panel, message) {
 		devTokens[tag.key] = tag.dev;
 		prodTokens[tag.key] = tag.prod;
 	});
-	ext.config?.setTemplatingView(devTokens, prodTokens);
+	ext.config?.setTemplatingView(devTokens, prodTokens, true);
 
+	telemetry.log(`templatingTagsSet`, {}, { count: message.tags?.length || -1 });
 	// trigger templating tags update: (via init)
 	getTemplatingTags(panel, message, true);
 }

@@ -2,6 +2,18 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.4.4] - 2024-04-08
+
+### Added
+- Templating Tab in the Config Panel now provides visual setup of the tags.
+- New button to open the script in the browser / copy the script's URL to the clipboard.
+- New Preference option to set the users's preffered option (for Get Dev Path).
+
+### Changed
+- `SSJS: Get Dev Path` renamed to `SSJS: Get Dev Path / Open Dev Page` to better reflect the new feature.
+- Commands are now shown conditionally if usable.
+- All commands have been moved into the `SSJS` category, with the `SSJS:` prefix being removed from the names.
+
 ## [0.4.3] - 2024-04-03
 
 ### Added
