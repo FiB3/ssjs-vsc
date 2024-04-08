@@ -5,6 +5,7 @@ const Config = require('../config');
 let file = require('../auxi/file');
 let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
+let telemetry = require('../telemetry');
 
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
@@ -23,10 +24,7 @@ async function showConfigPanel(context) {
 			console.log(`BE: ${message.command} -`, message);
 			switch (message.command) {
 				case 'initialized':
-					panel.webview.postMessage({
-						command: 'init',
-						...await getView()
-					});
+					await handleInit(panel, getView);
 					return;
 				case 'validateConnection':
 					validateApiCredentials(panel, message);
@@ -53,6 +51,26 @@ async function showConfigPanel(context) {
 	);
 
 	panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
+}
+
+async function handleInit(panel, getViewFunc) {
+	let conf = await getViewFunc();
+	panel.webview.postMessage({
+		command: 'init',
+		...conf
+	});
+
+	telemetry.log(`configPanelInitialized`, {
+		allSet: conf.workspaceSet && conf.configFileValid && !!conf.sfmc && !!conf.cloudPageData
+				&& !!conf.textResourceData && conf.anyScriptsDeployed && conf.anyScriptsDeployed,
+		workspaceSet: conf.workspaceSet,
+		configFileValid: conf.configFileValid,
+		sfmcSet: !!conf.sfmc,
+		cloudPageData: conf.cloudPageOk,
+		textResourceData: conf.textResourceOk,
+		anyScriptsDeployed: conf.anyScriptsDeployed,
+		devRead: conf.anyScriptsDeployed
+	});
 }
 
 async function validateApiCredentials(panel, sfmc) {
@@ -107,6 +125,7 @@ function handleCopyResourceCode(panel, message) {
 
 function setManualStepDone(message) {
 	ext.config?.setManualConfigSteps(message.anyScriptsDeployed, message.devRead);
+	telemetry.log(`manualStepDone`, { anyScriptsDeployed: message.anyScriptsDeployed, devRead: message.devRead });
 }
 
 function handleAutoOpenChange(newValue) {
@@ -155,7 +174,9 @@ async function getConfigPanelInfo() {
 		sfmc: sfmc,
 		folder: ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` },
 		cloudPageData: ext.config?.getDevPageInfo('page'),
+		cloudPageOk: ext.config?.isDevPageSet(),
 		textResourceData: ext.config?.getDevPageInfo('text'),
+		textResourceOk: ext.config?.isDevResourceSet(),
 		anyScriptsDeployed: configViewData?.anyScriptsDeployed,
 		devRead: configViewData?.devRead,
 		showChangelog: false

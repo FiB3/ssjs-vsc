@@ -51,6 +51,7 @@ async function activate(context) {
 	await ext.pickCodeProvider(true, true);
 	if (configOk) {
 		await ext.checkDevPageVersion();
+		telemetry.log(`extensionActivated`, { codeProvider: Config.getCodeProvider(), allSet: true });
 	}
 
 	watchForConfigurationChanges();
