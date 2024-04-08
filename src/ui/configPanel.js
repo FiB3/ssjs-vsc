@@ -44,6 +44,12 @@ async function showConfigPanel(context) {
 				case 'autoOpenChange':
 					handleAutoOpenChange(message.value);
 					return;
+				case 'templatingInit':
+					getTemplatingTags(panel, message);
+					return;
+				case 'setTemplatingTags':
+					handleTemplatingTags(panel, message);
+					return;
 			}
 		},
 		undefined,
@@ -194,6 +200,47 @@ async function isConfigPanelNeeded() {
 	console.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Valid: ${panelInfo.configFileValid}.`);
 	return panelInfo.showPanelAutomatically
 			&& (!panelInfo.workspaceSet || !panelInfo.configFileValid || panelInfo.showChangelog);
+}
+
+function getTemplatingTags(panel, message, reloaded = false) {
+	// get tags:
+	let devTags = ext.config?.getTemplatingView(true);
+	let prodTags = ext.config?.getTemplatingView(false);
+
+	let tags = [];
+
+	let allKeys = new Set([...Object.keys(devTags || {}), ...Object.keys(prodTags || {})]);
+
+	for (let key of allKeys) {
+		tags.push({
+			key: key,
+			dev: devTags?.[key],
+			prod: prodTags?.[key]
+		});
+	}
+	console.log(`getTemplatingTags():`, tags);
+
+	panel.webview.postMessage({
+		command: 'templatingInitialized',
+		configurable: Config.isWorkspaceSet(),
+		tags,
+		saved: reloaded
+	});
+}
+
+function handleTemplatingTags(panel, message) {
+	// set tags:
+	let devTokens = {};
+	let prodTokens = {};
+
+	message.tags.forEach(tag => {
+		devTokens[tag.key] = tag.dev;
+		prodTokens[tag.key] = tag.prod;
+	});
+	ext.config?.setTemplatingView(devTokens, prodTokens);
+
+	// trigger templating tags update: (via init)
+	getTemplatingTags(panel, message, true);
 }
 
 module.exports = {

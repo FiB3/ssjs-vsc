@@ -388,6 +388,27 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Set Mustache template tokens - both dev and prod.
+	 * @param {object} views
+	 */
+	setTemplatingView(devViews = {}, prodViews = {}, plainReplace = false) {
+		if (plainReplace) {
+			this.config['dev-tokens'] = devViews;
+			this.config['prod-tokens'] = prodViews;
+		} else {
+			this.config['dev-tokens'] = {
+				...this.config['dev-tokens'],
+				...devViews
+			};
+			this.config['prod-tokens'] = {
+				...this.config['prod-tokens'],
+				...prodViews
+			};
+		}
+		this.saveConfigFile();
+	}
+
+	/**
 	 * Migrate setup file to new version - currently to v0.3.0+.
 	 */
 	migrateSetup() {	
