@@ -42,6 +42,18 @@ module.exports = class Preferences extends BaseConfig {
 		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('codeProvider');
 	}
 
+	static isCopyingUrl() {
+		return Preferences.getGetUrlOption() === 'Copy';
+	}
+
+	static isOpeningUrl() {
+		return Preferences.getGetUrlOption() === 'Open';
+	}
+
+	static getGetUrlOption() {
+		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('getUrlHandling');
+	}
+
 	static isAutoSaveEnabled() {
 		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('autoSave') ?? false;
 	}

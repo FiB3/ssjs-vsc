@@ -111,8 +111,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
 		if (pageDetails) {
 			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.filePath);
-			vscode.env.clipboard.writeText(url);
-			telemetry.log('getDevUrl', { codeProvider: 'Server', devPageContext: pageDetails.devPageContext });
+			this._getOpenUrlCommand(url, 'Server');
 		}
 	}
 

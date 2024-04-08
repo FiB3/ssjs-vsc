@@ -309,6 +309,20 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		return deployments;
 	}
 
+	/**
+	 * Get URL for Dev Page based on File.
+	 */
+	_getOpenUrlCommand(url, provider) {
+		if (Config.isCopyingUrl()) {
+			vscode.env.clipboard.writeText(url);
+			vscode.window.showInformationMessage(`URL copied to clipboard.`);
+			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
+		} else {
+			vscode.env.openExternal(url);
+			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Open' });
+		}
+	}
+
 	_checkCommand() {
 		if (Config.isNoneProvider()) {
 			vscode.window.showWarningMessage(`Code Providers switched off!`);

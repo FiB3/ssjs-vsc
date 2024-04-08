@@ -114,12 +114,11 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			console.log('pageDetails:', pageDetails);
 			if (pageDetails) {
 				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
-				vscode.env.clipboard.writeText(url);
-				telemetry.log('getDevUrl', { codeProvider: 'Asset', devPageContext: pageDetails.devPageContext });
+				this._getOpenUrlCommand(url, 'Asset');
 			}
 		} catch (e) {
 			telemetry.error('getDevUrl', { error: e.message, codeProvider: 'Asset' });
-		}	
+		}
 	}
 
 	/**

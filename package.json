@@ -61,9 +61,9 @@
       },
 			{
         "command": "ssjs-vsc.get-url",
-        "title": "Get Dev Path",
+        "title": "Get Dev Path / Open Dev Page",
 				"category": "SSJS",	
-				"icon": "$(clippy)"
+				"icon": "$(globe)"
       },
       {
         "command": "ssjs-vsc.start",
@@ -156,7 +156,7 @@
             "Asset",
             "Server"
           ],
-          "description": "Specifies the folder path containing the tsserver and lib*.d.ts files to use.",
+          "description": "Specifies the way the code is provided to SFMC.",
           "enumDescriptions": [
             "Code is not provided from VSCode to SFMC.",
             "Asset - Code is provided using Content Block. Slower but more secure.",
@@ -167,6 +167,19 @@
           "type": "boolean",
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
+        },
+				"ssjs-vsc.editor.getUrlHandling": {
+          "type": "string",
+          "default": "Copy",
+          "enum": [
+						"Copy",
+            "Open"
+          ],
+          "description": "How to handle the URL when using 'Get Dev Path' command?",
+          "enumDescriptions": [
+            "Copy - copies the URL to the clipboard.",
+            "Open - opens the URL in the default browser."
+          ]
         },
         "ssjs-vsc.editor.showConfigPanelAutomatically": {
           "type": "boolean",
