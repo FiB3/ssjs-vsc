@@ -4,7 +4,7 @@
 <template>
   <div>
 		<div>
-			<h2>v0.4.4: Templating in Config Panel</h2>
+			<h2>v0.4.5: Templating in Config Panel</h2>
 
 			<p>
 				Configure the Templating Tags for your project in the Config panel.

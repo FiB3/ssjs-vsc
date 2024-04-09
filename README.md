@@ -8,7 +8,7 @@ From syntax highlight to rapid testing and deployment.
 - Support rapid code development of SSJS scripts via SFMC's Cloud Pages.
 - Syntax highlight.
 - SSJS Snippets.
-- Mustache templating of scripts and pages.
+- Mustache templating of scripts and pages to ensure your env security when using repositories.
 
 ![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
 

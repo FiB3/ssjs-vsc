@@ -2,7 +2,7 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
-## [0.4.4] - 2024-04-08
+## [0.4.5] - 2024-04-09
 
 ### Added
 - Templating Tab in the Config Panel now provides visual setup of the tags.
