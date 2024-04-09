@@ -6,7 +6,7 @@ All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
 ### Added
 - Templating Tab in the Config Panel now provides visual setup of the tags.
-- New button to open the script in the browser / copy the script's URL to the clipboard.
+- New editor action (button above script) to open the script in the browser / copy the script's URL to the clipboard.
 - New Preference option to set the users's preffered option (for Get Dev Path).
 
 ### Changed

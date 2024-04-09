@@ -63,7 +63,7 @@
         "command": "ssjs-vsc.get-url",
         "title": "Get Dev Path / Open Dev Page",
 				"category": "SSJS",	
-				"icon": "$(globe)"
+				"icon": "$(play)"
       },
       {
         "command": "ssjs-vsc.start",
