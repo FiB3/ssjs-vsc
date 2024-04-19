@@ -141,6 +141,11 @@ module.exports = class Config extends Preferences {
 		const clientId = Config.validateConfigValue(this.config['sfmc-client-id']);
 		const mid = Config.validateConfigValue(this.config['sfmc-mid'], '');
 
+		if (!subdomain || !clientId) {
+			console.log(`No SFMC data found in config - getSfmcInstanceData().`);
+			return false;
+		}
+
 		let SECRET_NAME = `ssjs-vsc.${clientId}`;
 		let clientSecret = await this.context.secrets.get(SECRET_NAME);
 		

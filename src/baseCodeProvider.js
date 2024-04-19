@@ -29,6 +29,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			let c = await this.config.getSfmcInstanceData();
 			if (!c) {
 				vscode.window.showWarningMessage(`We could not obtain your API Client Secret. If you have set your credentials already, try updating VSCode and the extension. You can also try disable and enable the extension.`);
+				return;
 			}
 			this.mc = new mcClient(c.subdomain, c.clientId, c.clientSecret, c.mid);
 			this.snippets.attachMc(this.mc);

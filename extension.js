@@ -121,6 +121,10 @@ function showWalkthrough() {
 const createConfig = async function(update = false) {
 	try {
 		const creds = await dialogs.api.getCredentials(update);
+		if (!creds) {
+			console.log(`createConfig(): No creds provided.`);
+			return;
+		}
 		
 		let r = await ext.handleNewSfmcCreds(creds, update);
 		if (!r.ok) {
