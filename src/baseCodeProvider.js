@@ -256,6 +256,9 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		const filePath = vsc.getActiveEditor();
 		if (filePath && checks.isFileSupported(filePath)) {
 			let metadata = this.snippets.loadMetadata(filePath);
+			if (!metadata || metadata.error === true) {
+				return false;
+			}
 			let isDevPageSet = this.config.isDevPageSet();
 			let isDevResourceSet = this.config.isDevResourceSet();
 
@@ -312,13 +315,17 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	/**
 	 * Get URL for Dev Page based on File.
 	 */
-	_getOpenUrlCommand(url, provider) {
+	_getOpenUrlCommand(urlInfo, provider, pageDetails) {
+		console.log('URL:', urlInfo);
 		if (Config.isCopyingUrl()) {
-			vscode.env.clipboard.writeText(url);
-			vscode.window.showInformationMessage(`URL copied to clipboard.`);
+			vscode.env.clipboard.writeText(urlInfo.url);
+			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
 		} else {
-			vscode.env.openExternal(url);
+			if (urlInfo.visible) {
+				vscode.window.showInformationMessage(urlInfo.msg);
+			}
+			vscode.env.openExternal(urlInfo.url);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Open' });
 		}
 	}

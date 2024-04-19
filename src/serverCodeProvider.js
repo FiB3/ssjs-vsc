@@ -112,6 +112,8 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 		if (pageDetails) {
 			const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.filePath);
 			this._getOpenUrlCommand(url, 'Server');
+		} else {
+			vscode.window.showErrorMessage('File not deployed. Run `Upload Script to Dev` command first.');
 		}
 	}
 
@@ -149,17 +151,20 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	_getDevUrl(devPageContext, filePath) {
 		let tokenConfig = this.config.getDevPageAuth(devPageContext);
 		let tkn;
+		let res = {
+			msg: `URL ready.`,
+			visible: false
+		};
 
 		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
 			// TODO: this is not perfect, but good enough for now:
-			vscode.window.showInformationMessage(`URL in clipboard. Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`);
+			res.msg = `Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`;
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
-			vscode.window.showInformationMessage(`URL in clipboard.`);
 			tkn = tokenConfig.token;
 		}
 
 		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
-		let u = tkn ? `${url}?token=${tkn}&path=${filePath}` : `${url}?path=${filePath}`;
-		return u;
+		res.url = tkn ? `${url}?token=${tkn}&path=${filePath}` : `${url}?path=${filePath}`;
+		return res;
 	}
 }

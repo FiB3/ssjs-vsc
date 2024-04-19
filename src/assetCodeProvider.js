@@ -114,7 +114,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			console.log('pageDetails:', pageDetails);
 			if (pageDetails) {
 				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
-				this._getOpenUrlCommand(url, 'Asset');
+				this._getOpenUrlCommand(url, 'Asset', pageDetails);
+			} else {
+				vscode.window.showErrorMessage('File not deployed. Run `Upload Script to Dev` command first.');
 			}
 		} catch (e) {
 			telemetry.error('getDevUrl', { error: e.message, codeProvider: 'Asset' });
@@ -154,19 +156,23 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		let tokenConfig = this.config.getDevPageAuth(devPageContext);
 		let id = metadata.id;
 		let tkn;
+		let res = {
+			msg: `URL ready.`,
+			visible: false
+		};
 
 		console.log(`useAuth: ${tokenConfig.useAuth} && authType: ${tokenConfig.authType}.`, 'tokenConfig:', tokenConfig);
 		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
 			// TODO: this is not perfect, but good enough for now:
-			vscode.window.showInformationMessage(`URL in clipboard. Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`);
+			res.msg = `Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`;
+			res.visible = true;
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
 			console.log(`Chose token auth.`);
-			vscode.window.showInformationMessage(`URL in clipboard.`);
 			tkn = tokenConfig.token;
 		}
 
 		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
-		let u = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
-		return u;
+		res.url = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
+		return res;
 	}
 }
