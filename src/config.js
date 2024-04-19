@@ -63,7 +63,7 @@ module.exports = class Config extends Preferences {
 	getTemplatingView(isDev = true) {
 		console.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
-		return Object.keys(this.config[tokensKey])
+		return this.config?.[tokensKey] && Object.keys(this.config[tokensKey])
 				? Object.assign({}, this.config[tokensKey])
 				: {};
 	}
