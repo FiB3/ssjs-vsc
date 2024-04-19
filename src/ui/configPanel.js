@@ -111,8 +111,15 @@ async function handleAssetFolders(panel, message) {
 }
 
 async function handleAnyScript(panel, message) {
+	if (!Array.isArray(message.pagesData) || message.pagesData?.length === 0) {
+		panel.webview.postMessage({
+			command: 'anyScriptsSet',
+			ok: false,
+			status: `No data provided.`
+		});
+		return;
+	}
 	ext.setDevPageData(message.pagesData);
-
 	let res = await ext.createDevAssets(message.pagesData);
 	panel.webview.postMessage({
 		command: 'anyScriptsSet',

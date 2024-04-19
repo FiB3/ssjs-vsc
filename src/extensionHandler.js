@@ -2,7 +2,6 @@ const vscode = require('vscode');
 
 const Config = require('./config');
 const NoCodeProvider = require('./noCodeProvider');
-const BaseCodeProvider = require('./baseCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const ServerCodeProvider = require('./serverCodeProvider');
 
@@ -23,6 +22,7 @@ class ExtensionHandler {
 	}
 
 	async activateAssetProvider(testApiKeys) {
+		console.log(`Activating Asset Provider...`);
 		this.provider = new AssetCodeProvider(this.config, this.statusBar);
 		await this.provider.init(testApiKeys);
 	}
@@ -35,13 +35,14 @@ class ExtensionHandler {
 	async deactivateProviders() {
 		console.log(`Deactivating Providers...`);
 		this.provider = new NoCodeProvider(this.config, this.statusBar);
+		console.log(`Provider:`, this.provider);
 		await this.provider.init();
 	}
 	
 	async pickCodeProvider(testApiKeys, silent = false) {
 		await this.deactivateProviders();
-	
-		if (!Config.isWorkspaceSet() || !Config.configFileExists() || !this.config?.isSfmcValid()) {
+		
+		if (!Config.isWorkspaceSet() || !Config.configFileExists() || !await this.config?.isSfmcValid()) {
 			console.log(`No valid setup found. Code Providers switched off!`);
 		} else if (Config.isAssetProvider()) {
 			if (!silent) {
@@ -161,7 +162,10 @@ class ExtensionHandler {
 	}
 
 	async createContentBuilderFolder(parentFolderName, folderName) {
-		if (!this.provider) {
+		if (!folderName) {
+			return { ok: false, message: `Folder name is required.` };
+		}
+		if (this.isProviderInactive()) {
 			return { ok: false, message: `Extension is missing configuration.` };
 		}
 		return await this.provider.snippets.createAssetFolderUi(parentFolderName, folderName);
@@ -175,7 +179,7 @@ class ExtensionHandler {
 	}
 
 	async createDevAssets(devPageContexts) {
-		if (!this.provider) {
+		if (this.isProviderInactive()) {
 			return { ok: false, message: `Extension is missing configuration.` };
 		}
 		let contexts = devPageContexts.map((page) => page.devPageContext);
@@ -210,6 +214,10 @@ class ExtensionHandler {
 		// update Dev Page:
 		this.provider.updateAnyScript(true);
 		this.config.setSetupFileVersion();
+	}
+
+	isProviderInactive() {
+		return !this.provider || this.provider instanceof NoCodeProvider;
 	}
 }
 
