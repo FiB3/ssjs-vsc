@@ -194,7 +194,7 @@ module.exports = class Config extends Preferences {
 	 */
 	async isSfmcValid() {
 		const { subdomain, clientId, clientSecret } = await this.getSfmcInstanceData();
-		let valid = checks.isUrl(subdomain) && clientId && clientSecret;
+		let valid = subdomain && clientId && clientSecret;
 		return valid;
 	}
 

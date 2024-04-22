@@ -5,6 +5,8 @@ const json = require('./auxi/json');
 const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
 
+const telemetry = require('./telemetry');
+
 const Config = require('./config');
 
 /**
@@ -112,7 +114,13 @@ class SnippetHandler {
 	}
 
 	saveDevContext(filePath, devContext) {
-		this.addToMetadata(filePath, { devContext });
+		try {
+			this.addToMetadata(filePath, { devContext });
+		} catch (err) {
+			vscode.window.showErrorMessage(`Error on saving data, please let us know more details on the issue on: https://github.com/FiB3/ssjs-vsc/issues`);
+			telemetry.error('saveDevContext', { error: err.message, codeProvider: 'Asset', update: true, devContext });
+			throw new Error(`Error on saving Dev Context:` + err.message);
+		}
 	}
 
 	getDevContext(filePath) {
