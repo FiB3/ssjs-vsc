@@ -270,6 +270,7 @@ function emptyfy(value) {
 		<AccordionSection :ok="sfmcApiStatus.ok">
       <template #title>
         SFMC API Keys
+				<!-- <div class="lock"></div> -->
       </template>
       <template #content>
 				<form id="sfmcConnection">
@@ -277,8 +278,6 @@ function emptyfy(value) {
 						<div class="hint">
 							<p>
 								We require your Salesforce Marketing Cloud API keys for account connection.
-								<br/>
-								The Client Secret is securely stored in VSCode Secret Storage and is only transmitted to the SFMC Auth API.
 								<p>
 									To obtain your API keys, create a new installed package in your SFMC account.
 								</p>
@@ -293,7 +292,14 @@ function emptyfy(value) {
 									<li>Documents and Images: read & write</li>
 								</ul>
 							</p>
+
+							<!-- <div class="lock"></div> -->
+							<p>
+								The Secret is safe and sound in your OS and we never see it!
+							</p>
 						</div>
+						<!-- TODO: lock -->
+						
 
 						<Input
 								id="subdomain"
@@ -316,9 +322,9 @@ function emptyfy(value) {
 						<Input
 								id="clientSecret"
 								inputType="password"
-								title="Subdomain / Auth URL"
-								description="Provide Client Secret of your Installed Package."
-								placeholder="Your Client Secret"
+								title="Client Secret"
+								description="This is stored securely within your OS."
+								placeholder="Provide Client Secret of your Installed Package."
 								v-model="sfmc.clientSecret"
 							/>
 
@@ -555,4 +561,30 @@ function emptyfy(value) {
 	img {
 		width: 100%;
 	}
+
+
+	.lock {
+    display: inline-block;
+    vertical-align: middle;
+    background: currentColor;
+    border-radius: 3px;
+    width: 25px;
+    height: 17px;
+    margin-top: 5px;
+    margin-left: 5px;
+    position: relative;
+	}
+
+	.lock:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    border:3px solid currentColor;
+    top: -13px;
+    left: 2.3px;
+    width: 14px;
+    height: 21px;
+    border-radius: 35px 35px 0 0;
+	}
+
 </style>

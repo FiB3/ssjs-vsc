@@ -13,6 +13,7 @@
 				<div class="monaco-inputbox idle"
 					style="background-color: var(--vscode-settings-numberInputBackground); color: var(--vscode-settings-numberInputForeground); border: 1px solid var(--vscode-settings-numberInputBorder, transparent);">
 					<div class="ibwrapper">
+						<div v-if="inputType == 'password'" class="lock"></div>
 						<input class="input setting-control-focus-target" autocorrect="off"
 							autocapitalize="off" spellcheck="false" :type="inputType" wrap="off" tabindex="0" step="any"
 							aria-label="editor.fontSize"
@@ -64,4 +65,33 @@ defineProps({
 });
 </script>
 
-<style scoped></style>
+<style scoped>
+	.lock {
+    display: inline-block;
+    vertical-align: middle;
+    background: currentColor;
+    border-radius: 3px;
+    width: 23px;
+    height: 13px;
+    margin-top: 5px;
+    margin-left: 5px;
+    position: relative;
+	}
+
+	.lock:before {
+    content: "";
+    display: inline-block;
+    position: absolute;
+    border:3px solid currentColor;
+    top: -10px;
+    left: 2.3px;
+    width: 12px;
+    height: 17px;
+    border-radius: 35px 35px 0 0;
+	}
+
+	div.lock + input {
+		width: calc(100% - 40px) !important;
+		margin-left: 5px;
+	}
+</style>

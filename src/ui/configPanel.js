@@ -129,11 +129,15 @@ async function handleAnyScript(panel, message) {
 }
 
 function handleCopyResourceCode(panel, message) {
-	let p = path.join(Config.getUserWorkspacePath(), `./.vscode/deploy.me.${message.devPageContext}.ssjs`);
-	let code = file.load(p);
-	vscode.env.clipboard.writeText(code);
-	// Notification:
-	vscode.window.showInformationMessage(`Code copied to clipboard.`);
+	if (Config.getUserWorkspacePath()) {
+		let p = path.join(Config.getUserWorkspacePath(), `./.vscode/deploy.me.${message.devPageContext}.ssjs`);
+		let code = file.load(p);
+		vscode.env.clipboard.writeText(code);
+		// Notification:
+		vscode.window.showInformationMessage(`Code copied to clipboard.`);
+	} else {
+		vscode.window.showErrorMessage(`Please, set workspace & complete all previous steps before this one.`);
+	}
 }
 
 function setManualStepDone(message) {
