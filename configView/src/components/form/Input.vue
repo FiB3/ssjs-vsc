@@ -1,6 +1,7 @@
 <template>
-	<div class="setting-item-contents settings-row-inner-container"
-		data-id="commonlyUsed_editor_fontSize">
+	<div
+			:data-id="id"
+			class="setting-item-contents settings-row-inner-container">
 		<div class="setting-item-title">
 			<div class="setting-item-cat-label-container"><span class="setting-item-category" :title="title">{{ title }}
 				</span><span class="setting-item-label" :title="title">{{ title2 }}</span></div>
@@ -14,7 +15,9 @@
 					style="background-color: var(--vscode-settings-numberInputBackground); color: var(--vscode-settings-numberInputForeground); border: 1px solid var(--vscode-settings-numberInputBorder, transparent);">
 					<div class="ibwrapper">
 						<div v-if="inputType == 'password'" class="lock"></div>
-						<input class="input setting-control-focus-target" autocorrect="off"
+						<input
+							:id="id"
+							class="input setting-control-focus-target" autocorrect="off"
 							autocapitalize="off" spellcheck="false" :type="inputType" wrap="off" tabindex="0" step="any"
 							aria-label="editor.fontSize"
 							style="background-color: inherit; color: var(--vscode-settings-numberInputForeground);"

@@ -15,7 +15,9 @@
 		<div class="setting-item-modified-indicator" title="The setting has been configured in the current scope."></div>
 		<div class="setting-item-value">
 			<div class="setting-item-control select-container">
-				<select class="monaco-select-box monaco-select-box-dropdown-padding setting-control-focus-target"
+				<select
+						:id="id"
+						class="monaco-select-box monaco-select-box-dropdown-padding setting-control-focus-target"
 						tabindex="0" aria-label="files.autoSave"
 						style="background-color: var(--vscode-settings-dropdownBackground); color: var(--vscode-settings-dropdownForeground); border-color: var(--vscode-settings-dropdownBorder);" aria-expanded="false"
 						v-model="value"

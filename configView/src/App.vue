@@ -94,7 +94,7 @@ onMounted(() => {
 
 		<footer>
 			<label>
-				<input type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
+				<input id="autoShowSwitch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
 				Show this panel automatically.
 			</label>
 			<!-- <p class="footnote">
