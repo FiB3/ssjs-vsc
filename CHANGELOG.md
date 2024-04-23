@@ -2,6 +2,17 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.4.6] - 2024-04-23
+
+### Changed:
+- small Config Panel tweaks.
+
+### Fixed:
+- do not allow for "opening" a file, that was not yet uploaded to SFMC.
+- "The client clientId is required." bug on the activation.
+- Issue with templating UI (when no keys were available in ssjs-setup file).
+- several bugs.
+
 ## [0.4.5] - 2024-04-09
 
 ### Added
