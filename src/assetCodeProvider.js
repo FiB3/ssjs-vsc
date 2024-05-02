@@ -166,6 +166,8 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			// TODO: this is not perfect, but good enough for now:
 			res.msg = `Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`;
 			res.visible = true;
+			res.username = tokenConfig.username;
+			res.password = tokenConfig.password;
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
 			console.log(`Chose token auth.`);
 			tkn = tokenConfig.token;

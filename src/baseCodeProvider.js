@@ -6,6 +6,7 @@ const NoCodeProvider = require('./noCodeProvider');
 const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SnippetHandler = require('./snippetHandler');
+const { runDebug } = require('./ui/debugPanel');
 const { template } = require('./template');
 
 const vsc = require('./vsc.js');
@@ -322,6 +323,9 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			vscode.env.clipboard.writeText(urlInfo.url);
 			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
+		} else if (Config.isPreviewUrl()) {
+			runDebug(urlInfo);
+			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Preview' });
 		} else {
 			if (urlInfo.visible) {
 				vscode.window.showInformationMessage(urlInfo.msg);

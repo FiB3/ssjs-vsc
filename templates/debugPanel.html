@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body {
+			height: 100vh;
+		}
+
+		iframe {
+			background-color: white;
+			width: 100%;
+			height: 100%;
+			border: none;
+		}
+	</style>
+	<script>
+		const vscode = acquireVsCodeApi();
+
+		function refresh() {
+			var iframe = document.getElementById('previewFrame');
+			var src = iframe.src;
+			iframe.src = src;
+		}
+
+		function loadScript(message) {
+			var iframe = document.getElementById('previewFrame');
+			iframe.src = message.url;
+		}
+
+		window.addEventListener('message', event => {
+			const message = event.data;
+			if (message.command === 'refresh') {
+				refresh();
+			} else if (message.command === 'loadScript') {
+				console.log('loadScript', message);
+				loadScript(message);
+			}
+		});
+	</script>
+</head>
+
+<body>
+	<iframe id="previewFrame" src="{{devUrl}}" title="myTest"></iframe>
+</body>
+
+</html>

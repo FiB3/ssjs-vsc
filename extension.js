@@ -5,7 +5,7 @@ const Config = require('./src/config');
 const telemetry = require('./src/telemetry');
 
 const dialogs = require('./src/ui/dialogs');
-const { showConfigPanel, isConfigPanelNeeded } = require('./src/ui/configPanel');
+const { showConfigPanel } = require('./src/ui/configPanel');
 
 let ext = require('./src/extensionHandler');
 

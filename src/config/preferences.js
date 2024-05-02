@@ -42,6 +42,10 @@ module.exports = class Preferences extends BaseConfig {
 		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('codeProvider');
 	}
 
+	static isPreviewUrl() {
+		return Preferences.getGetUrlOption() === 'Preview';
+	}
+
 	static isCopyingUrl() {
 		return Preferences.getGetUrlOption() === 'Copy';
 	}
