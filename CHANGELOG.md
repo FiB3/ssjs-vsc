@@ -2,6 +2,17 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.5.1] - 2024-05-08
+
+### Added
+- Debug Panel to preview directly in VSCode.
+- New "Run" Command
+
+### Changed
+- Preference option to set the users's preffered option is now used for "Run" command and is separate for Cloud Page and Text Resources.
+- "Play" button is used for "Run" command.
+- "Get Dev Path" is again used purely for getting the path.
+
 ## [0.4.6] - 2024-04-23
 
 ### Changed:

@@ -4,6 +4,22 @@
 <template>
   <div>
 		<div>
+			<h2>v0.5.1: Debug Panel</h2>
+
+			<p>
+				Speed up your development process with the new Debug Panel.
+				<br/>
+				Access this panel using the "SSJS: Run" or "Play" icon.
+				<br/>
+				The Debug Panel will show you the output of your script or Preview of your Cloud Page.
+				<br/>
+				This effectively replaces the need to open the browser for most of your testing.
+				<br/>
+				You can still open in the browser or copy the url to your clipboard using the preferences.
+			</p>
+		</div>
+
+		<div>
 			<h2>v0.4.5: Templating in Config Panel</h2>
 
 			<p>

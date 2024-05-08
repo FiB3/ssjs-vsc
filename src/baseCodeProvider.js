@@ -318,9 +318,9 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	/**
 	 * Get URL for Dev Page based on File.
 	 */
-	_getOpenUrlCommand(urlInfo, provider, pageDetails) {
+	_getOpenUrlCommand(urlInfo, provider, pageDetails, copyOnly = false) {
 		console.log('URL:', urlInfo);
-		if (Config.isCopyingUrl(pageDetails.devPageContext)) {
+		if (copyOnly === true || Config.isCopyingUrl(pageDetails.devPageContext)) {
 			vscode.env.clipboard.writeText(urlInfo.url);
 			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });

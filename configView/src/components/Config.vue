@@ -224,6 +224,7 @@ function emptyfy(value) {
 
 <template>
   <div class="greetings">
+		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
 		<div class="hint">
 			<p>
 				To utilize the SSJS Manager fully (including code previews within SFMC), configuration is necessary.
@@ -235,7 +236,6 @@ function emptyfy(value) {
 				NOTE: "Commands" are available via the Command Palette (Ctrl+Shift+P or CMD+Shift+P or F1).
 			</p>
 		</div>
-		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
 
 		<Accordion>
 		<!-- WORKSPACE -->
@@ -526,7 +526,7 @@ function emptyfy(value) {
 							<br/>
 							Subsequent deployments automatic on file save (Ctrl + S or CMD + S).
 							<br/>
-							Run in Cloud Page or Resource - one page for all scripts!
+							Run using `SSJS: Run` command (or the "play" icon next to the file tabs).
 							<br/>
 							Get page parameters to clipboard with `SSJS: Get Dev Path` command.
 						</p>

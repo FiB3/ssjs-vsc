@@ -3,7 +3,11 @@
 
 		<p>
 			<span v-if="ok" class="strong">✓</span><span v-else class="strong">✗</span>
-			<span class="strong"> Status:</span> {{ statusText }}
+			<span
+					:class="ok ? 'status-ok' : 'status-nok'"
+				>
+				<span class="strong"> Status:</span> {{ statusText }}
+			</span>
 		</p>
 	</div>
 </template>
@@ -30,5 +34,14 @@ export default {
 <style scoped>
 	.strong {
 		font-weight: bold;
+	}
+
+	.status-ok {
+		font-weight: 100;
+	}
+
+	.status-nok {
+		font-weight: bold;
+		font-size: 1.20em;
 	}
 </style>

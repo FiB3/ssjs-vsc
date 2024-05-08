@@ -43,7 +43,7 @@
   function setAuthCookie(value) {
     var exp_date = new Date();
     // exp_date.setMinutes(exp_date.getMinutes() + 1);
-    exp_date.setDate(exp_date.getDate() + 1); // TODO:
+    exp_date.setDate(exp_date.getDate() + 1);
     var cookieHashed = Platform.Function.MD5(value, "UTF-8");
 		Platform.Response.SetCookie("ssjs-basic-auth", cookieHashed, exp_date, true);
   }

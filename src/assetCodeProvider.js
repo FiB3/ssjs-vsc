@@ -108,13 +108,13 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 	}
 
-	async getDevUrl() {
+	async getDevUrl(copyOnly = false) {
 		try {
 			const pageDetails = await this._getContextForGetUrl();
 			console.log('pageDetails:', pageDetails);
 			if (pageDetails) {
 				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
-				this._getOpenUrlCommand(url, 'Asset', pageDetails);
+				this._getOpenUrlCommand(url, 'Asset', pageDetails, copyOnly);
 			} else {
 				vscode.window.showErrorMessage('File not deployed. Run `Upload Script to Dev` command first.');
 			}
