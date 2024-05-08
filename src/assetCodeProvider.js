@@ -15,8 +15,8 @@ const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/assetProvider/formAuthDeploy
 
 module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
-	constructor(config, statusBar) {
-		super(config, statusBar);
+	constructor(config, statusBar, context) {
+		super(config, statusBar, context);
 		this.folderId;
 		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'Asset');
 	}

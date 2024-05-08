@@ -124,7 +124,7 @@
 
 		Platform.Response.SetResponseHeader("Strict-Transport-Security", "max-age=200");
 		Platform.Response.SetResponseHeader("X-XSS-Protection", "1; mode=block");
-		Platform.Response.SetResponseHeader("X-Frame-Options", "Deny");
+		/* Platform.Response.SetResponseHeader("X-Frame-Options", "Deny"); */
 		Platform.Response.SetResponseHeader("X-Content-Type-Options", "nosniff");
 		Platform.Response.SetResponseHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		/* Platform.Response.SetResponseHeader("Content-Security-Policy", "default-src 'self'"); */
@@ -137,7 +137,7 @@
 %%[ ELSEIF NOT @authenticated == TRUE AND @status == '401' THEN ]%%
 	%%[ IF @devPageContext == 'page' THEN ]%%
 		<h2>SSJS Manager Login</h2>
-		<form method="post">
+		<form  id="loginForm" method="post">
 		<!-- action="/" -->
 				<div>
 						<label for="username">Username:</label>

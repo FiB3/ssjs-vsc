@@ -13,8 +13,8 @@ const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/serverProvider/formAuthDeplo
 
 module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
-	constructor(config, statusBar) {
-		super(config, statusBar);
+	constructor(config, statusBar, context) {
+		super(config, statusBar, context);
 		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'Server');
 	}
 

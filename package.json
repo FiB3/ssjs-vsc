@@ -61,7 +61,7 @@
       },
       {
         "command": "ssjs-vsc.get-url",
-        "title": "Get Dev Path / Open Dev Page",
+        "title": "Run",
         "category": "SSJS",
         "icon": "$(play)"
       },
@@ -168,19 +168,34 @@
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
         },
-        "ssjs-vsc.editor.getUrlHandling": {
+        "ssjs-vsc.editor.runHandlingInCloudPages": {
           "type": "string",
-          "default": "Copy",
+          "default": "Preview",
           "enum": [
             "Copy",
             "Open",
-						"Preview"
+            "Preview"
           ],
-          "description": "How to handle the URL when using 'Get Dev Path' command?",
+          "description": "How to handle the URL when using 'Run' command?",
           "enumDescriptions": [
             "Copy - copies the URL to the clipboard.",
             "Open - opens the URL in the default browser.",
-						"Preview - opens the URL in the VSCode preview (fast but not made for CSS debugging)."
+            "Preview - opens the URL in the VSCode preview (fast but not made for CSS debugging)."
+          ]
+        },
+        "ssjs-vsc.editor.runHandlingInTextResources": {
+          "type": "string",
+          "default": "Preview",
+          "enum": [
+            "Copy",
+            "Open",
+            "Preview"
+          ],
+          "description": "How to handle the URL when using 'Run' command?",
+          "enumDescriptions": [
+            "Copy - copies the URL to the clipboard.",
+            "Open - opens the URL in the default browser.",
+            "Preview - opens the URL in the VSCode preview (fast but not made for CSS debugging)."
           ]
         },
         "ssjs-vsc.editor.showConfigPanelAutomatically": {
@@ -281,7 +296,7 @@
           {
             "id": "run-script",
             "title": "Run the code",
-            "description": "Run in your Cloud Page or Resource - one page for all scripts! You can get the page parameters into clipboard by running `SSJS: Get Dev Path` command.",
+            "description": "Run in your Cloud Page or Resource - one page for all scripts! You can run or open the script using the `SSJS: Run` command.",
             "media": {
               "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
               "altText": "demo of the extension"
@@ -346,6 +361,7 @@
     "express": "^4.19.2",
     "generate-password": "^1.7.0",
     "http-proxy-middleware": "^2.0.6",
+    "md5": "^2.3.0",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
     "mustache": "^4.2.0",

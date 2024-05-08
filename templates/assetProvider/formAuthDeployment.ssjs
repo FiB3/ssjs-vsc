@@ -43,7 +43,7 @@
   function setAuthCookie(value) {
     var exp_date = new Date();
     // exp_date.setMinutes(exp_date.getMinutes() + 1);
-    exp_date.setDate(exp_date.getDate() + 1);
+    exp_date.setDate(exp_date.getDate() + 1); // TODO:
     var cookieHashed = Platform.Function.MD5(value, "UTF-8");
 		Platform.Response.SetCookie("ssjs-basic-auth", cookieHashed, exp_date, true);
   }
@@ -83,12 +83,12 @@
 
 		Platform.Response.SetResponseHeader("Strict-Transport-Security", "max-age=200");
 		Platform.Response.SetResponseHeader("X-XSS-Protection", "1; mode=block");
-		Platform.Response.SetResponseHeader("X-Frame-Options", "Deny");
+		/* Platform.Response.SetResponseHeader("X-Frame-Options", "Deny"); */
 		Platform.Response.SetResponseHeader("X-Content-Type-Options", "nosniff");
 		Platform.Response.SetResponseHeader("Referrer-Policy", "strict-origin-when-cross-origin");
 		/* Platform.Response.SetResponseHeader("Content-Security-Policy", "default-src 'self'"); */
   } catch(err) {
-    Write("<br>" + Stringify(err));
+    Write("<br/>" + Stringify(err));
   }
 </script>
 
@@ -97,11 +97,36 @@
 	<p>Provide <code>asset-id</code> query parameter to load the content block.</p>
 
 %%[ ELSEIF @authenticated == TRUE THEN ]%%
-	%%=ContentBlockByID(v(@id))=%%
+	%%=TreatAsContent(ContentBlockById(v(@id)))=%%
 %%[ ELSE ]%%
 
+%%=Concat('<scr', 'ipt>')=%%
+    window.addEventListener('message', function(event) {
+        console.log('EVENT!');
+        if (event.origin && event.origin.startsWith('vscode-webview://')) {
+            var postData = event.data;
+            if (postData.command == 'login') {
+                // Use the POST data as needed
+                console.log('login:', postData);
+
+                var form = document.getElementById('loginForm');
+
+                // Create input elements for POST data
+                var input1 = document.getElementById('username');
+                input1.value = postData.username; // Value of the parameter
+
+                var input2 = document.getElementById('password');
+                input2.value = postData.password; // Value of the parameter
+
+                // Submit the form
+                /* form.submit(); */
+            }
+        }
+    });
+%%=Concat('</scr', 'ipt>')=%%
+
 <h2>SSJS Manager Login</h2>
-<form method="post">
+<form id="loginForm" method="post">
 <!-- action="/" -->
     <div>
         <label for="username">Username:</label>

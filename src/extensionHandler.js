@@ -23,12 +23,12 @@ class ExtensionHandler {
 
 	async activateAssetProvider(testApiKeys) {
 		console.log(`Activating Asset Provider...`);
-		this.provider = new AssetCodeProvider(this.config, this.statusBar);
+		this.provider = new AssetCodeProvider(this.config, this.statusBar, this.context);
 		await this.provider.init(testApiKeys);
 	}
 	
 	async activateServerProvider() {
-		this.provider = new ServerCodeProvider(this.config, this.statusBar);
+		this.provider = new ServerCodeProvider(this.config, this.statusBar, this.context);
 		await this.provider.init();
 	}
 	
@@ -203,7 +203,7 @@ class ExtensionHandler {
 	}
 	
 	async checkDevPageVersion() {
-		const minVersion = '0.3.12';
+		const minVersion = '0.5.0';
 		const currentVersion = this.config.getSetupFileVersion();
 	
 		if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {

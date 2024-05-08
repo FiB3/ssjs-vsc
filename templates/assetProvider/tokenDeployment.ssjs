@@ -99,7 +99,7 @@
 No script found - please set ID.
 	%%[ ENDIF ]%%
 %%[ ELSEIF @authenticated == TRUE THEN ]%%
-	%%=ContentBlockByID(v(@id))=%%
+	%%=TreatAsContent(ContentBlockById(v(@id)))=%%
 %%[ ELSE ]%%
 	%%[ IF @devPageContext == 'page' THEN ]%%
 	<p>401</p>

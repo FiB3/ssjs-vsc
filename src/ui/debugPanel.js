@@ -1,5 +1,7 @@
 const vscode = require('vscode');
 let path = require('path');
+let md5 = require('md5');
+
 let file = require('../auxi/file');
 let { template } = require('../template');
 const Config = require('../config');
@@ -7,38 +9,40 @@ const Config = require('../config');
 let panel;
 let disposed = false;
 
-/*
-	BUG: rejected promise not handled within 1 second: Error: Webview is disposed
-	steps to reproduce:
-	0. loadScript is used
-	1. open debug panel
-	2. close debug panel
-	3. open debug panel again
-
-	ALSO: loadScript does not seem to trigger the iframe reload
-*/
-
-async function runDebug(pageData) {
+async function runDebug(context, pageData) {
 	if (!panel) {
 		console.log('Creating new Debug panel...');
-		showDebug(pageData);
+		showDebug(context, pageData);
 	} else {
 		console.log('Refreshing Debug panel...', panel);
 		loadScript(pageData);
 	}
 }
 
-async function showDebug(pageData) {
+async function showDebug(context, pageData) {
 	panel = vscode.window.createWebviewPanel(
 		'debug', // Identifies the type of the webview. Used internally
 		'SFMC Preview', // Title of the panel displayed to the user
 		vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
 		{
 			enableScripts: true,
-			retainContextWhenHidden: true
+			retainContextWhenHidden: true,
 		}
 	);
 	disposed = false;
+
+	panel.webview.onDidReceiveMessage(
+		async message => {
+			switch (message.command) {
+				case 'debugInitiated':
+					console.log('Debug initiated:', message);
+					loadScript(pageData);
+					return;
+			}
+		},
+		undefined,
+		context.subscriptions
+	);
 
 	panel.webview.html = getWebviewContent(pageData.url);
 	panel.onDidDispose(() => {
@@ -48,10 +52,10 @@ async function showDebug(pageData) {
 }
 
 function loadScript(pageData) {
-	console.log('Loading script...', pageData);
 	panel.webview.postMessage({
 		command: 'loadScript',
-		...pageData
+		...pageData,
+		hash: md5(`${pageData.username}:${pageData.password}`)
 	});
 }
 
@@ -61,7 +65,7 @@ function refreshDebug() {
 
 function getWebviewContent(devUrl) {
 	let p = path.join(Config.getExtensionSourceFolder(), 'templates/debugPanel.html');
-	let html = template.runFile(p, { devUrl });
+	let html = template.runFile(p, { devUrl, cspSource: panel.webview.cspSource });
 	return html;
 }
 

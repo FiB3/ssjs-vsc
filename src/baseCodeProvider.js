@@ -18,8 +18,9 @@ const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
 module.exports = class BaseCodeProvider extends NoCodeProvider {
 
-	constructor(config, statusBar) {
+	constructor(config, statusBar, context) {
 		super(config, statusBar);
+		this.context = context;
 		this.mc = null;
 		this.snippets = new SnippetHandler(this.config);
 	}
@@ -319,12 +320,12 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	 */
 	_getOpenUrlCommand(urlInfo, provider, pageDetails) {
 		console.log('URL:', urlInfo);
-		if (Config.isCopyingUrl()) {
+		if (Config.isCopyingUrl(pageDetails.devPageContext)) {
 			vscode.env.clipboard.writeText(urlInfo.url);
 			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
-		} else if (Config.isPreviewUrl()) {
-			runDebug(urlInfo);
+		} else if (Config.isPreviewUrl(pageDetails.devPageContext)) {
+			runDebug(this.context, urlInfo);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Preview' });
 		} else {
 			if (urlInfo.visible) {
