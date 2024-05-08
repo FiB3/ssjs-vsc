@@ -101,28 +101,28 @@
 %%[ ELSE ]%%
 
 %%=Concat('<scr', 'ipt>')=%%
-    window.addEventListener('message', function(event) {
-        console.log('EVENT!');
-        if (event.origin && event.origin.startsWith('vscode-webview://')) {
-            var postData = event.data;
-            if (postData.command == 'login') {
-                // Use the POST data as needed
-                console.log('login:', postData);
+	window.addEventListener('message', function(event) {
+		// console.log('EVENT!');
+		if (event.origin && event.origin.startsWith('vscode-webview://')) {
+			var postData = event.data;
+			if (postData.command == 'login') {
+				// Use the POST data as needed
+				// console.log('login:', postData);
 
-                var form = document.getElementById('loginForm');
+				var form = document.getElementById('loginForm');
 
-                // Create input elements for POST data
-                var input1 = document.getElementById('username');
-                input1.value = postData.username; // Value of the parameter
+				// Create input elements for POST data
+				var input1 = document.getElementById('username');
+				input1.value = postData.username; // Value of the parameter
 
-                var input2 = document.getElementById('password');
-                input2.value = postData.password; // Value of the parameter
+				var input2 = document.getElementById('password');
+				input2.value = postData.password; // Value of the parameter
 
-                // Submit the form
-                /* form.submit(); */
-            }
-        }
-    });
+				// Submit the form
+				form.submit();
+			}
+		}
+	});
 %%=Concat('</scr', 'ipt>')=%%
 
 <h2>SSJS Manager Login</h2>
