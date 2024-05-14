@@ -2,6 +2,14 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.5.2] - 2024-05-08
+
+### Added
+- "Report bug" button in Config panel (link to GitHub)
+
+### Fixed:
+- "Folder in Content Builder" not working ("Extension missing configuration" issue).
+
 ## [0.5.1] - 2024-05-08
 
 ### Added

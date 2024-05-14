@@ -42,11 +42,12 @@ class ExtensionHandler {
 	async pickCodeProvider(testApiKeys, silent = false) {
 		await this.deactivateProviders();
 		
+		console.log(`pickCodeProvider => workspace: ${Config.isWorkspaceSet()}, config exists: ${Config.configFileExists()}, sfmc valid: ${await this.config?.isSfmcValid()}`);
 		if (!Config.isWorkspaceSet() || !Config.configFileExists() || !await this.config?.isSfmcValid()) {
 			console.log(`No valid setup found. Code Providers switched off!`);
 		} else if (Config.isAssetProvider()) {
 			if (!silent) {
-				vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`)
+				vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
 			};
 			await this.activateAssetProvider(testApiKeys);
 		} else if (Config.isServerProvider()) {
@@ -166,7 +167,7 @@ class ExtensionHandler {
 			return { ok: false, message: `Folder name is required.` };
 		}
 		if (this.isProviderInactive()) {
-			return { ok: false, message: `Extension is missing configuration.` };
+			return { ok: false, message: `Missing Configuration for Folder creation.` };
 		}
 		return await this.provider.snippets.createAssetFolderUi(parentFolderName, folderName);
 	}
@@ -215,9 +216,10 @@ class ExtensionHandler {
 		this.provider.updateAnyScript(true);
 		this.config.setSetupFileVersion();
 	}
-
+	
 	isProviderInactive() {
-		return !this.provider || this.provider instanceof NoCodeProvider;
+		console.log(`isProviderInactive - provider active: ${!this.provider} || instance of no code provider ${this.provider?.constructor === NoCodeProvider}`);
+		return !this.provider || this.provider?.constructor === NoCodeProvider;
 	}
 }
 

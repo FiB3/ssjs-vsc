@@ -96,10 +96,15 @@ onMounted(() => {
 			<label>
 				<input id="autoShowSwitch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
 				Show this panel automatically.
+				
 			</label>
 			<!-- <p class="footnote">
 				You can still access this panel using the "SSJS: Show Extension Config" command.
 			</p> -->
+			<a class="bug-link" href="https://github.com/fib3/ssjs-vsc/issues">
+				<span class="gg-debug"></span>
+				<span>Report bug of request feature.</span>
+			</a>
 		</footer>
   </div>
 </template>
@@ -165,5 +170,60 @@ onMounted(() => {
 
 	.footnote {
 		font-size: 0.8em;
+	}
+
+	.bug-link {
+		display: flex;
+		align-items: center;
+		text-decoration: none;
+		color: inherit;
+	}
+
+	.bug-link span:first-child {
+		margin: 3px 10px 5px 0;
+	}
+
+	/* Thanks to: https://github.com/astrit/css.gg */
+	.gg-debug {
+		box-sizing: border-box;
+		position: relative;
+		display: block;
+		transform: scale(var(--ggs,1));
+		width: 12px;
+		height: 18px;
+		border: 2px solid;
+		border-radius: 22px
+	}
+	.gg-debug::after,
+	.gg-debug::before {
+		content: "";
+		display: block;
+		box-sizing: border-box;
+		position: absolute
+	}
+	.gg-debug::before {
+		width: 8px;
+		height: 4px;
+		border: 2px solid;
+		top: -4px;
+		border-bottom-left-radius: 10px;
+		border-bottom-right-radius: 10px;
+		border-top: 0
+	}
+	.gg-debug::after {
+		background: currentColor;
+		width: 4px;
+		height: 2px;
+		border-radius: 5px;
+		top: 4px;
+		left: 2px;
+		box-shadow:
+		0 4px 0,
+		-6px -2px 0,
+		-6px 2px 0,
+		-6px 6px 0,
+		6px -2px 0,
+		6px 2px 0,
+		6px 6px 0
 	}
 </style>

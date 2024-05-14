@@ -194,7 +194,7 @@ module.exports = class Config extends Preferences {
 	 */
 	async isSfmcValid() {
 		const { subdomain, clientId, clientSecret } = await this.getSfmcInstanceData();
-		let valid = subdomain && clientId && clientSecret;
+		let valid = Boolean(subdomain && clientId && clientSecret);
 		return valid;
 	}
 
@@ -215,7 +215,7 @@ module.exports = class Config extends Preferences {
 	 * @returns {boolean}
 	 */
 	isSetupValid() {
-		let sfmcValid = Config.validateConfigValue(this.config['sfmc-domain']) && Config.validateConfigValue(this.config['sfmc-client-id']);
+		let sfmcValid = Boolean(Config.validateConfigValue(this.config['sfmc-domain'])) && Boolean(Config.validateConfigValue(this.config['sfmc-client-id']));
 		let serverProviderValid = true;
 		if (Config.isServerProvider()) {
 			serverProviderValid = Boolean(this.config['proxy-any-file']?.['public-domain']);
