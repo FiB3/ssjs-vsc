@@ -2,6 +2,10 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.5.2] - 2024-05-27
+### Fixed:
+- multiple Fixes for formatting (dollar sign duplication, templating notation bug, AMPscript Print-tag broken fix)
+
 ## [0.5.2] - 2024-05-08
 
 ### Added
