@@ -132,7 +132,7 @@ class ExtensionHandler {
 					// store credentials:
 					this.config.storeSfmcClientSecret(clientId, clientSecret);
 					// TODO: automate the "update" parameter (based on config file existance)
-					if (update) {
+					if (update || Config.configFileExists()) {
 						// update setup file:
 						this.config.updateConfigFile(subdomain, clientId, mid);
 						this.config.loadConfig();
