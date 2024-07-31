@@ -73,6 +73,22 @@
 			padding: 0px 10px;
 			visibility: hidden;
 		}
+
+		#refresh-toast {
+			padding: 5px;
+			bottom: 40%;
+			left: calc(50% - 65px);
+			width: 120px;
+			display: none;
+			opacity: 0;
+			transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
+		}
+
+		#refresh-toast.show {
+			display: flex;
+			opacity: 1;
+			transition: opacity 0.1s ease-in, visibility 0.1s ease-in;
+		}
 	</style>
 	<script type="text/javascript">
 		const vscode = acquireVsCodeApi();
@@ -82,6 +98,20 @@
 			var src = iframe.src;
 			iframe.src = src;
 			console.log(`refresh: ${src}`);
+
+			const refreshToast = document.getElementById('refresh-toast');
+
+			refreshToast.style.display = 'flex';
+			setTimeout(() => {
+					refreshToast.classList.add('show');
+			}, 10);
+
+			setTimeout(() => {
+        refreshToast.classList.remove('show');
+        setTimeout(() => {
+            refreshToast.style.display = 'none';
+        }, 1500);
+    	}, 1500);
 		}
 
 		function loginBasicAuth(message) {
@@ -134,8 +164,13 @@
 			title="myTest"
 		></iframe>
 
+	<div id="refresh-toast" class="control-panel">
+		<p>Refreshed...</p>
+		<!-- <p>3:14:15 CET</p> -->
+	</div>
+
 	<!-- overlay with: refresh button, username and password when using forms -->
-	<div  class="overlay">
+	<div class="overlay">
 		<div class="control-panel">		
 			<a class="panel-button" onclick="refresh()">Refresh</a>
 			<a class="panel-button" onclick="showUserAndPassword()">Info</a>
