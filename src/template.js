@@ -44,7 +44,6 @@ exports.template = {
 				let libPath = path.join(Config.getUserWorkspacePath(), value.substring(7));
 				let fileContent = textFile.load(libPath);
 				tokens[token] = fileContent;
-				// console.log(`TOKEN: ${token}: ${libPath}; ${fileContent.substring(0, 100)}...`);
 			}
 		}
 

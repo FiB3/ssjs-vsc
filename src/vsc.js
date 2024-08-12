@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const path = require('path');
+const logger = require('./auxi/logger');
 
 /**
  * Get the path to the root of the workspace.
@@ -23,7 +24,7 @@ function getActiveEditor(relativePath = false) {
 			}
 			return fileUri.fsPath;
 	} else {
-		console.log('No file is currently open: vsc.getActiveEditor().');
+		logger.error('No file is currently open: vsc.getActiveEditor().');
 		vscode.window.showErrorMessage('No file is currently open.');
 	}
 }

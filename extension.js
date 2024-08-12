@@ -2,6 +2,7 @@ const vscode = require('vscode');
 
 const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
+const logger = require('./src/auxi/logger');
 const telemetry = require('./src/telemetry');
 
 const dialogs = require('./src/ui/dialogs');
@@ -15,7 +16,8 @@ let ext = require('./src/extensionHandler');
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	console.log(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
+	logger.setup(context.extensionMode === vscode.ExtensionMode.Production ? 'INFO' : 'DEBUG');
+	logger.info(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
 	ext.attachContext(context);
 
 	telemetry.init(context);
@@ -38,7 +40,7 @@ async function activate(context) {
 	]);
 
 	let workspaceOk = await ext.workspaceOk();
-	console.log(`Workspace is ok: ${workspaceOk}.`);
+	logger.debug(`Workspace is ok: ${workspaceOk}.`);
 	if (!workspaceOk) {
 		await launchConfigPanel(context);
 		return;
@@ -98,7 +100,7 @@ function registerFileActions(context) {
 			await ext.provider.uploadScript(true);
 		} else {
 			if (!filePath.endsWith('settings.json')) {
-				console.log(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
+				logger.info(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
 			}
 		}
 	});
@@ -123,7 +125,7 @@ const createConfig = async function(update = false) {
 	try {
 		const creds = await dialogs.api.getCredentials(update);
 		if (!creds) {
-			console.log(`createConfig(): No creds provided.`);
+			logger.warn(`createConfig(): No creds provided.`);
 			return;
 		}
 		
@@ -141,7 +143,7 @@ const createConfig = async function(update = false) {
 
 // This method is called when your extension is deactivated
 function deactivate() {
-	console.log(`Deactivating extension!`);
+	logger.debug(`Deactivating extension!`);
 	ext.provider.deactivate();
 	telemetry.dispose();
 }

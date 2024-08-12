@@ -1,8 +1,9 @@
 const vscode = require('vscode');
 const TelemetryReporter = require('@vscode/extension-telemetry').default;
+const logger = require('./auxi/logger');
 
 const KEY = '8c0a3736-8ee0-423d-9c4f-e207ae935339';
-const TELEMETRY_DEV_OFF = true; // disables telemetry in dev mode - console.log only
+const TELEMETRY_DEV_OFF = true; // disables telemetry in dev mode - logs via logger instead
 
 class TelemetryHandler {
 	constructor() {
@@ -16,7 +17,7 @@ class TelemetryHandler {
 	init(context) {
 		context.subscriptions.push(this.reporter);
 		this.isProd = context.extensionMode === vscode.ExtensionMode.Production;
-		console.log(`Telemetry logging in Prod mode: ${this.isProd}, logging OFF: ${TELEMETRY_DEV_OFF}`);
+		logger.debug(`Telemetry logging in Prod mode: ${this.isProd}, logging OFF: ${TELEMETRY_DEV_OFF}`);
 	}
 
 	/**
@@ -28,7 +29,7 @@ class TelemetryHandler {
 	log(eventName, properties = {}, measurements = {}) {
 		properties.isProd = this.isProd;
 		if (!this.isProd && TELEMETRY_DEV_OFF) {
-			console.log(`Telemetry.log: ${eventName}`, properties, measurements);
+			logger.info(`Telemetry.log: ${eventName}`, properties, measurements);
 			return;
 		}
 		this.reporter.sendTelemetryEvent(eventName, properties, measurements);
@@ -43,7 +44,7 @@ class TelemetryHandler {
 	error(errorName, properties = {}, measurements = {}) {
 		properties.isProd = this.isProd;
 		if (!this.isProd && TELEMETRY_DEV_OFF) {
-			console.log(`Telemetry.error: ${errorName}`, properties, measurements);
+			logger.error(`Telemetry.error: ${errorName}`, properties, measurements);
 			return;
 		}
 		this.reporter.sendTelemetryErrorEvent(errorName, properties, measurements);
