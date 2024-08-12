@@ -38,28 +38,28 @@
 	"Stringify": {
 		"prefix": "Stringify",
 		"body": [
-			"Platform.Function.Stringify(${1:object});"
+			"Platform.Function.Stringify(${1:object})"
 		],
 		"description": "Stringify JSON"
 	},
 	"Parse JSON": {
 		"prefix": "ParseJSON",
 		"body": [
-			"Platform.Function.ParseJSON(${1:json});"
+			"Platform.Function.ParseJSON(${1:json})"
 		],
 		"description": "Parse JSON"
 	},
 	"GUID": {
 		"prefix": "GUID",
 		"body": [
-			"Platform.Function.GUID();"
+			"Platform.Function.GUID()"
 		],
 		"description": "Returns a random GUID value for use as a unique identifier."
 	},
 	"GetValue": {
 		"prefix": "GetValue",
 		"body": [
-			"Platform.Variable.GetValue(${1:ampscriptVariableName});"
+			"Platform.Variable.GetValue(${1:ampscriptVariableName})"
 		],
 		"description": "Get value from of AMPscript variable (use '@')."
 	},
@@ -94,5 +94,133 @@
 			"resp.statusCode"
 		],
 		"description": "Run any HTTP Request including error handling."
+	},
+	"Base64Decode": {
+		"prefix": "Base64Decode",
+		"body": [
+			"Base64Decode(1:encoded)"
+		],
+		"description": "Decode a base64 encoded string."
+	},
+	"Base64Encode": {
+		"prefix": "Base64Encode",
+		"body": [
+			"Base64Encode(${1:string})"
+		],
+		"description": "Encode a string to base64."
+	},
+	"Write": {
+		"prefix": "Write",
+		"body": [
+			"Write(${1:content})"
+		],
+		"description": "Write content to the page."
+	},
+
+	"Request.Browser": {
+		"prefix": "Request.Browser",
+		"body": [
+			"Platform.Request.Browser()"
+		],
+		"description": "Get the User Agent of the current request."
+	},
+	"Request.ClientIP": {
+		"prefix": "Request.ClientIP",
+		"body": [
+			"Platform.Request.ClientIP()"
+		],
+		"description": "Get the IP Address of the client making the request."
+	},
+	"Request.HasSSL": {
+		"prefix": "Request.HasSSL",
+		"body": [
+			"Platform.Request.HasSSL() + ''"
+		],
+		"description": "Check if the current request could support SSL (even if not currently using SSL)."
+	},
+	"Request.IsSSL": {
+		"prefix": "Request.IsSSL",
+		"body": [
+			"Platform.Request.IsSSL() + ''"
+		],
+		"description": "Check if the current request is using SSL."
+	},
+	"Request.Method": {
+		"prefix": "Request.Method",
+		"body": [
+			"Platform.Request.Method() + ''"
+		],
+		"description": "Get the HTTP Method of the current request."
+	},
+	"Request.QueryString": {
+		"prefix": "Request.QueryString",
+		"body": [
+			"Platform.Request.QueryString()"
+		],
+		"description": "Returns the full query string for the Request object as a string value."
+	},
+	"Request.ReferrerURL": {
+		"prefix": "Request.ReferrerURL",
+		"body": [
+			"Platform.Request.ReferrerURL()"
+		],
+		"description": "Returns the URL of the referring web address in a web context in a string value."
+	},
+	"Request.RequestURL": {
+		"prefix": "Request.RequestURL",
+		"body": [
+			"Platform.Request.RequestURL()"
+		],
+		"description": "Returns the full URL of the Request object as a string value."
+	},
+	"Request.UserAgent": {
+		"prefix": "Request.UserAgent",
+		"body": [
+			"Platform.Request.UserAgent()"
+		],
+		"description": "Returns the name of the browser associated with the Request object as a string value."
+	},
+
+	"Request.GetCookieValue": {
+		"prefix": "Request.GetCookieValue",
+		"body": [
+			"Platform.Request.GetCookieValue(${1:cookieName})"
+		],
+		"description": "Returns the value of a cookie from the Request object as a string value."
+	},
+	"Request.GetFormField": {
+		"prefix": "Request.GetFormField",
+		"body": [
+			"Platform.Request.GetFormField(${1:formFieldName})"
+		],
+		"description": "Retrieves information from specified form fields, such as data included in POST requests."
+	},
+	"Request.GetPostData": {
+		"prefix": "Request.GetPostData",
+		"body": [
+			"Platform.Request.GetPostData(${1:encodingFormat})"
+		],
+		"description": "Returns the data from the POST request as a string value, with an optional encoding format (e.g. 'utf-8')."
+	},
+	"Request.GetQueryStringParameter": {
+		"prefix": "Request.GetQueryStringParameter",
+		"body": [
+			"Platform.Request.GetQueryStringParameter(${1:parameterName})"
+		],
+		"description": "Retrieves information from specified query string parameters, such as data included in GET requests."
+	},
+	"Request.GetRequestHeader": {
+		"prefix": "Request.GetRequestHeader",
+		"body": [
+			"Platform.Request.GetRequestHeader(${1:headerName})"
+		],
+		"description": "Returns the value of a specified header from the Request object as a string. Work in Landing Pages only."
+	},
+	"Request.GetUserLanguages": {
+		"prefix": "Request.GetUserLanguages",
+		"body": [
+			"Platform.Request.GetUserLanguages()"
+		],
+		"description": "Returns an array of locale codes (strings) associated with a user browser (Landing Pages only)."
 	}
 }
