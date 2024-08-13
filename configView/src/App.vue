@@ -93,18 +93,20 @@ onMounted(() => {
     </main>
 
 		<footer>
-			<label>
-				<input id="autoShowSwitch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
-				Show this panel automatically.
-				
-			</label>
 			<!-- <p class="footnote">
 				You can still access this panel using the "SSJS: Show Extension Config" command.
 			</p> -->
-			<a class="bug-link" href="https://github.com/fib3/ssjs-vsc/issues">
-				<span class="gg-debug"></span>
-				<span>Report bug of request feature.</span>
-			</a>
+			<div id="auto-show-switch-container">
+				<input id="auto-show-switch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
+				<label for="auto-show-switch">Show this panel automatically.
+				</label>
+			</div>
+			<div id="bug-link-container">
+				<a class="bug-link" href="https://github.com/fib3/ssjs-vsc/issues">
+					<span class="gg-debug"></span>
+					<span>Report bug of request feature.</span>
+				</a>
+			</div>
 		</footer>
   </div>
 </template>
@@ -159,17 +161,23 @@ onMounted(() => {
 	footer {
 		position: absolute;
 		/* left: 0; */
-		right: 0;
+		right: 20px;
 		top: 0;
 		/* width: calc(100% - 20px); */
-		padding: 10px;
+		padding: 10px 0px;
 		background-color: inherit;
 		opacity: 0.8;
 		text-align: right;
 	}
 
-	.footnote {
-		font-size: 0.8em;
+	#auto-show-switch {
+		margin: 5px 10px 5px 5px;
+		width: 12px;
+		height: 12px;
+	}
+
+	label#auto-show-switch {
+		width: fit-content;
 	}
 
 	.bug-link {
@@ -177,10 +185,11 @@ onMounted(() => {
 		align-items: center;
 		text-decoration: none;
 		color: inherit;
+		padding: 0px;
 	}
 
 	.bug-link span:first-child {
-		margin: 3px 10px 5px 0;
+		margin: 5px 10px 5px 5px;
 	}
 
 	/* Thanks to: https://github.com/astrit/css.gg */
