@@ -139,7 +139,7 @@ onMounted(() => {
 		<h2>Templating Tags</h2>
 		<div class="hint">
 			<p>
-				Configure the <a href="https://fib3.vercel.app/ssjs-vsc/4_templating" target="_blank">Tamplating Tags</a> for your project.
+				Configure the <a href="https://fibworks.com/ssjs-vsc/4_templating" target="_blank">Tamplating Tags</a> for your project.
 				<br/>
 				You can use these tags to settings (like API keys) from your code...
 				<br/>

@@ -12,7 +12,7 @@ From syntax highlight to rapid testing and deployment.
 
 ![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
 
-### [Complete Guide](https://fib3.vercel.app/ssjs-vsc)
+### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
 
 ## Settings
