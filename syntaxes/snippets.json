@@ -222,5 +222,83 @@
 			"Platform.Request.GetUserLanguages()"
 		],
 		"description": "Returns an array of locale codes (strings) associated with a user browser (Landing Pages only)."
+	},
+
+	"DeleteData": {
+		"prefix": "DeleteData",
+		"body": [
+			"Platform.Function.DeleteData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray})"
+		],
+		"description": "Delete data from a data extensions in non-sending contexts. Returns number of rows deleted."
+	},
+	"DeleteDE": {
+		"prefix": "DeleteDE",
+		"body": [
+			"Platform.Function.DeleteDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray})"
+		],
+		"description": "Delete data from a data extensions in sendable contexts. Returns number of rows deleted."
+	},
+	"InsertData": {
+		"prefix": "InsertData",
+		"body": [
+			"Platform.Function.InsertData(${1:dataExtensionName}, ${2:columnsArray}, ${3:valuesArray})"
+		],
+		"description": "Insert data into a data extension in non-sending contexts and SMS messages. Returns number of rows inserted."
+	},
+	"InsertDE": {
+		"prefix": "InsertDE",
+		"body": [
+			"Platform.Function.InsertDE(${1:dataExtensionName}, ${2:columnsArray}, ${3:valuesArray})"
+		],
+		"description": "Insert data into a data extension in sendable contexts. Returns number of rows inserted."
+	},
+	"Lookup": {
+		"prefix": "Lookup",
+		"body": [
+			"Platform.Function.Lookup(${1:dataExtensionName}, ${2:targetColumnToRetrieve}, ${3:lookupColumnStringOrArray}, ${4:lookupValueStringOrArray})"
+		],
+		"description": "Lookup a single value from a data extension as a string."
+	},
+	"LookupOrderedRows": {
+		"prefix": "LookupOrderedRows",
+		"body": [
+			"Platform.Function.LookupOrderedRows(${1:dataExtensionName}, ${2:numberOfRowsToReturn}, ${3:sortingColumn_ASC_DESC}, ${4:lookupColumnStringOrArray}, ${5:lookupValueStringOrArray})"
+		],
+		"description": "Lookup multiple rows (array) from a data extension and orders them based on column value."
+	},
+	"LookupRows": {
+		"prefix": "LookupRows",
+		"body": [
+			"Platform.Function.LookupRows(${1:dataExtensionName}, ${2:lookupColumnStringOrArray}, ${3:lookupValueStringOrArray})"
+		],
+		"description": "Lookup multiple rows (as array) from a data extension."
+	},
+	"UpdateData": {
+		"prefix": "UpdateData",
+		"body": [
+			"Platform.Function.UpdateData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+		],
+		"description": "Update data in a data extension in non-sending contexts. Returns number of rows updated."
+	},
+	"UpdateDE": {
+		"prefix": "UpdateDE",
+		"body": [
+			"Platform.Function.UpdateDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+		],
+		"description": "Update data in a data extension in sendable contexts. Returns number of rows updated."
+	},
+	"UpsertData": {
+		"prefix": "UpsertData",
+		"body": [
+			"Platform.Function.UpsertData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+		],
+		"description": "Upsert data into a data extension in non-sending contexts. Returns number of rows upserted."
+	},
+	"UpsertDE": {
+		"prefix": "UpsertDE",
+		"body": [
+			"Platform.Function.UpsertDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+		],
+		"description": "Upsert data into a data extension in sendable contexts. Returns number of rows upserted."
 	}
 }
