@@ -300,5 +300,86 @@
 			"Platform.Function.UpsertDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
 		],
 		"description": "Upsert data into a data extension in sendable contexts. Returns number of rows upserted."
+	},
+
+	"BeginImpressionRegion": {
+		"prefix": "BeginImpressionRegion",
+		"body": [
+			"Platform.Function.BeginImpressionRegion(${1:regionName})"
+		],
+		"description": "Begin an impression region within the supplied content. You can use the impression region to identify specific areas of content for analytical purposes."
+	},
+	"ContentArea": {
+		"prefix": "ContentArea",
+		"body": [
+			"Platform.Function.ContentArea(${1:contentAreaId}, ${2:impressioRegionOptional}, ${3:throwExceptionOnFailOptional}, ${4:defaultContentOptional})"
+		],
+		"description": "Returns the content of a Content Area."
+	},
+	"ContentAreaByName": {
+		"prefix": "ContentAreaByName",
+		"body": [
+			"Platform.Function.ContentAreaByName(${1:contentAreaName}, ${2:impressioRegionOptional}, ${3:throwExceptionOnFailOptional}, ${4:defaultContentOptional})"
+		],
+		"description": "Returns content from a content area specified by Name."
+	},
+	"ContentBlockByID": {
+		"prefix": "ContentBlockByID",
+		"body": [
+			"Platform.Function.ContentBlockByID(${1:contentBlockId}, ${2:impressioRegionOptional}, ${3:throwExceptionOnFailOptional}, ${4:defaultContentOptional})"
+		],
+		"description": "Returns the content of a Content Block by ID."
+	},
+	"ContentBlockByKey": {
+		"prefix": "ContentBlockByKey",
+		"body": [
+			"Platform.Function.ContentBlockByKey(${1:contentBlockKey}, ${2:impressioRegionOptional}, ${3:throwExceptionOnFailOptional}, ${4:defaultContentOptional})"
+		],
+		"description": "Returns the content of a Content Block by Key."
+	},
+	"ContentBlockByName": {
+		"prefix": "ContentBlockByName",
+		"body": [
+			"Platform.Function.ContentBlockByName(${1:contentBlockName}, ${2:impressioRegionOptional}, ${3:throwExceptionOnFailOptional}, ${4:defaultContentOptional})"
+		],
+		"description": "Returns the content of a Content Block by Name."
+	},
+	"ContentImagebyID": {
+		"prefix": "ContentImagebyID",
+		"body": [
+			"Platform.Function.ContentImagebyID(${1:contentImageId}, ${2:defaultContentOptional})"
+		],
+		"description": "Returns the content of an Image Content Block by ID."
+	},
+	"ContentImagebyKey": {
+		"prefix": "ContentImagebyKey",
+		"body": [
+			"Platform.Function.ContentImagebyKey(${1:contentImageKey}, ${2:defaultContentOptional})"
+		],
+		"description": "Returns the content of an Image Content Block by Key."
+	},
+	"EndImpressionRegion": {
+		"prefix": "EndImpressionRegion",
+		"body": [
+			"Platform.Function.EndImpressionRegion(${1:trueToCloseAllRegionsFalseToCloseLast})"
+		],
+		"description": "End an impression region within the supplied content. Used with `BeginImpressionRegion`."
+	},
+	"TreatAsContent": {
+		"prefix": "TreatAsContent",
+		"body": [
+			"Platform.Function.TreatAsContent(${1:content})"
+		],
+		"description": "Takes a supplied string value and treat it as a content area. This function renders all included dynamic content, scripts, and personalization strings. Use the HTTPGETWRAP command to wrap links for tracking and analytics within this function."
+	},
+
+	"HTTPGet": {
+		"prefix": "HTTPGet",
+		"body": [
+			"var status = [0];",
+			"var result = Platform.Function.HTTPGet(${1:url}, ${2:continueOnErrorOptional}, ${3:continueWithEmptyContentNumberOptional|0,1|}, ${4:headerNamesArrayOptional}, ${5:headerValuesArrayOptional}, ${6:statusArrayOptional});",
+			"if(status[0] == 0) { Write('Requst OK') }"
+		],
+		"description": "Retrieves information from the specified URL via a GET request. The timeout value for this function is 30 seconds. Status: 0: OK, -1: missing URL, -2: HTTP error, -3: request OK but without content."
 	}
 }
