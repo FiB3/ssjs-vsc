@@ -378,8 +378,17 @@
 		"body": [
 			"var status = [0];",
 			"var result = Platform.Function.HTTPGet(${1:url}, ${2:continueOnErrorOptional}, ${3:continueWithEmptyContentNumberOptional|0,1|}, ${4:headerNamesArrayOptional}, ${5:headerValuesArrayOptional}, ${6:statusArrayOptional});",
-			"if(status[0] == 0) { Write('Requst OK') }"
+			"if (status[0] == 0) { Write('Requst OK') }"
 		],
 		"description": "Retrieves information from the specified URL via a GET request. The timeout value for this function is 30 seconds. Status: 0: OK, -1: missing URL, -2: HTTP error, -3: request OK but without content."
+	},
+	"HTTPPost": {
+		"prefix": "HTTPPost",
+		"body": [
+			"var content = [0];",
+			"var statusCode = Platform.Function.HTTPPost(${1:url}, ${2:contentType}, ${3:body}, ${4:headerNamesArrayOptional}, ${5:headerValuesArrayOptional}, ${6:contentArray});",
+			"if (statusCode == 200) { Write(content[0]) }"
+		],
+		"description": "Posts content to the specified URL. Use standard ports if needed (80 for HTTP, 443 for HTTPS). Default character set is WindowsCodePage 1252. The timeout value for this function is 30 seconds."
 	}
 }
