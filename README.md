@@ -3,7 +3,7 @@
 Simplifies & speeds up Server Side JavaScript and AMPscript development in Salesforce Marketing Cloud.
 From syntax highlight to rapid testing and deployment.
 
-![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif)
+![SSJS Manager Preview](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif)
 
 ## Features
 
@@ -74,3 +74,4 @@ In such case, let me know on my [GitHub here!](https://github.com/fib3/ssjs-vsc/
 - Upcoming improvements to security of development Cloud Pages.
 - Client Secret not loading when VSCode is not up to date. Update your VSCode to fix.
 - Multi-root workspaces are not supported.
+- Preview panel does not support clipboard nor search.

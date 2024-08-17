@@ -2,7 +2,20 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
-## [0.5.2] - 2024-05-27
+## [0.5.4] - 2024-08-17
+
+### Added:
+- Basic effect on refresh of the preview (using refresh button).
+- New snippets: HTTP Request Property, HTTP Get & Post, Platform Data Extension & ContentBlock functions. 
+
+### Changed:
+- Removed comments from deployment scripts.
+
+### Fixed:
+- Bug when retrying SFMC Connection using Config Panel reset ssjs-config.
+- other minor fixes.
+
+## [0.5.3] - 2024-05-27
 ### Fixed:
 - multiple Fixes for formatting (dollar sign duplication, templating notation bug, AMPscript Print-tag broken fix)
 
