@@ -3,14 +3,15 @@
 Simplifies & speeds up Server Side JavaScript and AMPscript development in Salesforce Marketing Cloud.
 From syntax highlight to rapid testing and deployment.
 
+![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif)
+
 ## Features
 
 - Support rapid code development of SSJS scripts via SFMC's Cloud Pages.
+- Preview within VSCode.
 - Syntax highlight.
 - SSJS Snippets.
 - Mustache templating of scripts and pages to ensure your env security when using repositories.
-
-![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
 
 ### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
@@ -32,6 +33,8 @@ You can see a guide using the new `SSJS: Show Config` command for interactive co
 
 Once your SSJS is Active and Cloud Page published, all you need to do is to open it.  
 `SSJS: Get Dev Path` command will give you the details.
+
+![SSJS Manager](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif)
 
 ## Commands
 
