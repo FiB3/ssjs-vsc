@@ -21,9 +21,20 @@ module.exports = class Preferences extends BaseConfig {
 		return USABLE_LANG_IDS.includes(langId);
 	}
 
-	static isFileTypeAllowed(filePath) {
-		console.log(`File extname: "${path.extname(filePath)}".`);
-		return USABLE_EXT.includes(path.extname(filePath));
+	/**
+	 * Check if the file is supported for deployment.
+	 * @param {string} filePath
+	 * @param {boolean} showWarning shows warning message if file is not supported
+	 * @returns {boolean} true if file is supported, false otherwise.
+	 */
+	static isFileTypeAllowed(filePath, showWarning = true) {
+		if (USABLE_EXT.includes(path.extname(filePath))) {
+			return true;
+		}
+		if (showWarning) {
+			vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not supported!`);
+		}
+		return false;
 	}
 
 	static isAssetProvider() {

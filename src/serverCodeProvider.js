@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 
 const BaseCodeProvider = require('./baseCodeProvider');
+const Config = require('./config');
 
 const { app, generateBasicAuthHeader } = require('./proxy');
 const dialogs = require('./ui/dialogs');
@@ -124,7 +125,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 	async _getContextForGetUrl() {
 		// TODO: pick asset also based on asset file
 		const filePath = vsc.getActiveEditor(true);
-		if (filePath && checks.isFileSupported(filePath)) {
+		if (filePath && Config.isFileTypeAllowed(filePath, false)) {
 			// let metadata = json.load(this.snippets.getMetadataFileName(filePath));
 
 			let devPageContext;

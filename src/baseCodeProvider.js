@@ -214,7 +214,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			// Convert the URI to a file path
 			const filePath = fileUri.fsPath;
 			
-			if (!checks.isFileSupported(filePath)) {
+			if (!Config.isFileTypeAllowed(filePath, false)) {
 				return false;
 			}
 			let fileText = template.runScriptFile(filePath, this.config, isDev);
@@ -257,7 +257,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	async _getContextForGetUrl() {
 		// TODO: pick asset also based on asset file
 		const filePath = vsc.getActiveEditor();
-		if (filePath && checks.isFileSupported(filePath)) {
+		if (filePath && Config.isFileTypeAllowed(filePath, false)) {
 			let metadata = this.snippets.loadMetadata(filePath);
 			if (!metadata || metadata.error === true) {
 				return false;

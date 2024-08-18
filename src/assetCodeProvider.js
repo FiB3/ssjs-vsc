@@ -1,9 +1,8 @@
 const vscode = require('vscode');
 
 const BaseCodeProvider = require('./baseCodeProvider');
-// const Config = require('./config');
+const Config = require('./config');
 const dialogs = require('./ui/dialogs');
-const checks = require('./checks');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
 
@@ -30,7 +29,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 		if (filePath) {
 			// file type check:
-			if (!checks.isFileSupported(filePath, !autoUpload)) {
+			if (!Config.isFileTypeAllowed(filePath, !autoUpload)) {
 				return;
 			}
 			// if not existing, run dialog:
