@@ -4,15 +4,19 @@ const Config = require('./config');
 const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const ServerCodeProvider = require('./serverCodeProvider');
+const vsc = require('./vsc');
+const Hooks = require('./hooks');
 
 const statusBar = require('./ui/statusBar');
 const McClient = require('./sfmc/mcClient');
+const logger = require('./auxi/logger');
 const telemetry = require('./telemetry');
 
 class ExtensionHandler {
 	constructor() {
 		this.provider;
-		this.config;
+		this.config; // set in loadConfiguration()
+		this.hooks;
 	}
 
 	attachContext(context) {
@@ -104,7 +108,25 @@ class ExtensionHandler {
 	
 		console.log(`Setup file is (at least mostly) valid.`);
 		this.checkSetup();
+		this.hooks = new Hooks(this.config);
 		return true;
+	}
+
+	async uploadScript(autoUpload = false) {
+		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			logger.warn(`Upload Script: ${filePath} - not found!`);
+			// TODO: remove check from providers
+			return;
+		}
+		
+		let hookResult = await this.hooks.runSave(filePath, autoUpload);
+		logger.info(`Hook result: ${hookResult}.`);
+		if (hookResult === false) {
+			return;
+		}
+
+		// await this.provider.uploadScript(autoUpload);
 	}
 
 	/**

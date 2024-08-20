@@ -26,7 +26,7 @@ async function activate(context) {
 
 	registerCommands(context, [
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
-		{ name: 'ssjs-vsc.upload-script', callback: async () => await ext.provider.uploadScript() },
+		{ name: 'ssjs-vsc.upload-script', callback: async () => await ext.uploadScript() },
 		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.create-config', callback: () => createConfig() },
@@ -83,7 +83,7 @@ function registerCommands(context, commands) {
 	});
 }
 
-function registerFileActions(context) {
+async function registerFileActions(context) {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		let filePath = textDocument.uri.fsPath;
 
@@ -97,7 +97,7 @@ function registerFileActions(context) {
 		if (Config.isConfigFile(filePath)) {
 			ext.config.loadConfig();
 		} else if (Config.isAutoSaveEnabled() && Config.isFileInWorkspace(filePath)) {
-			await ext.provider.uploadScript(true);
+			await ext.uploadScript(true);
 		} else {
 			if (!filePath.endsWith('settings.json')) {
 				logger.info(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);
