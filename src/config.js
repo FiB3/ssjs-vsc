@@ -414,6 +414,21 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Get hooks for specific action and extension.
+	 * @param {string} [action="on-save"] - e.g.: `on-save`
+	 * @param {string} [extension=".js"] - including the `.`, e.g.: `.js`
+	 * @returns {object}
+	 * @example in `./templates/setup.example.json`
+	 */
+	getHooks(action = `on-save`, extension = `.js`) {
+		let hook = this.config['hooks']?.[action]?.[extension] || { enabled: false };
+		if (hook['success-hanling'] && !['upload-self', 'upload-output'].includes(hook['success-hanling'])) {
+			hook['success-hanling'] = 'incorrect';	
+		}
+		return hook;
+	}
+
+	/**
 	 * Migrate setup file to new version - currently to v0.3.0+.
 	 */
 	migrateSetup() {	

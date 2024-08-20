@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 const path = require('path');
 const logger = require('./auxi/logger');
+const debug = require('./ui/debugConsole');
 
 /**
  * Get the path to the root of the workspace.
@@ -31,5 +32,6 @@ function getActiveEditor(relativePath = false) {
 
 module.exports = {
 	getUserWorkspacePath,
-	getActiveEditor
+	getActiveEditor,
+	debug
 }

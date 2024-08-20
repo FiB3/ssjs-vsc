@@ -45,6 +45,18 @@
     "auth-username": "<< dev-username-comes-here >>",
     "auth-password": "<< dev-password-comes-here >>"
   },
+
+	"hooks": {
+		"on-save": {
+			".js": {
+				"enabled": true,
+				"command": "npm run build",
+				"success-hanling": "upload-output",
+				"output-file": "./dist/{{name}}.ssjs"
+			}
+		}
+	},
+
 	"config-view": {
     "any-script-deployed": false,
     "dev-read": false
