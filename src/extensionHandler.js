@@ -116,7 +116,6 @@ class ExtensionHandler {
 		const filePath = vsc.getActiveEditor();
 		if (!filePath) {
 			logger.warn(`Upload Script: ${filePath} - not found!`);
-			// TODO: remove check from providers
 			return;
 		}
 
@@ -128,8 +127,8 @@ class ExtensionHandler {
 			await this.provider.uploadScript(autoUpload);
 		} else if (typeof hookResult === 'string') {
 			logger.debug(`Hook result for other file upload: $${hookResult}.`);
-			// TODO:
-			// await this.provider.uploadScript(hookResult);
+			// upload the output file - autoUpload to false (to force creation)
+			await this.provider.uploadScript(false, hookResult);
 		} else {
 			logger.warn(`Hook result unknown: ${hookResult}.`);
 			telemetry.error('upload-script', { 'location': 'extensionHandler.uploadScript', 'hookResult': hookResult });

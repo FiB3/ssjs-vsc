@@ -5,6 +5,7 @@ const Config = require('./config');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
+const logger = require('./auxi/logger');
 
 const { template } = require('./template');
 const json = require('./auxi/json');
@@ -24,38 +25,37 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		await super.init(true, testConnection);
 	}
 
-	async uploadScript(autoUpload) {
-		const filePath = vsc.getActiveEditor();
+	async uploadScript(autoUpload, fileOverride = false) {
+		const filePath = fileOverride || vsc.getActiveEditor();
+		logger.debug(`uploadScript() called for: ${filePath}, autoUpload: ${autoUpload}.`);
 
-		if (filePath) {
-			// file type check:
-			if (!Config.isFileTypeAllowed(filePath, !autoUpload)) {
-				return;
-			}
-			// if not existing, run dialog:
-			if (!await this.snippets.checkAssetFolder()) {
-				return;
-			}
+		// file type check:
+		if (!Config.isFileTypeAllowed(filePath, !autoUpload)) {
+			return;
+		}
+		// if not existing, run dialog:
+		if (!await this.snippets.checkAssetFolder()) {
+			return;
+		}
 
-			if (this.snippets.snippetExists(filePath)) {
-				await this.updateCode(filePath);
+		if (this.snippets.snippetExists(filePath)) {
+			await this.updateCode(filePath);
 
-				let savedDevContext = this.snippets.getDevContext(filePath);
-				console.log('savedDevContext:', savedDevContext);
-				if (!savedDevContext) {
-					await this.getDevContextPreference(filePath);
-				}
-
-				telemetry.log('updateScript', { codeProvider: 'Asset', update: true });
-			} else if (!autoUpload) {
-				await this.createNewBlock(filePath);
-				// find out the default dev context and save it:
+			let savedDevContext = this.snippets.getDevContext(filePath);
+			logger.debug('savedDevContext:', savedDevContext);
+			if (!savedDevContext) {
 				await this.getDevContextPreference(filePath);
-
-				telemetry.log('uploadScript', { codeProvider: 'Asset', update: false });
-			} else {
-				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
+
+			telemetry.log('updateScript', { codeProvider: 'Asset', update: true });
+		} else if (!autoUpload) {
+			await this.createNewBlock(filePath);
+			// find out the default dev context and save it:
+			await this.getDevContextPreference(filePath);
+
+			telemetry.log('uploadScript', { codeProvider: 'Asset', update: false });
+		} else {
+			vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 		}
 	}
 
@@ -110,7 +110,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	async getDevUrl(copyOnly = false) {
 		try {
 			const pageDetails = await this._getContextForGetUrl();
-			console.log('pageDetails:', pageDetails);
+			logger.debug('pageDetails:', pageDetails);
 			if (pageDetails) {
 				const url = this._getDevUrl(pageDetails.devPageContext, pageDetails.metadata);
 				this._getOpenUrlCommand(url, 'Asset', pageDetails, copyOnly);
@@ -160,7 +160,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			visible: false
 		};
 
-		console.log(`useAuth: ${tokenConfig.useAuth} && authType: ${tokenConfig.authType}.`, 'tokenConfig:', tokenConfig);
+		logger.debug(`useAuth: ${tokenConfig.useAuth} && authType: ${tokenConfig.authType}.`, 'tokenConfig:', tokenConfig);
 		if (tokenConfig.useAuth && tokenConfig.authType == 'basic') {
 			// TODO: this is not perfect, but good enough for now:
 			res.msg = `Authentication details - user: ${tokenConfig.username}, password: ${tokenConfig.password}`;
@@ -168,7 +168,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			res.username = tokenConfig.username;
 			res.password = tokenConfig.password;
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
-			console.log(`Chose token auth.`);
+			logger.debug(`Chose token auth.`);
 			tkn = tokenConfig.token;
 		}
 

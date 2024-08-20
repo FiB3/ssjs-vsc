@@ -40,7 +40,8 @@ module.exports = class Hooks {
 			return -1;
 		}
 		
-		if (this.snippets.snippetExists(filePath) || !autoUpload) {
+		let snippetExists = this.snippets.snippetExists(filePath);
+		if (snippetExists || !autoUpload) {
 			let execOk = await execute(hook.command);
 			if (!execOk) {
 				return -1;
@@ -64,6 +65,12 @@ module.exports = class Hooks {
 					vscode.window.showErrorMessage(`Error on getting hook 'output-file' path: ${e.message}`);
 					return -1;
 				}
+				// create Metadata if needed - linkMetadata
+				if (!snippetExists) {
+					await this.snippets.saveLinkMetadata(filePath, newPath);
+				}
+				// cannot use path from root, but absolute path from workspace root
+				newPath = path.join(BaseConfig.getUserWorkspacePath(), newPath);
 				return newPath;
 			} else {
 				vscode.window.showErrorMessage(`Hook configuration incorrect or not found (success-handling).`);
@@ -88,7 +95,6 @@ async function execute(command) {
 		let text = `[ ${p} ] $ ${command}
 
 ${data}
-
 -----${isOk ? `--- OK ---` : ` FAILED `}-----
 ----- ${addZero(d.getHours())}:${addZero(d.getMinutes())}:${addZero(d.getSeconds())} -----`;
 
@@ -109,7 +115,6 @@ ${data}
 	let cmd = `cd ${usePath}; ${command}`;
 
 	let cmdOk = false;
-	// TODO: make it look more like terminal (user / timestamp)
 	await runCommand(cmd)
 			.then((result) => {
 				printCmdRes(result, true, command, usePath);

@@ -6,6 +6,7 @@ const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
 
 const telemetry = require('./telemetry');
+const logger = require('./auxi/logger');
 
 const Config = require('./config');
 
@@ -149,7 +150,21 @@ class SnippetHandler {
 			return;
 		}
 		const metadataPath = this.getMetadataFileName(filePath);
-		console.log(`metadata-path: ${metadataPath}`);
+		logger.debug(`metadata-path: ${metadataPath}`);
+		json.save(metadataPath, dt);
+	}
+
+	/**
+	 * Save metadata for file in different folder.
+	 * @param {string} filePath file of current script.
+	 * @param {string} linkedPath file of linked script.
+	 */
+	saveLinkMetadata(filePath, linkedPath) {
+		let dt = {
+			linkedPath: linkedPath
+		};
+		const metadataPath = this.getMetadataFileName(filePath);
+		logger.debug(`linked-metadata-path: ${metadataPath}`);
 		json.save(metadataPath, dt);
 	}
 
