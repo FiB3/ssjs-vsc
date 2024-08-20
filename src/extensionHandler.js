@@ -119,14 +119,21 @@ class ExtensionHandler {
 			// TODO: remove check from providers
 			return;
 		}
-		
+
 		let hookResult = await this.hooks.runSave(filePath, autoUpload);
 		logger.info(`Hook result: ${hookResult}.`);
-		if (hookResult === false) {
+		if (hookResult === -1 || hookResult === 0) {
 			return;
+		} else if (hookResult === 1 || hookResult === 2) {
+			await this.provider.uploadScript(autoUpload);
+		} else if (typeof hookResult === 'string') {
+			logger.debug(`Hook result for other file upload: $${hookResult}.`);
+			// TODO:
+			// await this.provider.uploadScript(hookResult);
+		} else {
+			logger.warn(`Hook result unknown: ${hookResult}.`);
+			telemetry.error('upload-script', { 'location': 'extensionHandler.uploadScript', 'hookResult': hookResult });
 		}
-
-		// await this.provider.uploadScript(autoUpload);
 	}
 
 	/**
