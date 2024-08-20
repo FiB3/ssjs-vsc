@@ -49,7 +49,7 @@
 	"hooks": {
 		"on-save": {
 			".js": {
-				"enabled": true,
+				"enabled": false,
 				"command": "npm run build",
 				"success-hanling": "upload-output",
 				"output-file": "./dist/{{name}}.ssjs"

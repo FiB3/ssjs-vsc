@@ -422,8 +422,8 @@ module.exports = class Config extends Preferences {
 	 */
 	getHooks(action = `on-save`, extension = `.js`) {
 		let hook = this.config['hooks']?.[action]?.[extension] || { enabled: false };
-		if (hook['success-hanling'] && !['upload-self', 'upload-output'].includes(hook['success-hanling'])) {
-			hook['success-hanling'] = 'incorrect';	
+		if (hook['success-handling'] && !['upload-self', 'upload-output'].includes(hook['success-handling'])) {
+			hook['success-handling'] = 'incorrect';	
 		}
 		return hook;
 	}

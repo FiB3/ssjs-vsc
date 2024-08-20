@@ -2,6 +2,7 @@ const path = require('path');
 const vscode = require('vscode');
 const { exec } = require('child_process');
 
+const BaseConfig = require('./config/baseConfig');
 const SnippetHandler = require('./snippetHandler');
 const vsc = require('./vsc');
 const logger = require('./auxi/logger');
@@ -81,20 +82,41 @@ module.exports = class Hooks {
  * @returns {Promise<string>} stdout or stderr
  */
 async function execute(command) {
+	function printCmdRes(data, isOk = true, cmd, pth) {
+		let d = new Date();
+		let p = pth; //path.dirname(pth);
+		let text = `[ ${p} ] $ ${command}
+
+${data}
+
+-----${isOk ? `--- OK ---` : ` FAILED `}-----
+----- ${addZero(d.getHours())}:${addZero(d.getMinutes())}:${addZero(d.getSeconds())} -----`;
+
+		vsc.debug.clear();
+		if (isOk) {
+			vsc.debug.info(text);
+		} else {
+			vsc.debug.error(text);
+		}
+	}
+
 	if (!command) {
 		logger.error('No command provided.');
 		return;
 	}
 
+	let usePath = BaseConfig.getUserWorkspacePath();
+	let cmd = `cd ${usePath}; ${command}`;
+
 	let cmdOk = false;
 	// TODO: make it look more like terminal (user / timestamp)
-	await runCommand(command)
+	await runCommand(cmd)
 			.then((result) => {
-				vsc.debug.info(result);
+				printCmdRes(result, true, command, usePath);
 				cmdOk = true;
 			})
 			.catch((error) => {
-				vsc.debug.error(error);
+				printCmdRes(result, false, command, usePath);
 			});
 
 	return cmdOk;
@@ -135,4 +157,11 @@ function getFileName(filePath, removeSuffix = true) {
 
 function getFileExtension(filePath) {
 	return path.extname(filePath);
+}
+
+function addZero(i) {
+	if (i < 10) {
+		i = "0" + i;
+	}
+	return i;
 }

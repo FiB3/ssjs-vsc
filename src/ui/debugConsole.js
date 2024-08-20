@@ -28,6 +28,10 @@ class DebugConsole {
 		this._log('DEBUG', ...message);
 	}
 
+	clear() {
+		this.console.clear();
+	}
+
 	_log(level, ...message) {
 		this.console.show();
 		this.console.appendLine(message.join(' '));
