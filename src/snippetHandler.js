@@ -169,6 +169,26 @@ class SnippetHandler {
 	}
 
 	/**
+	 * Check if the file has linked metadata.
+	 * @param {object} content file content
+	 * @returns {boolean|null} true if linked metadata exists,
+	 * false if does not exist, null if linked file does not exist.
+	 */
+	isLinkMetadata(content) {
+		return content.linkedPath && content.linkedPath.length > 0 && file.exists(content.linkedPath)
+				? true : false;
+	}
+
+	/**
+	 * Is metadata valid?
+	 * @param {object} content file content as object
+	 * @returns {boolean} true if metadata is valid, false if not.
+	 */
+	isMetadataValid(content) {
+		return content.id && content.name ? true : false && !content.error;
+	}
+
+	/**
 	 * Add metadata to the metadata file.
 	 * @param {string} filePath - path of the file - gets metadata file path automatically.
 	 * @param {object} data
@@ -184,12 +204,22 @@ class SnippetHandler {
 	/**
 	 * Load metadata file for the asset.
 	 * @param {string} filePath path of the script file (not metadata file)
-	 * @returns {object} metadata object
+	 * @returns {object} metadata object, null if not found or invalid.
 	 */
 	loadMetadata(filePath) {
 		let metaPath = this.getMetadataFileName(filePath);
-		// TODO: add validation for validity of the file (JSON, values, etc.)
-		return json.load(metaPath);
+
+		let metadata = json.load(metaPath);
+		let islinkedMetadata = this.isLinkMetadata(metadata) === true;
+		if (islinkedMetadata === true) {
+			return json.load(metadata.linkedPath);
+		} else if (islinkedMetadata === null) {
+			vscode.window.showWarningMessage(`Linked metadata file does not exist!`);
+			return null;
+		}	else if (!this.isMetadataValid(metadata)) {
+			return null;
+		}
+		return metadata;
 	}
 
 	async checkAssetFolder() {
