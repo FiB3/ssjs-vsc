@@ -4,6 +4,7 @@ const generator = require('generate-password');
 
 const Preferences = require('./config/preferences');
 const checks = require('./checks');
+const logger = require('./auxi/logger');
 
 module.exports = class Config extends Preferences {
 
@@ -431,7 +432,7 @@ module.exports = class Config extends Preferences {
 	/**
 	 * Migrate setup file to new version - currently to v0.3.0+.
 	 */
-	migrateSetup() {	
+	migrateToV0_3_0() {	
 		let newConfig = {
 			'sfmc-domain': this.config['sfmc-domain'],
 			'sfmc-client-id': this.config['sfmc-client-id'],
@@ -450,8 +451,12 @@ module.exports = class Config extends Preferences {
 		};
 
 		// move asset folder IDs:
-		newConfig['asset-folder-id'] = Config.validateConfigValue(this.config['asset-provider']?.['folder-id'], newConfig['asset-folder-id']);
-		newConfig['asset-folder'] = Config.validateConfigValue(this.config['asset-provider']?.['folder'], newConfig['asset-folder']);
+		newConfig['asset-folder-id'] = Config.validateConfigValue(
+				Config.validateConfigValue(this.config['asset-provider']?.['folder-id'], this.config['asset-folder-id']),
+			newConfig['asset-folder-id']);
+		newConfig['asset-folder'] = Config.validateConfigValue(
+				Config.validateConfigValue(this.config['asset-provider']?.['folder'], this.config['asset-folder']),
+			newConfig['asset-folder']);
 
 		// serverProvider:
 		newConfig['proxy-any-file'] = {
@@ -464,7 +469,15 @@ module.exports = class Config extends Preferences {
 
 		// save setup file
 		this.config = newConfig;
-		console.log(`Migrated Config:`, newConfig);
+		logger.info(`Migrated Config:`, newConfig);
+		this.saveConfigFile();
+	}
+
+	migrateToV0_6_0() {
+		// move hooks:
+		this.config['hooks'] = this.config['hooks'] || { 'on-save': {} };
+		this.config['extension-version'] = Config.getExtensionVersion();
+		logger.info(`Migrated Config:`, this.config);
 		this.saveConfigFile();
 	}
 }

@@ -11,6 +11,7 @@ const statusBar = require('./ui/statusBar');
 const McClient = require('./sfmc/mcClient');
 const logger = require('./auxi/logger');
 const telemetry = require('./telemetry');
+const { min } = require('moment');
 
 class ExtensionHandler {
 	constructor() {
@@ -217,18 +218,30 @@ class ExtensionHandler {
 	}
 
 	async checkSetup() {
-		const minVersion = '0.3.0';
 		const currentVersion = this.config.getSetupFileVersion();
-	
-		if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
-			console.log(`Setup file is up to date. Version: ${currentVersion}.`);
-			return;
+
+		let migrations = [{
+			minVersion: '0.3.0',
+			action: () => {
+				this.config.migrateToV0_3_0();
+				// show a warning message:
+				vscode.window.showWarningMessage(`Please, run 'SSJS: Show Config' command to finish update. This is one time action.`);
+			}
+		}, {
+			minVersion: '0.6.0',
+			action: () => {
+				this.config.migrateToV0_6_0();
+			}
+		}];
+
+		for (let migration of migrations) {
+			if (Config.parseVersion(currentVersion) < Config.parseVersion(migration.minVersion)) {
+				migration.action();
+				// logger.info(`Config Migration to version: ${migration.minVersion} done.`);
+			} else {
+				logger.info(`Config Migration to version: ${migration.minVersion} not needed.`);
+			}
 		}
-		console.log(`Migrate setup file from version: ${currentVersion} to ${minVersion}.`);
-		// migrate setup:
-		this.config.migrateSetup();
-		// show a warning message:
-		vscode.window.showWarningMessage(`Please, run 'SSJS: Install Dev Page' command to finish update. This is one time action.`);
 	}
 	
 	async checkDevPageVersion() {
