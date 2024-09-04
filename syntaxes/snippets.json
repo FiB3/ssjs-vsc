@@ -276,28 +276,28 @@
 	"UpdateData": {
 		"prefix": "UpdateData",
 		"body": [
-			"Platform.Function.UpdateData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+			"Platform.Function.UpdateData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpdateArray})"
 		],
 		"description": "Update data in a data extension in non-sending contexts. Returns number of rows updated."
 	},
 	"UpdateDE": {
 		"prefix": "UpdateDE",
 		"body": [
-			"Platform.Function.UpdateDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+			"Platform.Function.UpdateDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpdateArray})"
 		],
 		"description": "Update data in a data extension in sendable contexts. Returns number of rows updated."
 	},
 	"UpsertData": {
 		"prefix": "UpsertData",
 		"body": [
-			"Platform.Function.UpsertData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+			"Platform.Function.UpsertData(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpdateArray})"
 		],
 		"description": "Upsert data into a data extension in non-sending contexts. Returns number of rows upserted."
 	},
 	"UpsertDE": {
 		"prefix": "UpsertDE",
 		"body": [
-			"Platform.Function.UpsertDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpateArray})"
+			"Platform.Function.UpsertDE(${1:dataExtensionName}, ${2:filterColumnsArray}, ${3:filterValuesArray}, ${4:columnsToUpdateArray}, ${5:valuesToUpdateArray})"
 		],
 		"description": "Upsert data into a data extension in sendable contexts. Returns number of rows upserted."
 	},
