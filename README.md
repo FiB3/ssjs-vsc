@@ -76,7 +76,7 @@ This option allows setting `on-save` hooks for files so you can run specific com
 
 I would like to thank my sponsors:
 
-<a href="https://www.weareflo.com/"><svg width=100 viewBox="0 0 91 26" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4.921 5.206v5.922h9.705v4.71H4.92v9.63H0V.497h14.91v4.71H4.921ZM32.96 20.759v4.71H18.515V.496h4.921V20.76h9.526ZM77.81 0H46.772c-7.207 0-12.95 5.674-12.95 12.986 0 7.313 5.743 12.987 12.95 12.987h31.036c7.207 0 12.987-5.706 12.987-12.986S85.016 0 77.809 0Zm0 21.153H46.772c-4.531 0-8.062-3.387-8.062-8.17 0-4.784 3.53-8.204 8.062-8.204h31.036c4.531 0 8.062 3.388 8.062 8.204 0 4.815-3.53 8.17-8.062 8.17Z" fill="#08FFA3"></path></svg></a>  
+[![FLO](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/flo.png "FLO Logo")](https://www.weareflo.com/)  
 (former bluez.io)
 
 Sponsoring coming soon! For now please enjoy and share!
