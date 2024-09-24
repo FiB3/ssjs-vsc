@@ -27,6 +27,7 @@ async function activate(context) {
 	registerCommands(context, [
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
 		{ name: 'ssjs-vsc.upload-script', callback: async () => await ext.uploadScript() },
+		{ name: 'ssjs-vsc.get-standalone-script', callback: async () => await ext.provider.getStandaloneScript() },
 		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.create-config', callback: () => createConfig() },

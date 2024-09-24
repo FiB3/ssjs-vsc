@@ -55,6 +55,10 @@ module.exports = class NoCodeProvider {
 		this._checkCommand();
 	}
 
+	async getStandaloneScript() {
+		this._checkCommand();
+	}
+
 	_checkCommand() {
 		if (Config.isNoneProvider()) {
 			vscode.window.showWarningMessage(`Code Providers switched off!`);

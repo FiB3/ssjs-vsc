@@ -168,7 +168,13 @@ class SnippetHandler {
 		json.save(metadataPath, dt);
 	}
 
-	getLinkedMetadataPath(content) {
+	/**
+	 * Get linked script path from metadata.
+	 * NOTE: use .getMetadataFileName() to get metadata file path from script file path.
+	 * @param {*} content 
+	 * @returns 
+	 */
+	getLinkedScriptPath(content) {
 		return path.join(Config.getUserWorkspacePath(), content.linkedPath);
 	}
 
@@ -179,10 +185,10 @@ class SnippetHandler {
 	 * false if does not exist, null if linked file does not exist.
 	 */
 	isLinkMetadata(content) {
-		if (!content.linkedPath) {
+		if (!content?.linkedPath) {
 			return false
 		}
-		let fPath = this.getLinkedMetadataPath(content);
+		let fPath = this.getLinkedScriptPath(content);
 		logger.debug(`isLinkMetadata:`, fPath, ', exists:',file.exists(fPath));
 		return content.linkedPath && content.linkedPath.length > 0 && file.exists(fPath)
 				? true : false;
@@ -222,8 +228,9 @@ class SnippetHandler {
 		logger.debug(`metadata-path: ${metaPath}, metadata:`, metadata);
 		let islinkedMetadata = this.isLinkMetadata(metadata);
 		if (islinkedMetadata === true) {
-			let linkedMetaPath = this.getLinkedMetadataPath(metadata);
-			logger.debug(`Linked metadata found: ${linkedMetaPath}`);
+			let linkedScriptPath = this.getLinkedScriptPath(metadata);
+			logger.debug(`Linked metadata found: ${linkedScriptPath}`);
+			let linkedMetaPath = this.getMetadataFileName(linkedScriptPath);
 			return json.load(linkedMetaPath);
 		} else if (islinkedMetadata === null) {
 			logger.debug(`Linked metadata, but file does not exist!`);

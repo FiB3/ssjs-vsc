@@ -123,6 +123,25 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 	}
 
+	async getStandaloneScript() {
+		logger.debug('getStandaloneScript() called.');
+		try {
+			const pageDetails = await this._getContextForGetUrl();
+			logger.debug('pageDetails:', pageDetails);
+
+			if (pageDetails && pageDetails.metadata.id) {
+				const assetId = pageDetails.metadata.id;
+				const scriptText = `%%=TreatAsContent(ContentBlockById(v(${assetId})))=%%`;
+				vscode.env.clipboard.writeText(scriptText);
+				vscode.window.showInformationMessage('Standalone script copied to clipboard: ' + scriptText);
+			} else {
+				vscode.window.showErrorMessage('Script not deployed. Run `Upload Script to Dev` command first.');
+			}
+		} catch (e) {
+			telemetry.error('getStandaloneScript', { error: e.message, codeProvider: 'Asset' });
+		}
+	}
+
 	/**
 	 * Create New Dev Asset Block based on File.
 	 * @param {string} filePath path of the ssjs file.

@@ -2,7 +2,7 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.6.0",
+  "version": "0.6.1",
   "publisher": "FiB",
   "author": {
     "name": "filipbostik"
@@ -70,6 +70,11 @@
         "category": "SSJS",
         "icon": "$(play)"
       },
+			{
+        "command": "ssjs-vsc.get-standalone-script",
+        "title": "Get Standalone Run Script",
+        "category": "SSJS"
+      },
       {
         "command": "ssjs-vsc.start",
         "title": "Start",
@@ -119,6 +124,10 @@
         },
         {
           "command": "ssjs-vsc.upload-script",
+          "when": "ssjs-vsc.codeProvider != 'None'"
+        },
+				{
+          "command": "ssjs-vsc.get-standalone-script",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
         {
