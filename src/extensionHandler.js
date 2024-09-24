@@ -121,7 +121,7 @@ class ExtensionHandler {
 		}
 
 		let hookResult = await this.hooks.runSave(filePath, autoUpload);
-		logger.info(`Hook result: ${hookResult}.`);
+		logger.info(`Hook result: ${hookResult} - ${this.hooks.getHookResult(hookResult)}.`);
 		if (hookResult === -1 || hookResult === 0) {
 			return;
 		} else if (hookResult === 1 || hookResult === 2) {
@@ -261,6 +261,13 @@ class ExtensionHandler {
 	isProviderInactive() {
 		console.log(`isProviderInactive - provider active: ${!this.provider} || instance of no code provider ${this.provider?.constructor === NoCodeProvider}`);
 		return !this.provider || this.provider?.constructor === NoCodeProvider;
+	}
+
+	validateHookReadiness() {
+		if (!this.hooks?.runSave) {
+			logger.warn(`Hooks not ready! Reloading...`);
+			this.hooks = new Hooks(this.config);
+		} 
 	}
 }
 

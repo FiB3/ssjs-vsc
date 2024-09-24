@@ -430,6 +430,18 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
+	 * Validate if the file is supported for deployment via hooks.
+	 * @param {string} filePath
+	 * @returns {boolean}
+	 */
+	hookExists(filePath) {
+		// get file extension:
+		let ext = path.extname(filePath);
+		let h = this.getHooks('on-save', ext);
+		return h.enabled;
+	}
+
+	/**
 	 * Migrate setup file to new version - currently to v0.3.0+.
 	 */
 	migrateToV0_3_0() {	

@@ -108,6 +108,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	}
 
 	async getDevUrl(copyOnly = false) {
+		logger.debug('getDevUrl() called.');
 		try {
 			const pageDetails = await this._getContextForGetUrl();
 			logger.debug('pageDetails:', pageDetails);

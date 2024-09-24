@@ -81,6 +81,30 @@ module.exports = class Hooks {
 			return 0;
 		}
 	}
+
+	/**
+	 * Get the result of the hook per:
+	 * string: output file path to upload
+	 * 2 hook not run - but upload can continue,
+	 * 1 on success (continue upload),
+	 * 0 don't upload (upload disabled in hook),
+	 * -1 false on fail (no upload to do)
+	*/
+	getHookResult(hookResult) {
+		if (hookResult === -1) {
+			return 'failed build';
+		} else if (hookResult === 0) {
+			return 'upload not enabled';
+		} else if (hookResult === 1) {
+			return 'success - continue upload';
+		} else if (hookResult === 2) {
+			return 'hook not run - continue upload';
+		} else if (typeof hookResult === 'string') {
+			return 'output file to upload';
+		} else {
+			return 'unknown';
+		}
+	}
 }
 
 /**
@@ -121,7 +145,7 @@ ${data}
 				cmdOk = true;
 			})
 			.catch((error) => {
-				printCmdRes(result, false, command, usePath);
+				printCmdRes(error, false, command, usePath);
 			});
 
 	return cmdOk;

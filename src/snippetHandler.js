@@ -168,6 +168,10 @@ class SnippetHandler {
 		json.save(metadataPath, dt);
 	}
 
+	getLinkedMetadataPath(content) {
+		return path.join(Config.getUserWorkspacePath(), content.linkedPath);
+	}
+
 	/**
 	 * Check if the file has linked metadata.
 	 * @param {object} content file content
@@ -175,7 +179,12 @@ class SnippetHandler {
 	 * false if does not exist, null if linked file does not exist.
 	 */
 	isLinkMetadata(content) {
-		return content.linkedPath && content.linkedPath.length > 0 && file.exists(content.linkedPath)
+		if (!content.linkedPath) {
+			return false
+		}
+		let fPath = this.getLinkedMetadataPath(content);
+		logger.debug(`isLinkMetadata:`, fPath, ', exists:',file.exists(fPath));
+		return content.linkedPath && content.linkedPath.length > 0 && file.exists(fPath)
 				? true : false;
 	}
 
@@ -210,13 +219,18 @@ class SnippetHandler {
 		let metaPath = this.getMetadataFileName(filePath);
 
 		let metadata = json.load(metaPath);
-		let islinkedMetadata = this.isLinkMetadata(metadata) === true;
+		logger.debug(`metadata-path: ${metaPath}, metadata:`, metadata);
+		let islinkedMetadata = this.isLinkMetadata(metadata);
 		if (islinkedMetadata === true) {
-			return json.load(metadata.linkedPath);
+			let linkedMetaPath = this.getLinkedMetadataPath(metadata);
+			logger.debug(`Linked metadata found: ${linkedMetaPath}`);
+			return json.load(linkedMetaPath);
 		} else if (islinkedMetadata === null) {
+			logger.debug(`Linked metadata, but file does not exist!`);
 			vscode.window.showWarningMessage(`Linked metadata file does not exist!`);
 			return null;
 		}	else if (!this.isMetadataValid(metadata)) {
+			logger.debug(`Invalid metadata found: ${metaPath}`);
 			return null;
 		}
 		return metadata;

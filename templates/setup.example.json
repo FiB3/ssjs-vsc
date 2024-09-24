@@ -51,7 +51,7 @@
 			".js": {
 				"enabled": false,
 				"command": "npm run build",
-				"success-hanling": "upload-output",
+				"success-handling": "upload-output",
 				"output-file": "./dist/{{name}}.ssjs"
 			}
 		}

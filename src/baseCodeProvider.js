@@ -13,6 +13,7 @@ const vsc = require('./vsc.js');
 const dialogs = require('./ui/dialogs');
 const checks = require('./checks');
 const telemetry = require('./telemetry');
+const logger = require('./auxi/logger');
 
 const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
@@ -257,9 +258,11 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	async _getContextForGetUrl() {
 		// TODO: pick asset also based on asset file
 		const filePath = vsc.getActiveEditor();
-		if (filePath && Config.isFileTypeAllowed(filePath, false)) {
+		logger.debug(`_getContextForGetUrl(): File Path: ${filePath}, isFileTypeAllowed: ${Config.isFileTypeAllowed(filePath, false)}, hookExists: ${this.config.hookExists(filePath)}`);
+		if (filePath && (Config.isFileTypeAllowed(filePath, false) || this.config.hookExists(filePath))) {
 			let metadata = this.snippets.loadMetadata(filePath);
 			if (!metadata || metadata.error === true) {
+				logger.debug(`_getContextForGetUrl(): Metadata not found or error:`, metadata);
 				return false;
 			}
 			let isDevPageSet = this.config.isDevPageSet();
