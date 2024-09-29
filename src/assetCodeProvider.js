@@ -131,7 +131,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 			if (pageDetails && pageDetails.metadata.id) {
 				const assetId = pageDetails.metadata.id;
-				const scriptText = `%%=TreatAsContent(ContentBlockById(v(${assetId})))=%%`;
+				const scriptText = `%%=TreatAsContent(ContentBlockById(${assetId}))=%%`;
 				vscode.env.clipboard.writeText(scriptText);
 				vscode.window.showInformationMessage('Standalone script copied to clipboard: ' + scriptText);
 			} else {

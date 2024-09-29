@@ -2,14 +2,17 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
-## [0.6.0] - 2024-09-04
+## [0.6.1] - 2024-09-29
 
 ### Added:
-- On-save hooks, that allow running terminal/command line commands before saving scripts to SFMC.  
+- On-save hooks that allow running terminal/command line commands before saving scripts to SFMC.  
 This allows combining __SSJS Manager__ with tools like __generator-ssjs__.  
 Now you can use other file types (like `.js`) and build those into `.ssjs`, `.amp` or `.html`.  
 This feature also supports preview of code as before.  
 Output of build command is shown in the debug console.
+- On-save hooks supported by getting path and preview (except for the run-icon).
+- New command to generate the "standalone" scripts (with TreatAsContent & ContentBlock for a current script / content block).
+- Some new snippets like AMPsctipt try-catch.
 
 ### Fixes:
 - minor refactors and fixes.
@@ -22,7 +25,7 @@ Output of build command is shown in the debug console.
 
 ### Changed:
 - Removed comments from deployment scripts.
-
+∂
 ### Fixed:
 - Bug when retrying SFMC Connection using Config Panel reset ssjs-config.
 - other minor fixes.

@@ -26,6 +26,24 @@
 		],
 		"description": "try catch"
 	},
+	"try-catch-ampscript": {
+		"prefix": "try",
+		"body": [
+			"<script runat=\"server\" language=\"JavaScript\">",
+			"\tPlatform.Load(\"core\", \"1.1.1\");",
+			"\ttry {",
+			"</script>",
+			"",
+			"%%[ ]%%",
+			"",
+			"<script runat=\"server\" language=\"JavaScript\">",
+			"\t} catch (err) {",
+			"\t\tWrite(Stringify(err));",
+			"\t}",
+			"</script>"
+		],
+		"description": "Simplest SSJS Try Catch for AMPscript."
+	},
 	"for-loop": {
 		"prefix": "for",
 		"body": [
@@ -55,6 +73,27 @@
 			"Platform.Function.GUID()"
 		],
 		"description": "Returns a random GUID value for use as a unique identifier."
+	},
+	"IsEmailAddress": {
+		"prefix": "IsEmailAddress",
+		"body": [
+			"Platform.Function.IsEmailAddress(${1:email})"
+		],
+		"description": "Check if a string is a valid email address."
+	},
+	"IsPhoneNumber": {
+		"prefix": "IsPhoneNumber",
+		"body": [
+			"Platform.Function.IsPhoneNumber(${1:phoneNumber})"
+		],
+		"description": "Check if a string is a valid phone number."
+	},
+	"Format": {
+		"prefix": "Format",
+		"body": [
+			"Platform.Function.Format(${1:value}, ${2:format})"
+		],
+		"description": "Format a value based on a format string - dates, numbers. E.g: Format(Now(),'MM/dd/yyyy');, Format(55, 'C2'); // Returns '55.00'."
 	},
 	"GetValue": {
 		"prefix": "GetValue",
