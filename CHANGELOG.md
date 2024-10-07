@@ -2,6 +2,14 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.2] - 2024-10-07
+
+### Added:
+- New snippets for Subscriber.
+
+### Fixed:
+- Errors: "Cannot read properties of undefined (reading 'runSave')" & "Cannot set properties of undefined (setting 'use-auth')".
+
 ## [0.6.1] - 2024-09-29
 
 ### Added:

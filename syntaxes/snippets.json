@@ -429,5 +429,103 @@
 			"if (statusCode == 200) { Write(content[0]) }"
 		],
 		"description": "Posts content to the specified URL. Use standard ports if needed (80 for HTTP, 443 for HTTPS). Default character set is WindowsCodePage 1252. The timeout value for this function is 30 seconds."
+	},
+	"Subscriber.Init": {
+		"prefix": "Subscriber.Init",
+		"body": [
+			"Subscriber.Init(${1:subscriberKey})"
+		],
+		"description": "Initializes a subscriber object for the specified subscriber key."
+	},
+	"Subscriber.Add": {
+		"prefix": "Subscriber.Add",
+		"body": [
+			"var newSubscriber = {",
+			"\t\"SubscriberKey\": \"${1:subscriberKey}\",",
+			"\t\"EmailAddress\": \"${2:emailAddress}\",",
+			"\t\"Attributes\": {\"${3:attributeName}\": \"${4:attibuteValue}\"},",
+			"\t\"Lists\": {\"Status\": \"Active\", \"ID\": 12345, \"Action\": \"Create\"}",
+			"};",
+			"Subscriber.Add(newSubscriber);"
+		],
+		"description": "Adds a new Subscriber with specified information."
+	},
+	"Subscriber.Attributes.Retrieve": {
+		"prefix": "Subscriber.Attributes.Retrieve",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var attributes = subObj.Attributes.Retrieve();"
+		],
+		"description": "Retrieves all attributes for a subscriber."
+	},
+	"Subscriber.Lists.Retrieve": {
+		"prefix": "Subscriber.Lists.Retrieve",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var lists = subObj.Lists.Retrieve();"
+		],
+		"description": "Retrieves all lists for a subscriber."
+	},
+	"Subscriber.Remove": {
+		"prefix": "Subscriber.Remove",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var status = subObj.Remove();"
+		],
+		"description": "Removes a subscriber from the account."
+	},
+	"Subscriber.Retrieve": {
+		"prefix": "Subscriber.Retrieve",
+		"body": [
+			"var results = Subscriber.Retrieve({",
+			"\tProperty: \"SubscriberKey\"",
+			"\tSimpleOperator: \"equals\",",
+			"\tValue: \"MySubscriberKey\"",
+			"});"
+		],
+		"description": "Retrieves a subscriber object based on the given filter."
+	},
+	"Subscriber.Statistics": {
+		"prefix": "Subscriber.Statistics",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var stats = subObj.Statistics();"
+		],
+		"description": "Retrieves statistics for a subscriber (send, click, and open statistics)."
+	},
+	"Subscriber.Unsubscribe": {
+		"prefix": "Subscriber.Unsubscribe",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var status = subObj.Unsubscribe();"
+		],
+		"description": "Unsubscribes a subscriber from all lists."
+	},
+	"Subscriber.Update": {
+		"prefix": "Subscriber.Update",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var subscriberData = {",
+			"\t\"EmailTypePreference\": \"HTML\",",
+			"\t\"Attributes\": { \"First Name\": \"Test\" }",
+			"};",
+			"var status = subObj.Update(subscriberData);"
+		],
+		"description": "Updates a subscriber with new information and return status of the subsriber."
+	},
+	"Subscriber.Upsert": {
+		"prefix": "Subscriber.Upsert",
+		"body": [
+			"var subObj = Subscriber.Init(${1:subscriberKey});",
+			"var subscriberData = {",
+			"\t\"SubscriberKey\": \"${1:subscriberKey}\",",
+			"\t\"EmailAddress\": \"${2:emailAddress}\",",
+			"\t\"EmailTypePreference\": \"HTML\",",
+			"\t\"Attributes\": { \"First Name\": \"Test\" }",
+			"\t\"Lists\": {\"Status\": \"Active\", \"ID\": 12345, \"Action\": \"Create\"}",
+			"};",
+			"var status = subObj.Upsert(subscriberData);"
+		],
+		"description": "Upserts a subscriber with new information and return status of the subsriber."
 	}
 }
