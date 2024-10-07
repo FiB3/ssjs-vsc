@@ -119,9 +119,16 @@ class ExtensionHandler {
 			logger.warn(`Upload Script: ${filePath} - not found!`);
 			return;
 		}
+		this.validateHookReadiness();
 
-		let hookResult = await this.hooks.runSave(filePath, autoUpload);
+		let hookResult;
+		try {
+			hookResult = await this.hooks.runSave(filePath, autoUpload);
+		} catch (err) {
+			telemetry.error('upload-script', { 'location': 'extensionHandler.uploadScript - hooks.runSave()', 'error': err });
+		}
 		logger.info(`Hook result: ${hookResult} - ${this.hooks.getHookResult(hookResult)}.`);
+
 		if (hookResult === -1 || hookResult === 0) {
 			return;
 		} else if (hookResult === 1 || hookResult === 2) {
@@ -267,7 +274,7 @@ class ExtensionHandler {
 		if (!this.hooks?.runSave) {
 			logger.warn(`Hooks not ready! Reloading...`);
 			this.hooks = new Hooks(this.config);
-		} 
+		}
 	}
 }
 

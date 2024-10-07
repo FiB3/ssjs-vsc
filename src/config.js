@@ -292,6 +292,10 @@ module.exports = class Config extends Preferences {
 	 */
 	setDevPageInfo(pageContext = 'page', authOption, pageUrl, snippetId) {
 		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
+
+		if (!this.config[contextKey]) {
+			this.config[contextKey] = {};
+		}
 		
 		if (authOption) {
 			this.config[contextKey]['use-auth'] = authOption !== 'none' ? true : false;
