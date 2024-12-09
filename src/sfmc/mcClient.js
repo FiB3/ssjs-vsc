@@ -1,5 +1,6 @@
 const McRest = require('./mcRest');
 const logger = require('../auxi/logger');
+const stats = require('../auxi/stats');
 
 /*
 	list of required scopes per endpoint:
@@ -23,7 +24,8 @@ module.exports = class McClient {
 			subdomain,
 			clientId,
 			clientSecret,
-			accountId: mid
+			accountId: mid,
+			onApiCall: () => { stats.addApiCalls(); }
 		});
 		
 		this.folders = false;

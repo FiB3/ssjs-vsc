@@ -4,6 +4,7 @@ const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
 const logger = require('./src/auxi/logger');
 const telemetry = require('./src/telemetry');
+const stats = require('./src/auxi/stats');
 
 const dialogs = require('./src/ui/dialogs');
 const { showConfigPanel } = require('./src/ui/configPanel');
@@ -21,6 +22,7 @@ async function activate(context) {
 	ext.attachContext(context);
 
 	telemetry.init(context);
+	stats.init(context);
 
 	registerFormatters();
 

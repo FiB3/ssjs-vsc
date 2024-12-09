@@ -12,7 +12,7 @@ class McRest {
     this.accessToken = null;
     this.tokenExpiry = null;
     this.authPromise = null; // to only run one auth at the time
-    this.onApiCall = onApiCall || (() => {}); // Fallback no-op function
+    this.onApiCall = onApiCall || ((method, url) => {}); // Fallback no-op function
   }
 
   async authenticate() {
@@ -32,6 +32,8 @@ class McRest {
   }
 
 	async getAccessToken() {
+		this.onApiCall('POST', `/v2/token`);
+
 		return axios.post(this.authUrl, {
       client_id: this.clientId,
       client_secret: this.clientSecret,
