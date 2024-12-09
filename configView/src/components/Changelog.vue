@@ -4,6 +4,15 @@
 <template>
   <div>
 		<div>
+			<h2>v0.6.1: On-save hooks</h2>
+			<p>
+				On-save hooks that allow running terminal/command line commands before saving scripts to SFMC.
+				<br/>
+				This allows combining <strong>SSJS Manager</strong> with tools like <strong>generator-ssjs</strong>.
+			</p>
+		</div>
+		
+		<div>
 			<h2>v0.5.1: Debug Panel</h2>
 
 			<p>

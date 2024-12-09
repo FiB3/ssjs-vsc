@@ -28,6 +28,10 @@ const appInfo = ref({
 	workspaceSet: false
 });
 
+const appStats = ref({
+	apiCallsCount: 0
+});
+
 function autoShowSwitch() {
 	vscode.postMessage({
 		command: 'autoOpenChange',
@@ -39,6 +43,9 @@ onMounted(() => {
 	vscode.postMessage({
 		command: 'initialized'
 	});
+	vscode.postMessage({
+		command: 'getStats'
+	});
 
 	window.addEventListener('message', event => {
 		const message = event.data;
@@ -47,6 +54,10 @@ onMounted(() => {
 				console.log(`INIT Response:`, message);
 				appInfo.value.workspaceSet = message.workspaceSet;
 				autoOpenEnabled.value = message.showPanelAutomatically;
+				break;
+			case 'stats':
+				console.log(`STATS Response:`, message.data);
+				appStats.value.apiCallsCount = message.data.apiCalls;
 				break;
 		}
 	});
@@ -93,19 +104,24 @@ onMounted(() => {
     </main>
 
 		<footer>
-			<!-- <p class="footnote">
-				You can still access this panel using the "SSJS: Show Extension Config" command.
-			</p> -->
-			<div id="auto-show-switch-container">
-				<input id="auto-show-switch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
-				<label for="auto-show-switch">Show this panel automatically.
-				</label>
+			<div class="app-stats">
+				<p>
+					API Calls: {{ appStats.apiCallsCount }}
+				</p>
 			</div>
-			<div id="bug-link-container">
-				<a class="bug-link" href="https://github.com/fib3/ssjs-vsc/issues">
-					<span class="gg-debug"></span>
-					<span>Report bug of request feature.</span>
-				</a>
+
+			<div class="config-other">
+				<div id="auto-show-switch-container">
+					<input id="auto-show-switch" type="checkbox" v-model="autoOpenEnabled" @change="autoShowSwitch()" />
+					<label for="auto-show-switch">Show this panel automatically.
+					</label>
+				</div>
+				<div id="bug-link-container">
+					<a class="bug-link" href="https://github.com/fib3/ssjs-vsc/issues">
+						<span class="gg-debug"></span>
+						<span>Report bug of request feature.</span>
+					</a>
+				</div>
 			</div>
 		</footer>
   </div>
@@ -159,15 +175,25 @@ onMounted(() => {
 	}
 
 	footer {
-		position: absolute;
-		/* left: 0; */
-		right: 20px;
-		top: 0;
-		/* width: calc(100% - 20px); */
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		width: 100%;
 		padding: 10px 0px;
-		background-color: inherit;
-		opacity: 0.8;
-		text-align: right;
+		background-color: var(--vscode-editorWidget-background, #ccc);
+
+		display: inherit;
+	}
+
+	footer .app-stats {
+		margin-left: 10px;
+		float: left;
+    width: fit-content;
+	}
+
+	footer .config-other {
+		margin-right: 10px;
+		float: right;
 	}
 
 	#auto-show-switch {

@@ -6,6 +6,7 @@ let file = require('../auxi/file');
 let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
 let telemetry = require('../telemetry');
+let stats = require('../auxi/stats');
 
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
@@ -49,6 +50,9 @@ async function showConfigPanel(context) {
 					return;
 				case 'setTemplatingTags':
 					handleTemplatingTags(panel, message);
+					return;
+				case 'getStats':
+					handleGetStats(panel);
 					return;
 			}
 		},
@@ -147,6 +151,16 @@ function setManualStepDone(message) {
 
 function handleAutoOpenChange(newValue) {
 	Config.changeShowPanelAutomatically(newValue);
+}
+
+function handleGetStats(panel) {
+	let statsData = {
+		apiCalls: stats.getApiCalls()
+	};
+	panel.webview.postMessage({
+		command: 'stats',
+		data: statsData
+	});
 }
 
 function getWebviewContent(webview, extensionUri) {
