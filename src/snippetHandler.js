@@ -73,7 +73,7 @@ class SnippetHandler {
 		};
 		
 		let assetId = 0;
-		await this.mc.updateAsset(asset)
+		await this.mc.updateAsset(devAssetId, asset)
 				.then((data) => {
 					assetId = data.body.id;
 					this.saveMetadata(filePath, data, true);
