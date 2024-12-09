@@ -33,7 +33,7 @@ class SnippetHandler {
 	 */
 	async createSfmcSnippet(asset, devPageContext = false, filePath) {
 		let assetId = 0;
-		await this.mc._post(`/asset/v1/assets/`, asset)
+		await this.mc.createAsset(asset)
 				.then((data) => {
 					assetId = data.body.id;
 					this.saveMetadata(filePath, data);
@@ -73,7 +73,7 @@ class SnippetHandler {
 		};
 		
 		let assetId = 0;
-		await this.mc._patch(`/asset/v1/assets/${devAssetId}`, asset)
+		await this.mc.updateAsset(asset)
 				.then((data) => {
 					assetId = data.body.id;
 					this.saveMetadata(filePath, data, true);

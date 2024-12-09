@@ -2,7 +2,7 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.6.2",
+  "version": "0.6.3",
   "publisher": "FiB",
   "author": {
     "name": "filipbostik"
@@ -64,13 +64,13 @@
         "title": "Get Dev Url",
         "category": "SSJS"
       },
-			{
+      {
         "command": "ssjs-vsc.run",
         "title": "Run",
         "category": "SSJS",
         "icon": "$(play)"
       },
-			{
+      {
         "command": "ssjs-vsc.get-standalone-script",
         "title": "Get Standalone Run Script",
         "category": "SSJS"
@@ -126,7 +126,7 @@
           "command": "ssjs-vsc.upload-script",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
-				{
+        {
           "command": "ssjs-vsc.get-standalone-script",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
@@ -134,7 +134,7 @@
           "command": "ssjs-vsc.get-url",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
-				{
+        {
           "command": "ssjs-vsc.run",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
@@ -374,7 +374,8 @@
     "test": "node ./test/runTest.js"
   },
   "dependencies": {
-    "@vscode/extension-telemetry": "^0.9.2",
+		"@vscode/extension-telemetry": "^0.9.2",
+    "axios": "^1.7.9",
     "beauty-amp-core2": "^0.4.10",
     "express": "^4.19.2",
     "generate-password": "^1.7.0",
@@ -382,11 +383,10 @@
     "md5": "^2.3.0",
     "moment": "^2.29.4",
     "morgan": "^1.10.0",
-    "mustache": "^4.2.0",
-    "sfmc-fuelsdk-node": "^2.4.0"
+    "mustache": "^4.2.0"
   },
   "devDependencies": {
-    "@types/glob": "^8.1.0",
+		"@types/glob": "^8.1.0",
     "@types/mocha": "^10.0.1",
     "@types/node": "16.x",
     "@types/vscode": "1.77.0",

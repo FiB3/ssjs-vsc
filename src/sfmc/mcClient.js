@@ -1,4 +1,5 @@
-const ET_Client = require('sfmc-fuelsdk-node');
+const McRest = require('./mcRest');
+const logger = require('../auxi/logger');
 
 /*
 	list of required scopes per endpoint:
@@ -18,24 +19,12 @@ const REQUIRED_SCOPES = [
 module.exports = class McClient {
 	
 	constructor(subdomain, clientId, clientSecret, mid) {
-		let clientSetup = {
-			origin: `https://${subdomain}.rest.marketingcloudapis.com`,
-			authOrigin: `https://${subdomain}.auth.marketingcloudapis.com`,
-			soapOrigin: `https://${subdomain}.soap.marketingcloudapis.com/Service.asmx`,
-			authOptions: {
-				authVersion: 2
-			}
-		};
-		if (mid) {
-			clientSetup.authOptions.accountId = mid;
-		}
-
-		this.client = new ET_Client(
-				clientId,
-				clientSecret,
-				null,
-				clientSetup
-		);
+		this.client = new McRest({
+			subdomain,
+			clientId,
+			clientSecret,
+			accountId: mid
+		});
 		
 		this.folders = false;
 	}
@@ -84,6 +73,14 @@ module.exports = class McClient {
 		};
 		console.log('BODY:', body);
 		return this._post(`/asset/v1/content/assets`, body);
+	}
+
+	async createAsset(assetData) {
+		return this._post(`/asset/v1/assets/`, assetData);
+	}
+
+	async updateAsset(assetId, assetData) {
+		return this._patch(`/asset/v1/assets/${assetId}`, assetData);
 	}
 
 	async createAssetFolder(name, parentId = 0) {
@@ -168,12 +165,13 @@ module.exports = class McClient {
 
     try {
         const data = await this.validateApiKeys();
-        console.log(`API Keys OK.`);
+        console.log(`API Keys OK.`, data.body?.user?.id);
         r.userId = data.body?.user?.id;
     } catch (err) {
-        r.ok = false;
-        let m = this.parseRestError(err);
-        r.message = `SFMC API Credentials issue: \n${m}`;
+			logger.error('validateApiKeys error:', err);
+			r.ok = false;
+			let m = this.parseRestError(err);
+			r.message = `SFMC API Credentials issue: \n${m}`;
     }
     return r;
 	}
@@ -188,9 +186,10 @@ module.exports = class McClient {
 	 */
 	async validateScopes() {
 		return new Promise((resolve, reject) => {
-			this.client.FuelAuthClient.getAccessToken()
+			// this.client.FuelAuthClient.getAccessToken()
+			this.client.getAccessToken()
 					.then((data) => {
-						// console.log('validateApiKeys.getAccessToken.scopes: ', data.scope, '.');
+						console.log('validateApiKeys.getAccessToken.scopes: ', data.scope, '.');
 						let scopes = data.scope ? data.scope.split(' ') : [];
 						let missingScopes = [];
 						REQUIRED_SCOPES.forEach((reqScope) => {
@@ -212,87 +211,15 @@ module.exports = class McClient {
 	}
 
 	async _post(uri, body) {
-		return new Promise((resolve, reject) => {
-			this.client.RestClient.post({
-					uri,
-					body,
-					json: true
-				})
-				.then((data) => {
-					let r = {
-						statusCode: data.res.statusCode,
-						statusMessage: data.res.statusMessage,
-						body: data.body
-					};
-					console.log(`MC._post ${uri}:`, r);
-
-					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
-						resolve(r);
-					} else {
-						reject(r);
-					}
-				})
-				.catch((err) => {
-					console.error(`POST ${uri}: ${JSON.stringify(err)}`);
-					reject(err);
-				});
-		});
+		return this.client.post(uri, {}, body);
 	}
 
 	async _patch(uri, body) {
-		return new Promise((resolve, reject) => {
-			this.client.RestClient.patch({
-					uri,
-					body,
-					json: true
-				})
-				.then((data) => {
-					let r = {
-						statusCode: data.res.statusCode,
-						statusMessage: data.res.statusMessage,
-						body: data.body
-					};
-					console.log(`MC._patch ${uri}:`, r);
-
-					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
-						resolve(r);
-					} else {
-						reject(r);
-					}
-				})
-				.catch((err) => {
-					console.error(`PATCH ${uri}: ${JSON.stringify(err)}`);
-					reject(err);
-				});
-		});
+		return this.client.patch(uri, {}, body);
 	}
 
 	async _get(uri, qs) {
-		return new Promise((resolve, reject) => {
-			this.client.RestClient.get({
-					uri,
-					qs,
-					json: true
-				})
-				.then((data) => {
-					let r = {
-						statusCode: data.res.statusCode,
-						statusMessage: data.res.statusMessage,
-						body: data.body
-					};
-					console.log(`MC._get ${uri}:`, r);
-
-					if ([ 200, 201, 202 ].includes(data.res?.statusCode)) {
-						resolve(r);
-					} else {
-						reject(r);
-					}
-				})
-				.catch((err) => {
-					console.error(`GET ${uri}: ${JSON.stringify(err)}`);
-					reject(err);
-				});
-		});
+		return this.client.get(uri, qs);
 	}
 
 	parseRestError(err) {

@@ -411,7 +411,6 @@
 		],
 		"description": "Takes a supplied string value and treat it as a content area. This function renders all included dynamic content, scripts, and personalization strings. Use the HTTPGETWRAP command to wrap links for tracking and analytics within this function."
 	},
-
 	"HTTPGet": {
 		"prefix": "HTTPGet",
 		"body": [
@@ -429,6 +428,13 @@
 			"if (statusCode == 200) { Write(content[0]) }"
 		],
 		"description": "Posts content to the specified URL. Use standard ports if needed (80 for HTTP, 443 for HTTPS). Default character set is WindowsCodePage 1252. The timeout value for this function is 30 seconds."
+	},
+	"Redirect": {
+		"prefix": "Redirect",
+		"body": [
+			"Redirect(${1:redirectUrl}, ${2:isPermanentRedirect});"
+		],
+		"description": "Redirects the user to the specified URL. If the second parameter is set to true, the redirect is permanent (301)."
 	},
 	"Subscriber.Init": {
 		"prefix": "Subscriber.Init",
@@ -527,5 +533,12 @@
 			"var status = subObj.Upsert(subscriberData);"
 		],
 		"description": "Upserts a subscriber with new information and return status of the subsriber."
+	},
+	"RaiseError": {
+		"prefix": "RaiseError",
+		"body": [
+			"Platform.Function.RaiseError(${1:errorMessage}, ${2:recipientOnly}, ${3:statusCodeText}, ${4:errorCodeText});"
+		],
+		"description": "Raises an error message and stops the script execution for the current recipient or all recipients."
 	}
 }
