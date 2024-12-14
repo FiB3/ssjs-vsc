@@ -105,7 +105,7 @@ onMounted(() => {
 
 		<footer>
 			<div class="app-stats">
-				<p>
+				<p title="Count of API Calls used by the extension in this workspace.">
 					API Calls: {{ appStats.apiCallsCount }}
 				</p>
 			</div>
