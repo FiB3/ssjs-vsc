@@ -540,5 +540,34 @@
 			"Platform.Function.RaiseError(${1:errorMessage}, ${2:recipientOnly}, ${3:statusCodeText}, ${4:errorCodeText});"
 		],
 		"description": "Raises an error message and stops the script execution for the current recipient or all recipients."
+	},
+	"LocalDateToSystemDate": {
+		"prefix": "LocalDateToSystemDate",
+		"body": [
+			"DateTime.LocalDateToSystemDate(${1:localDate})"
+		],
+		"description": "Converts a local date (JS Date object) to a system date."
+	},
+	"Now": {
+		"prefix": "Now",
+		"body": [
+			"Now(${1:retainSendTime})"
+		],
+		"description": "Returns the current date and time."
+	},
+	"TimeZone.Retrieve": {
+		"prefix": "TimeZone.Retrieve",
+		"body": [
+			"var filter = DateTime.TimeZone.Retrieve({Property: 'ID', SimpleOperator: 'equals', Value: 1});",
+			"var timezones = DateTime.TimeZone.Retrieve(filter);"
+		],
+		"description": "Retrieves the time zone of the account based on the filter - no filter returns all time zones."
+	},
+	"SystemDateToLocalDate": {
+		"prefix": "SystemDateToLocalDate",
+		"body": [
+			"var systemTime = Platform.Function.SystemDateToLocalDate(Now())"
+		],
+		"description": "Converts a system date to a local date (JS Date object)."
 	}
 }
