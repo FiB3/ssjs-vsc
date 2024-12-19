@@ -8,6 +8,15 @@
 		],
 		"description": "SSJS Block."
 	},
+	"script-javascript": {
+		"prefix": "<script",
+		"body": [
+			"%%=Concat('<scr','ipt>')=%%",
+			"\t/* your JS code */",
+			"%%=Concat('</scr','ipt>')=%%"
+		],
+		"description": "Frontend JS block in AMPscript."
+	},
 	"Load": {
 		"prefix": "Platform.Load",
 		"body": [
@@ -52,6 +61,36 @@
 			"}"
 		],
 		"description": "For loop"
+	},
+	"filter-wsproxy": {
+		"prefix": "filter (simple)",
+		"body": [
+			"var filter = {",
+			"\tProperty: '${1:columnName}',",
+			"\tSimpleOperator: '${2:operator}',",
+			"\tValue: '${3:value}'",
+			"};"
+		],
+		"description": "Simple filter for WSProxy. Simple Operators: `equals`, `notEquals`, `greaterThan`, `lessThan`, `greaterThanOrEqual`, `lessThanOrEqual`, `like`, `isNotNull`, `isNull`, `between`, `in`. Don't add value for `isNull` and `isNotNull`, `between` needs two values, `in` accepts multiple values."
+	},
+	"filter-wsproxy-complex": {
+		"prefix": "filter (complex)",
+		"body": [
+			"{",
+			"\tLeftOperand: {",
+			"\t\tProperty: '${1:columnName}',", 
+			"\t\tSimpleOperator: '${2:operator}',",
+			"\t\tValue: '${3:value}'",
+			"\t},",
+			"\tLogicalOperator: '${4:AND|OR}',",
+			"\tRightOperand: {",
+			"\t\tProperty: '${5:columnName}',",
+			"\t\tSimpleOperator: '${6:operator}',",
+			"\t\tValue: '${7:value}'",
+			"\t}",
+			"};"
+		],
+		"description": "Complex filter for WSProxy. Simple Operators: `equals`, `notEquals`, `greaterThan`, `lessThan`, `greaterThanOrEqual`, `lessThanOrEqual`, `like`, `isNotNull`, `isNull`, `between`, `in`. Don't add value for `isNull` and `isNotNull`, `between` needs two values, `in` accepts multiple values."
 	},
 	"Stringify": {
 		"prefix": "Stringify",
