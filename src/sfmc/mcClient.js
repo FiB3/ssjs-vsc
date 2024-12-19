@@ -236,6 +236,18 @@ module.exports = class McClient {
 		return JSON.stringify(err);
 	}
 
+	isDuplicateAssetError(err) {
+		console.log('isDuplicateAssetError:', err?.statusCode, '-', err.statusMessage);
+		let parsed = this.parseRestError(err);
+		if (
+				err?.statusCode === 400
+				&& parsed.includes('must be unique.')
+				&& parsed.includes('already taken. Suggested name')
+		) {
+			return true;
+		}
+	}
+
 	static extractSubdomain(fqdn) {
 		if (typeof(fqdn) === 'string') {
 			fqdn = fqdn.trim();

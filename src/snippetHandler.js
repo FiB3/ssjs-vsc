@@ -44,14 +44,17 @@ class SnippetHandler {
 					}
 				})
 				.catch((err) => {
-					console.error('Create Dev Asset ERR:', err);
+					logger.error('Create Dev Asset ERR:', err);
 					asset.content = '<<script>>';
-					console.debug('Dev Asset data:', asset);
+					logger.debug('Dev Asset data:', asset);
 					// TODO: show error message:
-					let m = this.mc.parseRestError(err);
-					if (!devPageContext) {
+					if (this.mc.isDuplicateAssetError(err)) {
+						vscode.window.showWarningMessage(`Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
+					} else if (!devPageContext) {
+						let m = this.mc.parseRestError(err);
 						vscode.window.showErrorMessage(`Error on Creating Dev Asset! \n${m}`);
 					} else {
+						let m = this.mc.parseRestError(err);
 						vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
 					assetId = false;
@@ -85,9 +88,9 @@ class SnippetHandler {
 				})
 				.catch((err) => {
 					assetId = false;
-					console.error('Update Dev Asset ERR:', err);
+					logger.error('Update Dev Asset ERR:', err);
 					asset.content = '<<script>>';
-					console.debug('Dev Asset data:', asset);
+					logger.debug('Dev Asset data:', asset);
 					// TODO: show error message:
 					let m = this.mc.parseRestError(err);
 					if (!devPageContext) {
@@ -103,7 +106,7 @@ class SnippetHandler {
 
 	saveScriptText(filePath, snippetText, withFileOpen = false) {
 		const scriptPath = path.join(Config.getUserWorkspacePath(), filePath);
-		// console.log(`Code Snippet Path: ${scriptPath}`);
+		// logger.log(`Code Snippet Path: ${scriptPath}`);
 		file.save(scriptPath, snippetText);
 		if (withFileOpen) {
 			vscode.workspace.openTextDocument(scriptPath).then((doc) =>
@@ -126,7 +129,7 @@ class SnippetHandler {
 
 	getDevContext(filePath) {
 		let meta = this.loadMetadata(filePath);
-		console.log(`getDevContext: meta.devContext: ${meta.devContext}.`, meta);
+		logger.log(`getDevContext: meta.devContext: ${meta.devContext}.`, meta);
 		return meta.devContext || false;
 	}
 
@@ -211,7 +214,7 @@ class SnippetHandler {
 	addToMetadata(filePath, data) {
 		let dt = this.loadMetadata(filePath);
 		Object.assign(dt, data);
-		// console.log('addToMetadata:', dt);
+		// logger.log('addToMetadata:', dt);
 		const metadataPath = this.getMetadataFileName(filePath);
 		json.save(metadataPath, dt);
 	}
@@ -245,10 +248,10 @@ class SnippetHandler {
 
 	async checkAssetFolder() {
 		if (!this.config.getAssetFolderId()) {
-			console.log(`No Folder ID`);
+			logger.log(`No Folder ID`);
 			return await this.createAssetFolder();
 		} else {
-			console.log(`Found Folder ID`);
+			logger.log(`Found Folder ID`);
 			return true;
 		}
 	}
@@ -295,7 +298,7 @@ class SnippetHandler {
 		let f = await this.createFolder(folderName, parentFolderName);
 
 		if (!f) {
-			console.log(`Could not create Content Builder Folder!`, f);
+			logger.log(`Could not create Content Builder Folder!`, f);
 			return {
 				ok: false,
 				message: 'Could not create Content Builder Folder!'
@@ -338,7 +341,7 @@ class SnippetHandler {
 			// returns body
 			r = await this.mc.createAssetFolder(folderName, parent.id);
 		} catch (err) {
-			console.log(`Error on creating Asset folder:`, err);
+			logger.log(`Error on creating Asset folder:`, err);
 			let m = this.mc.parseRestError(err);
 			vscode.window.showWarningMessage(`Could not create Content Builder Folder! \n${m}`);
 			return false;

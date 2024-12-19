@@ -107,8 +107,14 @@ class McRest {
 						}
 					})
 					.catch(error => {
-						logger.error(`MC._request ${method} ${endpoint}: ${JSON.stringify(error)}`);
-						reject(error);
+						logger.error(error);
+						let r = {
+							statusCode: error.status || 0,
+							statusMessage: error.message || 'JS Error',
+							body: error.response?.data || JSON.stringify(error)
+						};
+						logger.error(`MC._request ${method} ${endpoint}: ${JSON.stringify(r)}`);
+						reject(r);
 					});
 		});
   }
