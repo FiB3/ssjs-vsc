@@ -29,7 +29,7 @@ class SnippetHandler {
 	 * @param {Object} asset asset data for the creation request 
 	 * @param {boolean|string} devPageContext - false for dev asset, string for deployment asset (page/text)
 	 * @param {string} filePath - path of the script file (to create metadata file) 
-	 * @returns {number|boolean} - asset ID if created, false if failed.
+	 * @returns {number|boolean} - asset ID if created, false if failed. `-2` if duplicate.
 	 */
 	async createSfmcSnippet(asset, devPageContext = false, filePath) {
 		let assetId = 0;
@@ -47,9 +47,11 @@ class SnippetHandler {
 					logger.error('Create Dev Asset ERR:', err);
 					asset.content = '<<script>>';
 					logger.debug('Dev Asset data:', asset);
+					assetId = false;
 					// TODO: show error message:
 					if (this.mc.isDuplicateAssetError(err)) {
 						vscode.window.showWarningMessage(`Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
+						assetId = -2;
 					} else if (!devPageContext) {
 						let m = this.mc.parseRestError(err);
 						vscode.window.showErrorMessage(`Error on Creating Dev Asset! \n${m}`);
@@ -57,7 +59,6 @@ class SnippetHandler {
 						let m = this.mc.parseRestError(err);
 						vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
-					assetId = false;
 				});
 		return assetId;
 	}

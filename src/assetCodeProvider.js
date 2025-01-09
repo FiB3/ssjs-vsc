@@ -39,21 +39,29 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 
 		if (this.snippets.snippetExists(filePath)) {
-			await this.updateCode(filePath);
+			let assetId = await this.updateCode(filePath);
+			// continue only if updated successfully:
+			if (assetId) {
+				let savedDevContext = this.snippets.getDevContext(filePath);
+				logger.debug('savedDevContext:', savedDevContext);
+				if (!savedDevContext) {
+					await this.getDevContextPreference(filePath);
+				}
 
-			let savedDevContext = this.snippets.getDevContext(filePath);
-			logger.debug('savedDevContext:', savedDevContext);
-			if (!savedDevContext) {
-				await this.getDevContextPreference(filePath);
+				telemetry.log('updateScript', { codeProvider: 'Asset', update: true });
 			}
-
-			telemetry.log('updateScript', { codeProvider: 'Asset', update: true });
 		} else if (!autoUpload) {
-			await this.createNewBlock(filePath);
-			// find out the default dev context and save it:
-			await this.getDevContextPreference(filePath);
+			let assetId = await this.createNewBlock(filePath);
+			// continue if block created successfully:
+			if (typeof assetId === 'number' && assetId > 0) {
+				// find out the default dev context and save it:
+				await this.getDevContextPreference(filePath);
 
-			telemetry.log('uploadScript', { codeProvider: 'Asset', update: false });
+				telemetry.log('uploadScript', { codeProvider: 'Asset', update: false });
+			} else if (assetId === -2) {
+				// TODO: offer to overwrite the existing file
+				logger.debug('File already exists.');
+			}
 		} else {
 			vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 		}
