@@ -2,6 +2,16 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.4] - 2025-01-09
+
+### Added:
+- Counter for SFMC API calls.
+- New snippets (WS Proxy filter examples, front-end JS in SSJS).
+
+### Changed:
+- Improved error message for when deploying duplicate assets.
+- Replaced obsolete NPM modules to increase security.
+
 ## [0.6.2] - 2024-10-07
 
 ### Added:
