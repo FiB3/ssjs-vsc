@@ -100,27 +100,27 @@ function getWebviewContent(context, devUrl, devPageContext) {
 			path.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs')
 		);
 		monacoBasePath = panel.webview.asWebviewUri(scriptPathOnDisk);
-
-		logger.log('scriptPathOnDisk:', scriptPathOnDisk);
-		logger.log('monacoPath:', monacoPath);
 	}
 	let html = template.runFile(p, { devUrl, monacoPath, monacoBasePath });
 	return html;
 }
 
 async function loadScriptOutput(pageData, method = 'GET', options = { params: {}, body: {}, headers: {} }) {
-	let url = `${pageData.url}?${new URLSearchParams(options.params).toString()}`;
-	// TODO: add headers for both authorization principles:
+	let url = `${pageData.cleanUrl || pageData.url}?${new URLSearchParams(options.params).toString()}`;
 	let headersToUse = {
-		// Authorization: `Bearer ${pageData.token}`,
 		...options.headers
-	};
+	}
+	if (pageData.tkn) headersToUse.Cookie = `ssjs-token=${md5(pageData.tkn)}`;
+	if (pageData.username && pageData.password) headersToUse.Cookie = `ssjs-basic-auth=${md5(`${pageData.username}:${pageData.password}`)}`;
+
 	let t0 = new Date();
 
 	let result = await axios({
 		method,
 		url,
 		responseType: 'text',
+		headers: headersToUse,
+		withCredentials: true
 	});
 	let t1 = new Date();
 	logger.log('loadScriptOutput:', result);

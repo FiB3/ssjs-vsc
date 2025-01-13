@@ -197,11 +197,12 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			res.password = tokenConfig.password;
 		} else if (tokenConfig.useAuth && tokenConfig.authType == 'token') {
 			logger.debug(`Chose token auth.`);
-			tkn = tokenConfig.token;
+			res.tkn = tokenConfig.token;
 		}
 
 		let url = this.config.getDevPageInfo(devPageContext).devPageUrl || '';
-		res.url = tkn ? `${url}?token=${tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
+		res.url = res.tkn ? `${url}?token=${res.tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
+		res.cleanUrl = `${url}?asset-id=${id}`;
 		return res;
 	}
 }
