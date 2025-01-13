@@ -608,5 +608,33 @@
 			"var systemTime = Platform.Function.SystemDateToLocalDate(Now())"
 		],
 		"description": "Converts a system date to a local date (JS Date object)."
+	},
+	"RemoveCookie": {
+		"prefix": "RemoveCookie",
+		"body": [
+			"Platform.Response.RemoveCookie(${1:cookieName})"
+		],
+		"description": "Removes a cookie from the response."
+	},
+	"SetCookie": {
+		"prefix": "SetCookie",
+		"body": [
+			"Platform.Response.SetCookie(${1:cookieName}, ${2:cookieValue}, ${3:expirationDate}, ${4:httpsOnly})"
+		],
+		"description": "Sets a cookie in the response. Note: follow legal requirements for setting cookies."
+	},
+	"SetResponseHeader": {
+		"prefix": "SetResponseHeader",
+		"body": [
+			"Platform.Response.SetResponseHeader(${1:headerName}, ${2:headerValue})"
+		],
+		"description": "Sets a response header for the current page."
+	},
+	"RemoveResponseHeader": {
+		"prefix": "RemoveResponseHeader",
+		"body": [
+			"Platform.Response.RemoveResponseHeader(${1:headerName})"
+		],
+		"description": "Removes a response header from the current page."
 	}
 }

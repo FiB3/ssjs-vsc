@@ -2,6 +2,14 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.5] - 2025-01-13
+
+### Changed:
+- New Preview for Text resource. It allows for full interactivity, including JSON formatting and search. Handy information about the page processing are also included in the preview.
+
+### Added:
+- New snippets (Platform Requst).
+
 ## [0.6.4] - 2025-01-09
 
 ### Added:

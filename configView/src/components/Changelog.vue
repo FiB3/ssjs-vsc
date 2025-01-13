@@ -4,6 +4,27 @@
 <template>
   <div>
 		<div>
+			<h2>v0.6.5: New Preview and Snippets</h2>
+			<p>
+				New Preview for Text resource. It allows for full interactivity, including JSON formatting and search. Handy information about the page processing are also included in the preview.
+				<br/>
+				New snippets (Platform Request).
+			</p>
+		</div>
+		<div>
+			<h2>v0.6.4: API Call Counter and Snippets</h2>
+			<p>
+				Counter for SFMC API calls.
+				<br/>
+				New snippets (WS Proxy filter examples, front-end JS in SSJS).
+				<br/>
+				Improved error message for when deploying duplicate assets.
+				<br/>
+				Replaced obsolete NPM modules to increase security.
+			</p>
+		</div>
+
+		<div>
 			<h2>v0.6.1: On-save hooks</h2>
 			<p>
 				On-save hooks that allow running terminal/command line commands before saving scripts to SFMC.
