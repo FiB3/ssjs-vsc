@@ -90,6 +90,9 @@ function getWebviewContent(context, devUrl, devPageContext) {
 	
 	let monacoPath = ``;
 	let monacoBasePath = false;
+	const colorTheme = vscode.window.activeColorTheme;
+	let defaultTheme = colorTheme.kind === vscode.ColorThemeKind.Light ? 'vs-light' : 'vs-dark';
+	logger.log('defaultTheme:', defaultTheme, colorTheme.kind);
 	if (isTextPageContext(devPageContext)) {
 		// load from node_modules:
 		let scriptPathOnDisk = vscode.Uri.file(
@@ -101,7 +104,7 @@ function getWebviewContent(context, devUrl, devPageContext) {
 		);
 		monacoBasePath = panel.webview.asWebviewUri(scriptPathOnDisk);
 	}
-	let html = template.runFile(p, { devUrl, monacoPath, monacoBasePath });
+	let html = template.runFile(p, { devUrl, monacoPath, monacoBasePath, defaultTheme });
 	return html;
 }
 

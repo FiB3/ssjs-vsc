@@ -105,7 +105,7 @@
 		require.config({ paths: { 'vs': '{{monacoBasePath}}' } });
 		let e = {
 			editor: null,
-			theme: 'vs-dark',
+			theme: "{{defaultTheme}}",
 			updateEditorContent: () => {},
 			formatEditorContent: () => {},
 			toogleTheme: () => {}
@@ -116,7 +116,7 @@
 				value: '',
 				language: 'json',
 				readOnly: true,
-				theme: e.theme,
+				theme: e.theme
 			});
 
 			// Function to update the editor content
@@ -138,10 +138,23 @@
 				e.editor.updateOptions({ readOnly: true });
 			}
 
-			e.toogleTheme = function() {
-				e.theme = e.theme === 'vs-dark' ? 'vs-light' : 'vs-dark';
+			e.toogleTheme = function(newTheme = false) {
+				if (!newTheme) {
+					e.theme = e.theme === 'vs-dark' ? 'vs-light' : 'vs-dark';
+				} else {
+					e.theme = newTheme;
+				}
 				e.editor.updateOptions({ theme: e.theme });
+				e.changeThemeText();
 			}
+
+			e.changeThemeText = function() {
+				document.getElementById('toggleTheme').innerHTML =
+						e.theme === 'vs-dark'
+						? 'Light theme' : 'Dark theme';
+			}
+
+			e.changeThemeText();
 		});
 
 		function refresh() {
@@ -242,7 +255,7 @@
 		<div class="control-panel"></div>
 			<a class="panel-button" onclick="refresh()">Refresh</a>
 			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
-			<a class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
+			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
 			<a class="panel-button" onclick="showDebugHint()">Info</a>
 		</div>
 		<div id="debug-hint">
