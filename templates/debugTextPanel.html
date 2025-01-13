@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		body {
+			height: 100vh;
+		}
+
+		#previewFrame {
+			overflow: scroll;
+    	padding: 10px;
+			height: 66%;
+		}
+
+		#httpResults {
+			padding: 10px;
+		}
+
+		#httpResults p {
+			margin: 3px 0px 0px 0px;
+		}
+
+		.overlay {
+			position: fixed;
+			bottom: 0;
+			left: 0;
+			width: 100%;
+			height: 15%;
+			/* background-color: rgba(0, 0, 0, 0.523); */
+			display: flex;
+			justify-content: center;
+			align-items: center;
+		}
+
+		.control-panel {
+			position: fixed;
+			bottom: 60px;
+			width: fit-content;
+			margin: 0px auto;
+			display: flex;
+			justify-content: center;
+			background-color: rgb(200, 200, 200);
+			padding: 10px 0px;
+			border-radius: 15px;
+			/* border: ; */
+		}
+
+		.panel-button {
+			margin: 0 10px;
+			padding: 5px 10px;
+			background-color: #3a3a3a; /* Green */
+			color: white;
+			text-align: center;
+			text-decoration: none;
+			display: inline-block;
+			font-size: 16px;
+			transition-duration: 0.4s;
+			cursor: pointer;
+			border-radius: 6px;
+		}
+
+		.panel-button:hover {
+			background-color: white;
+			color: black;
+		}
+
+		#debug-hint {
+			position: fixed;
+			bottom: 10px;
+			/* left: 0; */
+			margin: 0px auto;
+			/* height: 45px; */
+			background-color: rgb(163, 163, 163);
+			/* display: flex; */
+			text-align: center;
+			justify-content: center;
+			padding: 0px 10px;
+			visibility: hidden;
+		}
+
+		#refresh-toast {
+			padding: 5px;
+			bottom: 40%;
+			left: calc(50% - 65px);
+			width: 120px;
+			display: none;
+			opacity: 0;
+			transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
+		}
+
+		#refresh-toast.show {
+			display: flex;
+			opacity: 1;
+			transition: opacity 0.1s ease-in, visibility 0.1s ease-in;
+		}
+	</style>
+
+	<script src="{{monacoPath}}"></script>
+
+	<script type="text/javascript">
+		const vscode = acquireVsCodeApi();
+		require.config({ paths: { 'vs': '{{monacoBasePath}}' } });
+		let e = {
+			editor: null,
+			theme: 'vs-dark',
+			updateEditorContent: () => {},
+			formatEditorContent: () => {},
+			toogleTheme: () => {}
+		}
+
+		require(['vs/editor/editor.main'], function () {
+			e.editor = monaco.editor.create(document.getElementById('previewFrame'), {
+				value: '',
+				language: 'json',
+				readOnly: true,
+				// theme: 'vs-light', // Light theme; use 'vs-dark' for a dark theme
+			});
+
+			// Function to update the editor content
+			e.updateEditorContent = function(content, language) {
+				monaco.editor.setModelLanguage(e.editor.getModel(), language);
+				e.editor.setValue(content.trim());
+			}
+
+			e.formatEditorContent = async function() {
+				e.editor.updateOptions({ readOnly: false });
+				if (e.editor) {
+					const formatAction = await e.editor.getAction('editor.action.formatDocument');
+					if (formatAction) {
+						await formatAction.run();
+					} else {
+					}
+				} else {
+				}
+				e.editor.updateOptions({ readOnly: true });
+			}
+
+			e.toogleTheme = function() {
+				e.theme = e.theme === 'vs-dark' ? 'vs-light' : 'vs-dark';
+				e.editor.updateOptions({ theme: e.theme });
+			}
+		});
+
+		function refresh() {
+			vscode.postMessage({ command: 'debugInitiated' });
+			console.log(`refresh`);
+
+			const refreshToast = document.getElementById('refresh-toast');
+
+			refreshToast.style.display = 'flex';
+			setTimeout(() => {
+					refreshToast.classList.add('show');
+			}, 10);
+
+			setTimeout(() => {
+        refreshToast.classList.remove('show');
+        setTimeout(() => {
+            refreshToast.style.display = 'none';
+        }, 1500);
+    	}, 1500);
+		}
+
+		function loadScript(message) {
+			let contentType = message.headers['content-type'];
+			delete message.headers['content-type'];
+
+			if (contentType.includes('application/json')) {
+				console.log('JSON content');
+				e.updateEditorContent(message.data, 'json');
+			} else if (contentType.includes('text/html')) {
+				console.log('HTML content');
+				e.updateEditorContent(message.data, 'html');
+			} else {
+				console.log('Text content');
+				e.updateEditorContent(message.data, 'text');
+			}
+
+			var statusElement = document.getElementById('httpResultsStatus');
+			statusElement.innerHTML = message.status;
+			var contentTypeElement = document.getElementById('httpResultContentType');
+			contentTypeElement.innerHTML = contentType;
+			var timeElement = document.getElementById('httpResultsTime');
+			timeElement.innerHTML = deltaTimeFormat(message.time);
+
+			console.log(`loadScript: `, message);
+		}
+		
+		function showDebugHint() {
+			const credentialsHint = document.getElementById('debug-hint');
+			credentialsHint.style.visibility = credentialsHint.style.visibility == 'hidden' ? 'visible' : 'hidden';
+		}
+
+		function deltaTimeFormat(delta) {
+			const miliseconds = delta % 1000;
+			const seconds = Math.floor(delta / 1000);
+
+			return seconds > 0 ? `${seconds}.${miliseconds} sec` : `${miliseconds} ms`;
+		}
+
+		window.addEventListener('message', event => {
+			const message = event.data;
+			if (message.command === 'refresh') {
+				refresh();
+			} else if (message.command === 'loadScript') {
+				loadScript(message);
+			}
+		});
+
+		window.onload = function() {
+			console.log('Document loaded');
+			vscode.postMessage({ command: 'debugInitiated' });
+		}
+	</script>
+</head>
+
+<body>
+	<div id="editor"></div>
+	<div
+			id="previewFrame"
+			title="myTest"
+		></div>
+
+	<hr/>
+	<div id="httpResults">
+		<p>Status: <span id="httpResultsStatus"></span></p>
+		<p>Content-type: <span id=httpResultContentType></span></p>
+		<p>Time: <span id="httpResultsTime"></span></p>
+		<!-- TODO: add cookies, headers - lists: <ul> -->
+	</div>
+
+	<div id="refresh-toast" class="control-panel">
+		<p>Refreshed...</p>
+		<!-- <p>3:14:15 CET</p> -->
+	</div>
+
+	<!-- overlay with: refresh button, username and password when using forms -->
+	<div class="overlay">
+		<!-- TODO: add controls to set different script params -->
+		<div class="control-panel"></div>
+			<a class="panel-button" onclick="refresh()">Refresh</a>
+			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
+			<a class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
+			<a class="panel-button" onclick="showDebugHint()">Info</a>
+		</div>
+		<div id="debug-hint">
+			<!-- TODO: improve me -->
+			<span>This is the result of your script.</span>
+			<!-- <br/> -->
+			<!-- <span id="creds-hint">No credentials provided.</span> -->
+		</div>
+	</div>
+</body>
+
+</html>

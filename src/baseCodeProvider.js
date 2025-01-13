@@ -328,7 +328,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
 		} else if (Config.isPreviewUrl(pageDetails.devPageContext)) {
-			runDebug(this.context, urlInfo);
+			runDebug(this.context, urlInfo, pageDetails.devPageContext);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Preview' });
 		} else {
 			if (urlInfo.visible) {

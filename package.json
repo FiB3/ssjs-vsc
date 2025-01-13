@@ -381,6 +381,7 @@
     "generate-password": "^1.7.0",
     "md5": "^2.3.0",
     "moment": "^2.29.4",
+    "monaco-editor": "^0.52.2",
     "morgan": "^1.10.0",
     "mustache": "^4.2.0"
   },
