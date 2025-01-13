@@ -11,25 +11,59 @@
 
 		#previewFrame {
 			overflow: scroll;
-    	padding: 10px;
-			height: 66%;
+			height: 65%;
 		}
 
 		#httpResults {
 			padding: 10px;
+			height: 28%;
+			display: flex;
+			flex-direction: column;
+		}
+
+		#httpResultsStatusRow {
+			display: flex;
+			flex-direction: row;
+			justify-content: space-between;
+			margin-bottom: 7px;
+		}
+
+		#httpResultsStatusRow span {
+			padding: 3px;
+			max-width: 60%;
+		}
+
+		#httpResultsStatus {
+			color: white;
+			padding: 3px;
+			border-radius: 4px;
+			height: fit-content;
+		}
+
+		#httpResultsStatus.ok {
+			background-color: green;
+		}
+
+		#httpResultsStatus.error {
+			background-color: red;
 		}
 
 		#httpResults p {
 			margin: 3px 0px 0px 0px;
 		}
 
+		#httpResultHeaders {
+			display: none;
+			height: calc(100% - 60px);
+    	overflow: scroll;
+		}
+
 		.overlay {
 			position: fixed;
-			bottom: 0;
+			bottom: 35%;
 			left: 0;
 			width: 100%;
-			height: 15%;
-			/* background-color: rgba(0, 0, 0, 0.523); */
+			height: 40px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -74,11 +108,11 @@
 			margin: 0px auto;
 			/* height: 45px; */
 			background-color: rgb(163, 163, 163);
-			/* display: flex; */
 			text-align: center;
 			justify-content: center;
 			padding: 0px 10px;
 			visibility: hidden;
+			display: none;
 		}
 
 		#refresh-toast {
@@ -108,7 +142,8 @@
 			theme: "{{defaultTheme}}",
 			updateEditorContent: () => {},
 			formatEditorContent: () => {},
-			toogleTheme: () => {}
+			toogleTheme: () => {},
+			
 		}
 
 		require(['vs/editor/editor.main'], function () {
@@ -116,7 +151,8 @@
 				value: '',
 				language: 'json',
 				readOnly: true,
-				theme: e.theme
+				theme: e.theme,
+				scrollBeyondLastLine: false,
 			});
 
 			// Function to update the editor content
@@ -193,10 +229,22 @@
 
 			var statusElement = document.getElementById('httpResultsStatus');
 			statusElement.innerHTML = message.status;
+			statusElement.className = message.status >= 200 && message.status < 300 ? 'ok' : 'error';
 			var contentTypeElement = document.getElementById('httpResultContentType');
 			contentTypeElement.innerHTML = contentType;
 			var timeElement = document.getElementById('httpResultsTime');
 			timeElement.innerHTML = deltaTimeFormat(message.time);
+
+			var headersElement = document.getElementById('httpResultHeaders');
+			headersElement.style.display = 'block';
+			var headersList = document.getElementById('httpResultHeaders-headers');
+			// build <li> elements for each header: message.headers
+			headersList.innerHTML = '';
+			for (var key in message.headers) {
+				var li = document.createElement('li');
+				li.innerHTML = `${key}: ${message.headers[key]}`;
+				headersList.appendChild(li);
+			}
 
 			console.log(`loadScript: `, message);
 		}
@@ -230,7 +278,6 @@
 </head>
 
 <body>
-	<div id="editor"></div>
 	<div
 			id="previewFrame"
 			title="myTest"
@@ -238,10 +285,15 @@
 
 	<hr/>
 	<div id="httpResults">
-		<p>Status: <span id="httpResultsStatus"></span></p>
-		<p>Content-type: <span id=httpResultContentType></span></p>
-		<p>Time: <span id="httpResultsTime"></span></p>
-		<!-- TODO: add cookies, headers - lists: <ul> -->
+		<div id="httpResultsStatusRow">
+			<span id="httpResultsStatus"></span>
+			<span id="httpResultsTime"></span>
+			<span>Content-type: <span id=httpResultContentType></span></span>
+		</div>
+		<div id="httpResultHeaders">
+			<p>Headers:</p>
+			<ul id="httpResultHeaders-headers"></ul>
+		</div>
 	</div>
 
 	<div id="refresh-toast" class="control-panel">
@@ -256,7 +308,7 @@
 			<a class="panel-button" onclick="refresh()">Refresh</a>
 			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
 			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
-			<a class="panel-button" onclick="showDebugHint()">Info</a>
+			<!-- <a class="panel-button" onclick="showDebugHint()">Info</a> -->
 		</div>
 		<div id="debug-hint">
 			<!-- TODO: improve me -->

@@ -117,14 +117,18 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 	if (pageData.username && pageData.password) headersToUse.Cookie = `ssjs-basic-auth=${md5(`${pageData.username}:${pageData.password}`)}`;
 
 	let t0 = new Date();
-
-	let result = await axios({
-		method,
-		url,
-		responseType: 'text',
-		headers: headersToUse,
-		withCredentials: true
-	});
+	let result;
+	try {
+		result = await axios({
+			method,
+			url,
+			responseType: 'text',
+			headers: headersToUse,
+			withCredentials: true
+		});
+	} catch (e) {
+		result = e.response;
+	}
 	let t1 = new Date();
 	logger.log('loadScriptOutput:', result);
 
