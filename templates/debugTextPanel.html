@@ -82,6 +82,19 @@
 			/* border: ; */
 		}
 
+		#language-selector {
+			/* display: flex; */
+			display: none;
+			position: fixed;
+			bottom: 30%;
+			left: 0;
+			width: 100%;
+			height: 40px;
+			justify-content: center;
+			align-items: center;
+			background: grey;
+		}
+
 		.panel-button {
 			margin: 0 10px;
 			padding: 5px 10px;
@@ -141,6 +154,7 @@
 			editor: null,
 			theme: "{{defaultTheme}}",
 			updateEditorContent: () => {},
+			updateLanguage: () => {},
 			formatEditorContent: () => {},
 			toogleTheme: () => {},
 			
@@ -152,13 +166,17 @@
 				language: 'json',
 				readOnly: true,
 				theme: e.theme,
-				scrollBeyondLastLine: false,
+				scrollBeyondLastLine: false
 			});
 
 			// Function to update the editor content
 			e.updateEditorContent = function(content, language) {
 				monaco.editor.setModelLanguage(e.editor.getModel(), language);
 				e.editor.setValue(content.trim());
+			}
+
+			e.updateLanguage = function(language) {
+				monaco.editor.setModelLanguage(e.editor.getModel(), language);
 			}
 
 			e.formatEditorContent = async function() {
@@ -249,6 +267,41 @@
 			console.log(`loadScript: `, message);
 		}
 		
+		function changeLanguage() {
+			function changeLanguageHandler(language) {
+				console.log(`changeLanguage: ${language}`);
+				e.updateLanguage(language);
+				document.getElementById('language-selector').style.display = 'none';
+			}
+
+			const languages = {
+				'json': 'JSON',
+				'html': 'HTML',
+				'text': 'Text',
+				// 'xml': 'XML'
+			};
+
+			// build the language select element
+			const languageSelector = document.getElementById('language-selector');
+			const selectorShown = languageSelector.style.display === 'flex';
+			if (selectorShown) {
+				languageSelector.style.display = 'none';
+				return;
+			}
+
+			languageSelector.style.display = 'flex';
+			languageSelector.innerHTML = '';
+
+			for (const key in languages) {
+				// <p class="language-select-button panel-button">Text</p>
+				const languageButton = document.createElement('p');
+				languageButton.className = 'language-select-button panel-button';
+				languageButton.innerHTML = languages[key];
+				languageButton.onclick = () => changeLanguageHandler(key);
+				languageSelector.appendChild(languageButton);
+			}
+		}
+
 		function showDebugHint() {
 			const credentialsHint = document.getElementById('debug-hint');
 			credentialsHint.style.visibility = credentialsHint.style.visibility == 'hidden' ? 'visible' : 'hidden';
@@ -307,9 +360,13 @@
 		<div class="control-panel"></div>
 			<a class="panel-button" onclick="refresh()">Refresh</a>
 			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
+			<a class="panel-button" onclick="changeLanguage()">Language</a>
 			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
 			<!-- <a class="panel-button" onclick="showDebugHint()">Info</a> -->
 		</div>
+		<div id="language-selector">
+		</div>
+
 		<div id="debug-hint">
 			<!-- TODO: improve me -->
 			<span>This is the result of your script.</span>
