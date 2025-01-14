@@ -20,6 +20,9 @@ images/logo.png
 
 # node_modules
 
+node_modules/monaco-editor
+!node_modules/monaco-editor/min/**
+
 # Custom webview source:
 configView/**
 !configView/dist/**

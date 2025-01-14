@@ -104,7 +104,8 @@ function getWebviewContent(context, devUrl, devPageContext) {
 		);
 		monacoBasePath = panel.webview.asWebviewUri(scriptPathOnDisk);
 	}
-	let html = template.runFile(p, { devUrl, monacoPath, monacoBasePath, defaultTheme });
+	
+	let html = template.runFile(p, { devUrl, monacoPath, monacoBasePath, defaultTheme, cspSource: panel.webview.cspSource });
 	return html;
 }
 
