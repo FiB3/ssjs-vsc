@@ -114,6 +114,11 @@
 			border-radius: 6px;
 		}
 
+		.panel-button.selected {
+			background: dimgrey;
+			font-weight: bold;
+		}
+
 		.panel-button:hover {
 			background-color: white;
 			color: black;
@@ -148,6 +153,20 @@
 			opacity: 1;
 			transition: opacity 0.1s ease-in, visibility 0.1s ease-in;
 		}
+
+		.loading-wheel {
+			border: 8px solid #f3f3f3; /* Light grey */
+			border-top: 8px solid #3498db; /* Blue */
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			animation: spin 2s linear infinite;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
 	</style>
 
 	<script src="{{monacoPath}}"></script>
@@ -158,17 +177,23 @@
 		let e = {
 			editor: null,
 			theme: "{{defaultTheme}}",
+			language: 'text',
+			languages: {
+				'json': 'JSON',
+				'html': 'HTML',
+				'text': 'Text'
+			},
 			updateEditorContent: () => {},
 			updateLanguage: () => {},
+			getLanguage: () => {},
 			formatEditorContent: () => {},
 			toogleTheme: () => {},
-			
 		}
 
 		require(['vs/editor/editor.main'], function () {
 			e.editor = monaco.editor.create(document.getElementById('previewFrame'), {
 				value: '',
-				language: 'json',
+				language: e.language,
 				readOnly: true,
 				theme: e.theme,
 				scrollBeyondLastLine: false
@@ -178,10 +203,16 @@
 			e.updateEditorContent = function(content, language) {
 				monaco.editor.setModelLanguage(e.editor.getModel(), language);
 				e.editor.setValue(content.trim());
+				e.language = language;
 			}
 
 			e.updateLanguage = function(language) {
 				monaco.editor.setModelLanguage(e.editor.getModel(), language);
+				e.language = language;
+			}
+
+			e.getLanguage = function() {
+				return e.language;
 			}
 
 			e.formatEditorContent = async function() {
@@ -219,20 +250,12 @@
 		function refresh() {
 			vscode.postMessage({ command: 'debugInitiated' });
 			console.log(`refresh`);
+			runRefreshActions();
+		}
 
-			const refreshToast = document.getElementById('refresh-toast');
-
-			refreshToast.style.display = 'flex';
-			setTimeout(() => {
-					refreshToast.classList.add('show');
-			}, 10);
-
-			setTimeout(() => {
-        refreshToast.classList.remove('show');
-        setTimeout(() => {
-            refreshToast.style.display = 'none';
-        }, 1500);
-    	}, 1500);
+		function runRefreshActions() {
+			updateLanguageButton();
+			showLoading();
 		}
 
 		function loadScript(message) {
@@ -249,6 +272,7 @@
 				console.log('Text content');
 				e.updateEditorContent(message.data, 'text');
 			}
+			updateLanguageButton();
 
 			var statusElement = document.getElementById('httpResultsStatus');
 			statusElement.innerHTML = message.status;
@@ -270,21 +294,15 @@
 			}
 
 			console.log(`loadScript: `, message);
+			hideLoading();
 		}
 		
 		function changeLanguage() {
-			function changeLanguageHandler(language) {
-				// console.log(`changeLanguage: ${language}`);
+			function changeLanguageHandler(event, language) {
 				e.updateLanguage(language);
+				updateLanguageButton();
 				document.getElementById('language-selector').style.display = 'none';
 			}
-
-			const languages = {
-				'json': 'JSON',
-				'html': 'HTML',
-				'text': 'Text',
-				// 'xml': 'XML'
-			};
 
 			// build the language select element
 			const languageSelector = document.getElementById('language-selector');
@@ -297,19 +315,41 @@
 			languageSelector.style.display = 'flex';
 			languageSelector.innerHTML = '';
 
-			for (const key in languages) {
+			let selectedLanguage = e.getLanguage();
+			console.log(`selectedLanguage: ${selectedLanguage}`);
+
+			for (const key in e.languages) {
 				// <p class="language-select-button panel-button">Text</p>
 				const languageButton = document.createElement('p');
-				languageButton.className = 'language-select-button panel-button';
-				languageButton.innerHTML = languages[key];
-				languageButton.onclick = () => changeLanguageHandler(key);
+				languageButton.className = key === selectedLanguage
+					? 'language-select-button panel-button selected'
+					: 'language-select-button panel-button';
+				languageButton.innerHTML = e.languages[key];
+				languageButton.onclick = (event) => changeLanguageHandler(event, key);
 				languageSelector.appendChild(languageButton);
 			}
+		}
+
+		function updateLanguageButton() {
+			const toggleLanguageButton = document.getElementById('toggleLanguage');
+			toggleLanguageButton.innerHTML = e.languages[e.getLanguage()];
 		}
 
 		function showDebugHint() {
 			const credentialsHint = document.getElementById('debug-hint');
 			credentialsHint.style.visibility = credentialsHint.style.visibility == 'hidden' ? 'visible' : 'hidden';
+		}
+
+		function showLoading() {
+			const refreshToast = document.getElementById('refresh-toast');
+			refreshToast.style.display = 'flex';
+			refreshToast.classList.add('show');
+		}
+
+		function hideLoading() {
+			const refreshToast = document.getElementById('refresh-toast');
+			refreshToast.classList.remove('show');
+			refreshToast.style.display = 'none';
 		}
 
 		function deltaTimeFormat(delta) {
@@ -323,6 +363,8 @@
 			const message = event.data;
 			if (message.command === 'refresh') {
 				refresh();
+			} else if (message.command === 'refreshActions') {
+				runRefreshActions();
 			} else if (message.command === 'loadScript') {
 				loadScript(message);
 			}
@@ -331,6 +373,7 @@
 		window.onload = function() {
 			console.log('Document loaded');
 			vscode.postMessage({ command: 'debugInitiated' });
+			showLoading();
 		}
 	</script>
 </head>
@@ -355,8 +398,7 @@
 	</div>
 
 	<div id="refresh-toast" class="control-panel">
-		<p>Refreshed...</p>
-		<!-- <p>3:14:15 CET</p> -->
+		<div class="loading-wheel"></div>
 	</div>
 
 	<!-- overlay with: refresh button, username and password when using forms -->
@@ -365,7 +407,7 @@
 		<div class="control-panel"></div>
 			<a class="panel-button" onclick="refresh()">Refresh</a>
 			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
-			<a class="panel-button" onclick="changeLanguage()">Language</a>
+			<a id="toggleLanguage" class="panel-button" onclick="changeLanguage()">Language</a>
 			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
 			<!-- <a class="panel-button" onclick="showDebugHint()">Info</a> -->
 		</div>

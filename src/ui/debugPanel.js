@@ -26,6 +26,7 @@ async function runDebug(context, pageData, devPageContext = 'page') {
 		showDebug(context, pageData, devPageContext);
 	} else {
 		logger.log('Refreshing Debug panel...', panel);
+		triggerRefreshActions();
 		if (isTextPageContext(devPageContext)) {
 			loadScriptOutput(pageData);
 		} else {
@@ -139,6 +140,12 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 		headers: result.headers,
 		time: t1 - t0,
 		data: result.data
+	});
+}
+
+function triggerRefreshActions() {
+	panel.webview.postMessage({
+		command: 'refreshActions'
 	});
 }
 
