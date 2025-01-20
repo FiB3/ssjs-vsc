@@ -75,6 +75,11 @@
         "title": "Get Standalone Run Script",
         "category": "SSJS"
       },
+			{
+				"command": "ssjs-vsc.change-script-options",
+				"title": "Change Script Options",
+				"category": "SSJS"
+			},
       {
         "command": "ssjs-vsc.start",
         "title": "Start",
@@ -130,6 +135,10 @@
           "command": "ssjs-vsc.get-standalone-script",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
+				{
+					"command": "ssjs-vsc.change-script-options",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				},
         {
           "command": "ssjs-vsc.get-url",
           "when": "ssjs-vsc.codeProvider != 'None'"

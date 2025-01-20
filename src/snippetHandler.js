@@ -209,6 +209,7 @@ class SnippetHandler {
 
 	/**
 	 * Add metadata to the metadata file.
+	 * Updates real/resolved metadata file, if linked.
 	 * @param {string} filePath - path of the file - gets metadata file path automatically.
 	 * @param {object} data
 	 */
@@ -222,6 +223,7 @@ class SnippetHandler {
 
 	/**
 	 * Load metadata file for the asset.
+	 * Returns the real/resolved metadata file, if current file is linked.
 	 * @param {string} filePath path of the script file (not metadata file)
 	 * @returns {object} metadata object, null if not found or invalid.
 	 */
@@ -399,6 +401,7 @@ class SnippetHandler {
 	/**
 	 * Get name of metadata file for the given script file.
 	 * ./script.ssjs => ./.script.ssjs-ssjs-vsc.json
+	 * Does return the direct metadata path, linked or not, use .getResolvedMetadataFileName() to get the resolved metadata path (when linked).
 	 * @param {string} filePath absolute path of the given script file
 	 * @returns {string} path of the metadata file. 
 	 */

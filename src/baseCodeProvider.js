@@ -241,7 +241,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	}
 	
 	/**
-	 * Update Dev Asset Block  based on File.
+	 * Update Dev Asset Block based on File.
 	 * @param {number} devAssetId ID of an existing dev-code-snippet asset
 	 * @param {string} scriptText
 	 * @returns {number|false} assetId
@@ -249,6 +249,29 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
 		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
 		return await this.snippets.updateSfmcSnippet(devAssetId, scriptText, devPageContext, snippetPath);
+	}
+
+	/**
+	 * Change metadata of the script block - user action.
+	 */
+	async changeScriptMetadata() {
+		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			return;
+		}
+
+		let deployedAlready = this.snippets.snippetExists(filePath);
+		if (!deployedAlready) {
+			vscode.window.showErrorMessage(`It seems you have not yet deployed this script. Please, deploy it first, using 'SSJS: Upload Script to Dev' command.`);
+			return;
+		}
+		
+		let newDevContext = await dialogs.getDevContextPreference();
+		if (!newDevContext) {
+			return;
+		}
+		logger.info(`Change metadata for: ${filePath} to: ${newDevContext}.`);
+		this.snippets.saveDevContext(filePath, newDevContext);
 	}
 
 	/**
