@@ -129,6 +129,7 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 			withCredentials: true
 		});
 	} catch (e) {
+		logger.warn('loadScriptOutput:', e);
 		result = e.response;
 	}
 	let t1 = new Date();
