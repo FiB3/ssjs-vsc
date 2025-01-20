@@ -248,78 +248,63 @@
     "walkthroughs": [
       {
         "id": "setup-ssjs-manager",
-        "title": "Setup SSJS Manager",
-        "description": "Either follow this walkthrough or you can use the new visual config using the: `SSJS: Show Config` command.",
+        "title": "SSJS Manager Usage",
+        "description": "How to use the SSJS Manager?",
         "steps": [
-          {
-            "id": "get-installed-package",
-            "title": "Get Your Installed Package",
-            "description": "Get an Installed Package for your SFMC Instance. This package must be able to update assets. Don't forget to get the MID of the BU that you want to connect to.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/installedPackage.png",
-              "altText": "Get Installed Package Details"
-            }
-          },
-          {
-            "id": "create-cloud-page",
-            "title": "Create Web Studio resources",
-            "description": "Create a Cloud Page and/or a Text Code Resource in Web Studio and get published URLs - content will be provided later on.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createCloudPage.png",
-              "altText": "Create Cloud Text Resource"
-            }
-          },
-          {
-            "id": "run-create-config",
-            "title": "Create Config",
-            "description": "Run `SSJS: Create Config` command. Use your Installed Package details to set the connection. MID is optional in case the BU matches the BU that was used to create the Installed Package.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-              "altText": "demo of the extension"
-            },
-            "completionEvents": [
-              "onCommand:ssjs-vsc.create-config"
-            ]
-          },
-          {
-            "id": "run-install-dev-page",
-            "title": "Install Dev Page",
-            "description": "Run `SSJS: Install Dev Page` command. Fill all information and the dev page code will be created in SFMC.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-              "altText": "dev page installation"
-            },
-            "completionEvents": [
-              "onCommand:ssjs-vsc.deploy-any-path"
-            ]
-          },
-          {
-            "id": "set-cloud-page",
-            "title": "Fill Development Cloud Page & Text Resource",
-            "description": "Fill the Cloud Page and Text Resource with the provided content (in ./vscode/deploy.me.page.ssjs & deploy.me.text.ssjs files). Publish both.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/setCloudPage.png",
-              "altText": "set cloud text resource"
-            }
-          },
-          {
-            "id": "develop-ssjs",
-            "title": "Write scripts",
-            "description": "Develop your code in `.ssjs`, `.amp` or `.html` files. First deployment is done using the `SSJS: Upload Script` command. Following deploys are automatically done on save.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-              "altText": "demo of the extension"
-            }
-          },
-          {
-            "id": "run-script",
-            "title": "Run the code",
-            "description": "Run in your Cloud Page or Resource - one page for all scripts! You can run or open the script using the `SSJS: Run` command.",
-            "media": {
-              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-              "altText": "demo of the extension"
-            }
-          }
+					{
+						"id": "ssjs-use-workspace",
+						"title": "Use Workspace",
+						"description": "Open a workspace for your SSJS project. Workspace is basically a folder on your computer where you store your scripts. One workspace should be used for one SFMC BU.",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/noWorkspace.png",
+							"altText": "Opening a workspace."
+						}
+					},
+					{
+						"id": "run-ssjs-config",
+						"title": "Run SSJS Config",
+						"description": "Run the `SSJS: Show Config` to launch configuration wizzard. Follow presented steps to set up the extension.",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createConfig.png",
+							"altText": "Running the config."
+						}
+					},
+					{
+						"id": "config-finished",
+						"title": "Configuration Finished",
+						"description": "Once you finish the configuration, including creation of Installed Package, Cloud Page and Cloud Page Text Resource, you will be able to start developing your scripts.",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/setCloudPage.png",
+							"altText": "Configuration finished."
+						}
+					},
+					{
+						"id": "create-script",
+						"title": "Create Script",
+						"description": "New script is created as any other file. Use `.ssjs`, `.amp` or `.html` extension.",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+							"altText": "Creating a new script."
+						}
+					},
+					{
+						"id": "upload-script",
+						"title": "Upload Script",
+						"description": "Run the `SSJS: Upload Script` command to upload the script to SFMC for the first time. Following file saves will automatically update the script in SFMC (really, just press that `CTRL / CMD + S`).",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
+							"altText": "Uploading the script."
+						}
+					},
+					{
+						"id": "run-script",
+						"title": "Run Script",
+						"description": "Run the script using the `SSJS: Run` command. Or use the 'Run' button in the editor. You can also open the script in the browser or copy the URL to the clipboard (command `Get dev URL`).",
+						"media": {
+							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
+							"altText": "Running the script."
+						}
+					}
         ]
       }
     ],
