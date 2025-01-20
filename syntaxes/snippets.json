@@ -173,6 +173,20 @@
 		],
 		"description": "Run any HTTP Request including error handling."
 	},
+	"UrlEncode": {
+		"prefix": "UrlEncode",
+		"body": [
+			"Platform.Function.UrlEncode(${1:url}, ${2:encodeSpace});"
+		],
+		"description": "Encode a string to be used in a URL. Encode Spaces is a boolean value - true to encode spaces to `+`."
+	},
+	"RedirectTo": {
+		"prefix": "RedirectTo",
+		"body": [
+			"Platform.Function.RedirectTo(${1:url})"
+		],
+		"description": "Redirect to a URL from email - must be complete url. Use `Redict` to redirect from a CloudPage."
+	},
 	"Base64Decode": {
 		"prefix": "Base64Decode",
 		"body": [
