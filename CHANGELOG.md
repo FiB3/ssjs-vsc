@@ -2,6 +2,16 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.7] - 2025-01-20
+
+### Added:
+- New command to Change script options: `SSJS: Change Script Options`. Use to change Dev Context (e.g. to Preview type).
+- Option to select the Text Preview language (JSON, HTML, Text).
+- Loading wheel on Text Preview.
+
+### Changed:
+- New walkthrough.
+
 ## [0.6.5] - 2025-01-13
 
 ### Changed:
