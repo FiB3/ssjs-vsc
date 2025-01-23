@@ -31,6 +31,20 @@ module.exports = {
     }
   },
 
+	/**
+	 * Delete file.
+	 * @param {string} fileName
+	 * @returns {boolean|string} - true if deleted, error text otherwise.
+	 */
+	delete: function(fileName) {
+		try {
+			fs.unlinkSync(fileName);
+			return true;
+		} catch (err) {
+			return `Error while deleting file: ${fileName}: ${err}`;
+		}
+	},
+
   exists: function(fileName) {
     try {
       const stats = fs.statSync(fileName);

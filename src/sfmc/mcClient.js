@@ -232,6 +232,8 @@ module.exports = class McClient {
 			return err.body.message;
 		} else if (err.res?.error_description) {
 			return err.res.error_description;
+		} else if (err.statusMessage) {
+			return `${err.statusCode ? err.statusCode + ': ' : ''}${err.statusMessage}.`
 		}
 		return JSON.stringify(err);
 	}
@@ -246,6 +248,10 @@ module.exports = class McClient {
 		) {
 			return true;
 		}
+	}
+
+	isNotFoundError(err) {
+		return err?.statusCode === 404;
 	}
 
 	static extractSubdomain(fqdn) {

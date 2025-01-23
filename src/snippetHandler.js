@@ -87,14 +87,21 @@ class SnippetHandler {
 						vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
 					}
 				})
-				.catch((err) => {
+				.catch(async (err) => {
 					assetId = false;
-					logger.error('Update Dev Asset ERR:', err);
 					asset.content = '<<script>>';
 					logger.debug('Dev Asset data:', asset);
-					// TODO: show error message:
+					
 					let m = this.mc.parseRestError(err);
-					if (!devPageContext) {
+					if (this.mc.isNotFoundError(err)) {
+						vscode.window.showWarningMessage(`Asset not found in Marketing Cloud!`);
+						let shouldRemove = await dialogs.confirmAssetMetadataRemoval(`Asset not found in Marketing Cloud - remove local metadata?`);
+						if (shouldRemove) {
+							let metaFile = this.getMetadataFileName(filePath);
+							file.delete(metaFile);
+							vscode.window.showInformationMessage(`Local metadata file removed (filename: ${metaFile}).`);
+						}
+					} else if (!devPageContext) {
 						vscode.window.showErrorMessage(`Error on Updating Dev Asset! \n${m}`);
 					} else {
 						vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);

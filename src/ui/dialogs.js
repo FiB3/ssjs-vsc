@@ -254,6 +254,14 @@ module.exports = {
 		return 'picker';
 	},
 
+	async confirmAssetMetadataRemoval(title = `Remove metadata for SFMC script?`) {
+		return await this.yesNoConfirm(
+			title,
+			`Do you want to remove a local metadata file for your SFMC script/asset?`,
+			`The metadata only points to the asset in SFMC. This will not affect the script itself.`
+		);
+	},
+
 	getFriendlyDevContext(devPageContext = 'page') {
 		return devPageContext == 'page' ? 'Cloud Page' : 'Text Resource';
 	}
