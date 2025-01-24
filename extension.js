@@ -40,7 +40,8 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl(true) },
 		{ name: 'ssjs-vsc.run', callback: async () => await ext.provider.getDevUrl() },
 		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
-		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) }
+		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) },
+		{ name: 'ssjs-vsc.check-any-path', callback: async () => await checkDeployedDevAssets()	}
 	]);
 
 	let workspaceOk = await ext.workspaceOk();
@@ -68,6 +69,15 @@ async function activate(context) {
 async function launchConfigPanel(context) {
 	if (Config.showPanelAutomatically()) {
 		await showConfigPanel(context);
+	}
+}
+
+async function checkDeployedDevAssets() { 
+	let r = await ext.checkDeployedDevAssets();
+	if (r.ok) {
+		vscode.window.showInformationMessage(r.message);
+	} else {
+		vscode.window.showErrorMessage(r.message);
 	}
 }
 

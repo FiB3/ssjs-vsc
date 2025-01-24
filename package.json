@@ -115,6 +115,11 @@
         "title": "Update Dev Page",
         "category": "SSJS"
       },
+			{
+        "command": "ssjs-vsc.check-any-path",
+        "title": "Check Dev Pages",
+        "category": "SSJS"
+      },
       {
         "command": "ssjs-vsc.show-walkthrough",
         "title": "Show Setup Walkthrough",
@@ -162,7 +167,11 @@
         {
           "command": "ssjs-vsc.update-any-path",
           "when": "ssjs-vsc.codeProvider != 'None'"
-        }
+        },
+				{
+					"command": "ssjs-vsc.check-any-path",
+					"when": "ssjs-vsc.codeProvider != 'None'"
+				}
       ],
       "editor/title": [
         {

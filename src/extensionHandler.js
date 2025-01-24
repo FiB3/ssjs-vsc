@@ -1,4 +1,6 @@
 const vscode = require('vscode');
+const axios = require('axios');
+let md5 = require('md5');
 
 const Config = require('./config');
 const NoCodeProvider = require('./noCodeProvider');
@@ -222,6 +224,51 @@ class ExtensionHandler {
 		let contexts = devPageContexts.map((page) => page.devPageContext);
 		console.log(`createDevAssets: `, contexts);
 		return await this.provider.deployAnyScriptUi(contexts);
+	}
+
+	async checkDeployedDevAssets() {
+		if (this.isProviderInactive()) {
+			return { ok: false, message: `Extension is missing configuration.` };
+		}
+
+		let devPageInfo = this.config.getDevPageInfo('page');
+		let devResourceInfo = this.config.getDevPageInfo('resource');
+
+		if (!devPageInfo?.devPageUrl && !devResourceInfo?.devPageUrl) {
+			return { ok: false, message: `No Dev Cloud Page or Text Resource URL found in config.` };
+		}
+
+		return await Promise.all([
+			axios.get(devPageInfo.devPageUrl),
+			axios.get(devResourceInfo.devPageUrl)
+		])
+				.then((responses) => {
+					let pageOk = responses[0]?.status === 200 && !!responses[0]?.headers?.['ssjs-http-status'];
+					let resourceOk = responses[1]?.status === 200 && !!responses[1]?.headers?.['ssjs-http-status'];
+					logger.log(`Dev Page OK: ${pageOk}, Dev Resource OK: ${resourceOk} (${responses[0]?.status} && ${responses[0]?.headers?.['ssjs-http-status']} + ${responses[1]?.status} && ${responses[1]?.headers?.['ssjs-http-status']}).`);
+					if (pageOk && resourceOk) {
+						telemetry.log(`devAssetsChecked`, { pageOk, resourceOk });
+						return { ok: true, message: `Dev Assets are OK.` };
+					} else {
+						telemetry.log(`devAssetsChecked`, { pageOk, resourceOk });
+						return { ok: false, message: `Dev Page or Resource are not deployed correctly. Check if both have correct code saved and published.` };
+					}
+				})
+				.catch((errors) => {
+					if (errors.status) {
+						let failedUrl = errors.config.url;
+
+						let failedType = failedUrl === devPageInfo.devPageUrl ? 'page' : 'any';
+						failedType = failedUrl === devResourceInfo.devPageUrl ? 'resource' : failedType;
+						let msg = failedType == 'page' ? `Dev Page` : `Dev Page or Resource`;
+						msg = failedType == 'resource' ? `Dev Resource` : msg;
+						
+						telemetry.log(`devAssetsChecked`, { "failed": failedType, "status": errors.status });
+						msg = errors.status === 404 ? msg + ` not found.` : msg + ` has an error, try to deploy it  and check the provided URLs.`;
+						msg += ` Details: ${errors.status} - ${failedUrl}`;
+						return { ok: false, message: msg };
+					}
+				});
 	}
 
 	async checkSetup() {

@@ -144,6 +144,10 @@ function handleCopyResourceCode(panel, message) {
 	}
 }
 
+async function checkDeployedDevAssets() {
+
+}
+
 function setManualStepDone(message) {
 	ext.config?.setManualConfigSteps(message.anyScriptsDeployed, message.devRead);
 	telemetry.log(`manualStepDone`, { anyScriptsDeployed: message.anyScriptsDeployed, devRead: message.devRead });

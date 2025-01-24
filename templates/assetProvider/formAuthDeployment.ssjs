@@ -53,7 +53,16 @@
     var assetId = Request.GetQueryStringParameter("asset-id");
     assetId = protectFromInjection(assetId);
     // add assetId validation - maybe whitelist?
-    return assetId;
+		// Write('-----' + assetId + ' - type: ' + typeof(assetId) + '-----' + parseInt(assetId) + ' => ' + !isNaN(parseInt(assetId)));
+    return assetId !== false && !isNaN(parseInt(assetId)) ? parseInt(assetId) : false;
+  }
+
+  function setResponseHeader(status, message) {
+    var st = typeof(status) === 'number' ? status : -1;
+    var msg = message + '';
+    
+    Platform.Response.SetResponseHeader("ssjs-http-status", st);
+    Platform.Response.SetResponseHeader("ssjs-http-message", msg);
   }
 
 	try {
@@ -73,12 +82,15 @@
     }
 
 		if (authenticated) {
-      var assetId = getAssetId();
+      var assetId = getAssetId() || 0;
       Variable.SetValue("id", assetId);
       Variable.SetValue("authenticated", true);
+      
+      setResponseHeader(assetId === 0 ? 404 : 200, assetId === 0 ? 'Asset not found' : 'OK');
     } else {
       Variable.SetValue("authenticated", 'none');
 			Variable.SetValue("id", false);
+      setResponseHeader(401, 'Not Authenticated');
     }
 
 		Platform.Response.SetResponseHeader("Strict-Transport-Security", "max-age=200");
@@ -92,7 +104,7 @@
   }
 </script>
 
-%%[ IF @authenticated == TRUE and @id == 'none' THEN ]%%
+%%[ IF @authenticated == TRUE and @id == 0 THEN ]%%
 	<h2>SSJS Manager</h2>
 	<p>Provide <code>asset-id</code> query parameter to load the content block.</p>
 
