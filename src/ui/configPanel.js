@@ -39,6 +39,9 @@ async function showConfigPanel(context) {
 				case 'copyResourceCode':
 					handleCopyResourceCode(panel, message);
 					return;
+				case 'validateDevAssets':
+					validateDevAssets(panel);
+					return;
 				case 'manualStepDone':
 					setManualStepDone(message);
 					return;
@@ -144,11 +147,18 @@ function handleCopyResourceCode(panel, message) {
 	}
 }
 
-async function checkDeployedDevAssets() {
-
+async function validateDevAssets(panel) {
+	let res = await ext.checkDeployedDevAssets();
+	panel.webview.postMessage({
+		command: 'devAssetsValidated',
+		ok: res.ok,
+		status: res.message
+	});
+	ext.config?.setManualConfigSteps(res.ok);
 }
 
 function setManualStepDone(message) {
+	// TODO: legacy function, including event
 	ext.config?.setManualConfigSteps(message.anyScriptsDeployed, message.devRead);
 	telemetry.log(`manualStepDone`, { anyScriptsDeployed: message.anyScriptsDeployed, devRead: message.devRead });
 }

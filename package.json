@@ -57,7 +57,8 @@
       {
         "command": "ssjs-vsc.upload-script",
         "title": "Upload Script to Dev",
-        "category": "SSJS"
+        "category": "SSJS",
+        "icon": "$(cloud-upload)"
       },
       {
         "command": "ssjs-vsc.get-url",
@@ -178,7 +179,12 @@
           "command": "ssjs-vsc.run",
           "group": "navigation",
           "when": "resourceExtname == .ssjs || resourceExtname == .amp || resourceExtname == .ampscript || resourceExtname == .html"
-        }
+        },
+				{
+					"command": "ssjs-vsc.upload-script",
+					"group": "navigation",
+					"when": "resourceExtname == .ssjs || resourceExtname == .amp || resourceExtname == .ampscript || resourceExtname == .html"
+				}
       ]
     },
     "configuration": {

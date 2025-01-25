@@ -240,7 +240,8 @@ module.exports = class Config extends Preferences {
 	 */
 	isManualConfigValid() {
 		let c = this.getManualConfigSteps();
-		return c.anyScriptsDeployed && c.devRead;
+		return c.anyScriptsDeployed;
+		// c.devRead is not longer needed for the setup to be valid.
 	}
 
 	/**

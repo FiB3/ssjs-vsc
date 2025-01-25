@@ -37,11 +37,7 @@ let devPagesStatus = ref({
 });
 let anyScriptsDeployedStatus = ref({
 	ok: false,
-	status: 'Not Deployed (check me once done).',
-});
-let devReadStatus = reactive({
-	ok: false,
-	status: 'READ ME.',
+	status: 'Not Deployed or validated.',
 });
 
 let sfmc = ref({
@@ -66,7 +62,7 @@ let resources = ref({
 });
 
 const overall = computed(() => {
-	let ok = workspaceStatus.value.ok && sfmcApiStatus.value.ok && folderStatus.value.ok && devPagesStatus.value.ok && anyScriptsDeployedStatus.value.ok && devReadStatus.ok;
+	let ok = workspaceStatus.value.ok && sfmcApiStatus.value.ok && folderStatus.value.ok && devPagesStatus.value.ok && anyScriptsDeployedStatus.value.ok;
 	return {
 		ok,
 		status: ok ? 'All Configured.' : 'Not Configured'
@@ -113,6 +109,11 @@ function setAnyScript() {
 	});
 }
 
+/**
+ * Validate, if the Cloud Page and Text Resource are set.
+ * Does not check the validity of the URLs - use: `validateDevAssets` event for that.
+ * @param message 
+ */
 function validateAnyScriptConfig(message) {
 	if (message.cloudPageData?.devPageUrl && message.cloudPageData?.devAuth) {
 		resources.value.pageUrl = message.cloudPageData.devPageUrl;
@@ -143,13 +144,8 @@ function copyResourceCode(devPageContext = 'page') {
 
 function checkManualStep() {
 	vscode.postMessage({
-		command: 'manualStepDone',
-		anyScriptsDeployed: anyScriptsDeployedStatus.value.ok,
-		devRead: devReadStatus.ok
+		command: 'validateDevAssets'
 	});
-
-	anyScriptsDeployedStatus.value.status = anyScriptsDeployedStatus.value.ok ? 'Deployed.' : 'Not Deployed (check me once done).';
-	devReadStatus.status = devReadStatus.ok ? 'Read.' : 'Not Read (check me once done).';
 }
 
 function checkCodeProviders(codeProvider) {
@@ -194,9 +190,7 @@ window.addEventListener('message', event => {
 			}
 			validateAnyScriptConfig(message);
 			anyScriptsDeployedStatus.value.ok = message.anyScriptsDeployed;
-			anyScriptsDeployedStatus.value.status = message.anyScriptsDeployed ? 'Deployed.' : 'Not Deployed (check me once done).';
-			devReadStatus.ok = message.devRead;
-			devReadStatus.status = message.devRead ? 'Read.' : 'Not Read (check me once done).';
+			anyScriptsDeployedStatus.value.status = message.anyScriptsDeployed ? 'Deployed.' : 'Not Deployed or validated.';
 			break;
 		case 'connectionValidated':
 			console.log(`Validation Response:`, message);
@@ -213,6 +207,11 @@ window.addEventListener('message', event => {
 			// validateAnyScriptConfig(message);
 			devPagesStatus.value.ok = message.ok;
 			devPagesStatus.value.status = message.status;
+		case 'devAssetsValidated':
+			console.log(`Dev Assets Validated Response:`, message);
+			anyScriptsDeployedStatus.value.ok = message.ok;
+
+			anyScriptsDeployedStatus.value.status = message.status;
 			break;
 	}
 });
@@ -481,7 +480,7 @@ function emptyfy(value) {
 							<br/>
 							You can access the content in the following files or via buttons below.
 							<br/>
-							Once the content is filled, publish both. Your task is complete!
+							Once the content is filled, publish both. Your task is almost done!
 							<ul>
 								<li>./vscode/deploy.me.page.ssjs</li>
 								<li>./vscode/deploy.me.text.ssjs</li>
@@ -493,15 +492,13 @@ function emptyfy(value) {
 						<br/>
 						<Button id="getTextResourceCode" @click="copyResourceCode('text')" text="Get Text Resource Code" />
 					</div>
-					<!-- TODO: Checkbox -->
+					
 					<br/>
-					<Checkbox
-							id="anyScriptsDeployed"
-							title="Scripts deployed?"
-							description="I have deployed both scripts to SFMC per instructions."
-							v-model="anyScriptsDeployedStatus.ok"
-							@change="checkManualStep()"
-						/>
+					<div>
+						<p>Last step!</p>
+						<Button id="anyScriptsDeployed" @click="checkManualStep()" text="Validate deployed content." />
+					</div>
+					<Status id="anyScriptsDeployedStatus" :statusText="anyScriptsDeployedStatus.status" :ok="anyScriptsDeployedStatus.ok" />
 				</div>
       </template>
 			<template #right-side>	
@@ -510,40 +507,45 @@ function emptyfy(value) {
 				</div>
       </template>
     </AccordionSection>
-		<AccordionSection :ok="devReadStatus.ok">
-      <template #title>
-        Develop
+		<AccordionSection :ok="overall.ok">
+      <template #title v-if="overall.ok">
+				Read the ... manual
       </template>
+			<template #title v-else>
+				Some steps are missing...
+			</template>
       <template #content>
 				<div id="develop">
 					<div class="hint">
-						<p>
-							Ready to develop SSJS code!
-							<br/>
-							Use `.ssjs`, `.amp`, or `.html` files.
-							<br/>
-							First deployment via `SSJS: Upload Script` command (Ctrl+Shift+P or CMD+Shift+P or F1, then type command name).
-							<br/>
-							Subsequent deployments automatic on file save (Ctrl + S or CMD + S).
-							<br/>
-							Run using `SSJS: Run` command (or the "play" icon next to the file tabs).
-							<br/>
-							Get page parameters to clipboard with `SSJS: Get Dev Path` command.
-						</p>
-					</div>
 
-					<Checkbox
-							id="devRead"
-							title="Dev Instructions Read?"
-							description="I have read the dev instuctions."
-							v-model="devReadStatus.ok"
-							@change="checkManualStep()"
-						/>
+						<p>Ready to develop SSJS code!
+							<br/>
+							Here are some tips to get you started:
+						</p>
+						<ul>							
+							<li>Use `.ssjs`, `.amp`, or `.html` files.</li>
+							<li>First deployment via `SSJS: Upload Script` command<sup>1</sup>.</li>
+							<li>Don't forget to choose the way you want to preview your script when asked (you can change this later via `SSJS: Change Script Options`).</li>
+							<li>For your automation scripts or APIs we recommend using Text Resource, for Cloud Pages use Cloud Page.</li>
+							<li>Subsequent deployments automatic on file save<sup>2</sup>, unless disabled in settings<sup>3</sup>.</li>
+							<li>Run using `SSJS: Run` command (or the "play" icon next to the file tabs) to preview directly in VSCode.</li>
+							<li>Get page parameters to clipboard with `SSJS: Get Dev Path` command.</li>
+						</ul>
+						<hr>
+						<p>
+							<sup>1</sup>Ctrl+Shift+P or CMD+Shift+P or F1, then start to type the command name.
+							<br/>
+							<sup>2</sup>Save: Ctrl + S or CMD + S.
+							<br/>
+							<sup>3</sup>Disable in: Preferences > Extensions > SSJS Manager > Editor: Auto Save. New (cloud) icon is available in the top right corner of the editor.
+						</p>
+
+					</div>
 				</div>
 			</template>
 			<template #right-side>	
 				<div>
-					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif" />
+					<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif" />
 				</div>
       </template>
     </AccordionSection>

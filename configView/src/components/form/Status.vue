@@ -6,7 +6,9 @@
 			<span
 					:class="ok ? 'status-ok' : 'status-nok'"
 				>
-				<span class="strong"> Status:</span> {{ statusText }}
+				<span class="strong"> Status: </span>
+					<span v-if="statusText.length > 50" class="status-nok-lighter"><br/>{{ statusText }}</span>
+					<span v-else>{{ statusText }}</span>
 			</span>
 		</p>
 	</div>
@@ -43,5 +45,10 @@ export default {
 	.status-nok {
 		font-weight: bold;
 		font-size: 1.20em;
+	}
+
+	.status-nok-lighter {
+		font-weight: 500;
+		font-size: 0.9em;
 	}
 </style>

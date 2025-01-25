@@ -128,6 +128,10 @@ onMounted(() => {
 </template>
 
 <style scoped>
+	main {
+		margin-bottom: 90px;
+	}
+
 	button {
 		color: inherit;
 	}
