@@ -53,9 +53,14 @@
     var assetId = Request.GetQueryStringParameter("asset-id");
     assetId = protectFromInjection(assetId);
     // add assetId validation - maybe whitelist?
-		// Write('-----' + assetId + ' - type: ' + typeof(assetId) + '-----' + parseInt(assetId) + ' => ' + !isNaN(parseInt(assetId)));
     return assetId !== false && !isNaN(parseInt(assetId)) ? parseInt(assetId) : false;
   }
+
+	function getHashedMid() {
+		// For checking correct script config
+		var mid = Platform.Recipient.GetAttributeValue('memberid') + '';
+		return Platform.Function.MD5(mid, "UTF-8");
+	}
 
   function setResponseHeader(status, message) {
     var st = typeof(status) === 'number' ? status : -1;
@@ -63,6 +68,7 @@
     
     Platform.Response.SetResponseHeader("ssjs-http-status", st);
     Platform.Response.SetResponseHeader("ssjs-http-message", msg);
+		Platform.Response.SetResponseHeader("ssjs-origin", getHashedMid());
   }
 
 	try {

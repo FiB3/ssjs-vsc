@@ -179,7 +179,7 @@ class ExtensionHandler {
 						this.config.createConfigFile(subdomain, clientId, mid);
 					}
 					// add userId from request data:
-					this.config.setSfmcUserId(data.userId);
+					this.config.setSfmcUserId(data.userId, data.mid);
 					
 					// Open the setup  file:
 					if (openConfig) {
@@ -243,12 +243,21 @@ class ExtensionHandler {
 			axios.get(devResourceInfo.devPageUrl)
 		])
 				.then((responses) => {
-					let pageOk = responses[0]?.status === 200 && !!responses[0]?.headers?.['ssjs-http-status'];
-					let resourceOk = responses[1]?.status === 200 && !!responses[1]?.headers?.['ssjs-http-status'];
-					logger.log(`Dev Page OK: ${pageOk}, Dev Resource OK: ${resourceOk} (${responses[0]?.status} && ${responses[0]?.headers?.['ssjs-http-status']} + ${responses[1]?.status} && ${responses[1]?.headers?.['ssjs-http-status']}).`);
+					let pageOk = responses[0]?.status === 200
+							&& !!responses[0]?.headers?.['ssjs-http-status']
+							&& md5(this.config.getMid() + '') === responses[0]?.headers?.['ssjs-origin'];
+					let resourceOk = responses[1]?.status === 200
+							&& !!responses[1]?.headers?.['ssjs-http-status']
+							&& md5(this.config.getMid() + '') === responses[1]?.headers?.['ssjs-origin'];
+
+					// let dm = `Dev Page OK: ${pageOk}, Dev Resource OK: ${resourceOk}.`
+					// dm += `(${responses[0]?.status} && ${responses[0]?.headers?.['ssjs-http-status']} && ${responses[0]?.headers?.['ssjs-origin']} === page:${md5(this.config.getMid() + '')} (${this.config.getMid()})),`;
+					// dm += `(${responses[1]?.status} && ${responses[1]?.headers?.['ssjs-http-status']} && ${responses[1]?.headers?.['ssjs-origin']} === resource:${md5(this.config.getMid() + '')} (${this.config.getMid()}))`;
+					// logger.log(dm);
+
 					if (pageOk && resourceOk) {
 						telemetry.log(`devAssetsChecked`, { pageOk, resourceOk });
-						return { ok: true, message: `Dev Assets are OK.` };
+						return { ok: true, message: `Dev Assets are deployed correctly.` };
 					} else {
 						telemetry.log(`devAssetsChecked`, { pageOk, resourceOk });
 						return { ok: false, message: `Dev Page or Resource are not deployed correctly. Check if both have correct code saved and published.` };

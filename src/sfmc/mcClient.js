@@ -167,8 +167,9 @@ module.exports = class McClient {
 
     try {
         const data = await this.validateApiKeys();
-        console.log(`API Keys OK.`, data.body?.user?.id);
+        console.log(`API Keys OK. user: ${data.body?.user?.id}, mid: ${data.body?.organization?.id}.`);
         r.userId = data.body?.user?.id;
+				r.mid = data.body?.organization?.id;
     } catch (err) {
 			logger.error('validateApiKeys error:', err);
 			r.ok = false;

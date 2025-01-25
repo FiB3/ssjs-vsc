@@ -650,5 +650,12 @@
 			"Platform.Response.RemoveResponseHeader(${1:headerName})"
 		],
 		"description": "Removes a response header from the current page."
+	},
+	"GetMID": {
+		"prefix": "GetMID",
+		"body": [
+			"Platform.Recipient.GetAttributeValue('memberid');"
+		],
+		"description": "Returns the MID of the account."
 	}
 }

@@ -169,6 +169,10 @@ module.exports = class Config extends Preferences {
 		return Config.validateConfigValue(this.config['sfmc-user-id']);
 	}
 
+	getMid() {
+		return Config.validateConfigValue(this.config['sfmc-mid']);
+	}
+
 	/**
 	 * Get Setup File Version.
 	 * @returns {string}
@@ -364,8 +368,11 @@ module.exports = class Config extends Preferences {
 		this.saveConfigFile();
 	}
 
-	setSfmcUserId(userId) {
+	setSfmcUserId(userId, mid = false) {
 		this.config['sfmc-user-id'] = userId || 0;
+		if (mid) {
+			this.config['sfmc-mid'] = mid;
+		}
 		this.saveConfigFile();
 	}
 
@@ -452,7 +459,7 @@ module.exports = class Config extends Preferences {
 		let newConfig = {
 			'sfmc-domain': this.config['sfmc-domain'],
 			'sfmc-client-id': this.config['sfmc-client-id'],
-			'sfmc-mid': this.config['sfmc-mid'],
+			'sfmc-mid': this.confgi['sfmc-mid'],
 			'sfmc-user-id': this.config['sfmc-user-id'] || 0,
 			'dev-folder-path': this.config['dev-folder-path'],
 			'dev-tokens': this.config['dev-tokens'] || {},
