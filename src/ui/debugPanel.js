@@ -12,7 +12,7 @@ const { time } = require('console');
 let panel;
 let panelState = {
 	disposed: false,
-	devPageContext: 'page',
+	devPageContext: undefined,
 	column: vscode.ViewColumn.Two,
 	set: (disposed, devPageContext) => {
 		panelState.disposed = disposed;
@@ -32,6 +32,7 @@ const TEXT_PANEL_PATH = 'templates/debugTextPanel.html';
  */
 async function runDebug(context, pageData, devPageContext = 'page') {
 	if (!!panelState.devPageContext && panelState.isNewDevPageContext(devPageContext)) {
+		logger.log('New devPageContext:', devPageContext, panelState.devPageContext);
 		panel.dispose();
 		panelState.set(true, devPageContext);
 	}
