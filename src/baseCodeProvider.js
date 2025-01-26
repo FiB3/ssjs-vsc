@@ -274,6 +274,10 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		this.snippets.saveDevContext(filePath, newDevContext);
 	}
 
+	async validateApiKeys() {
+		return await this.mc.validateApi();
+	}
+
 	/**
 	 * Validates if the current file is supported for deployment and returns the Dev Page Contexts.
 	 * @returns {Object|false} Object with filePath, asset metadata and devPageContext. False if something is wrong.

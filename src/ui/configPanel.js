@@ -7,6 +7,7 @@ let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
 let telemetry = require('../telemetry');
 let stats = require('../auxi/stats');
+let logger = require('../auxi/logger');
 
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
@@ -26,6 +27,9 @@ async function showConfigPanel(context) {
 			switch (message.command) {
 				case 'initialized':
 					await handleInit(panel, getView);
+					return;
+				case 'testConfigufation':
+					testConfigurations(panel);
 					return;
 				case 'validateConnection':
 					validateApiCredentials(panel, message);
@@ -84,6 +88,73 @@ async function handleInit(panel, getViewFunc) {
 		anyScriptsDeployed: conf.anyScriptsDeployed,
 		devRead: conf.anyScriptsDeployed
 	});
+}
+
+async function testConfigurations(panel) {
+	async function updateStatus(isDone, messsage) {
+		panel.webview.postMessage({
+			command: 'updateTestingConfigurationStatus',
+			running: true,
+			status: messsage
+		});
+		// small delay, for better UX:
+		if (isDone) {
+			await new Promise(resolve => setTimeout(resolve, 5000));
+			panel.webview.postMessage({
+				command: 'updateTestingConfigurationStatus',
+				running: false
+			});
+			return;
+		}
+		// small delay, for better UX:
+		return new Promise(resolve => setTimeout(resolve, Math.random() * 700 + 700));
+	}
+
+	await updateStatus(false, `Testing...`);
+	// Validate API Credentials:
+	let credsRes = await ext.checkSfmcCredentials();
+	panel.webview.postMessage({
+		command: 'connectionValidated',
+		ok: credsRes.ok,
+		status: credsRes.message
+	});
+
+	if (!credsRes.ok) {
+		await updateStatus(true, `API Credentials are invalid.`);
+		return;
+	}
+	await updateStatus(false, `API Credentials validated. Checking other settings...`);
+
+	// check if folder exists:
+	let folderId = ext.config?.getAssetFolderId();
+	let mc = ext.getMcClient();
+	logger.log(`MC Client:`, mc);
+	let folderResOk = await mc.getAssetFolderById(folderId)
+			.then(async res => {
+				await updateStatus(false, `Content Builder Folder exists. Checking Dev Assets...`);
+				return true;
+			})
+			.catch(async err => {
+				panel.webview.postMessage({
+					command: 'folderCreated',
+					ok: false,
+					status: err.statusCode === 404 ?
+							`Content Builder Folder does not exist.`
+							: `Error: ${err.statusCode} - ${err.statusMessage}`
+				});
+				await updateStatus(true, `Content Builder Folder does not exist.`);
+				return false;
+			});
+	if (!folderResOk) { return; }
+
+	// run dev assets check:
+	let assetsRes = await validateDevAssets(panel);
+	if (!assetsRes.ok) {
+		await updateStatus(true, `Dev Assets are not deployed correctly.`);
+		return;
+	}
+	await updateStatus(false, `Dev Assets deployed correctly...`);
+	await updateStatus(true, `Finished!`);
 }
 
 async function validateApiCredentials(panel, sfmc) {
@@ -155,6 +226,7 @@ async function validateDevAssets(panel) {
 		status: res.message
 	});
 	ext.config?.setManualConfigSteps(res.ok);
+	return res;
 }
 
 function setManualStepDone(message) {

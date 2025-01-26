@@ -61,11 +61,26 @@ let resources = ref({
 	textOk: false
 });
 
+let testingConfiguration = ref({
+	running: false,
+	status: 'Testing Configuration...'
+})
+
 const overall = computed(() => {
 	let ok = workspaceStatus.value.ok && sfmcApiStatus.value.ok && folderStatus.value.ok && devPagesStatus.value.ok && anyScriptsDeployedStatus.value.ok;
+	let minutesToFinish = 0;
+	if (!ok) {
+		minutesToFinish = 15;
+		minutesToFinish -= !workspaceStatus.value.ok ? 0 : 1;
+		minutesToFinish -= !sfmcApiStatus.value.ok ? 0 : 5;
+		minutesToFinish -= !folderStatus.value.ok ? 0 : 2;
+		minutesToFinish -= !devPagesStatus.value.ok ? 0 : 4;
+		minutesToFinish -= !anyScriptsDeployedStatus.value.ok ? 0 : 3;
+	}
 	return {
 		ok,
-		status: ok ? 'All Configured.' : 'Not Configured'
+		status: ok ? 'All Configured.' : 'Not Configured',
+		minutesToFinish: minutesToFinish
 	};
 });
 
@@ -133,6 +148,13 @@ function validateAnyScriptConfig(message) {
 		devPagesStatus.value.ok = true;
 		devPagesStatus.value.status = 'Resources Set.';
 	}
+}
+
+function testConfigufation() {
+	testingConfiguration.value.running = true;
+	vscode.postMessage({
+		command: 'testConfigufation'
+	});
 }
 
 function copyResourceCode(devPageContext = 'page') {
@@ -210,8 +232,11 @@ window.addEventListener('message', event => {
 		case 'devAssetsValidated':
 			console.log(`Dev Assets Validated Response:`, message);
 			anyScriptsDeployedStatus.value.ok = message.ok;
-
 			anyScriptsDeployedStatus.value.status = message.status;
+			break;
+		case 'updateTestingConfigurationStatus':
+			testingConfiguration.value.running = message.running;
+			testingConfiguration.value.status = message.status;
 			break;
 	}
 });
@@ -223,14 +248,28 @@ function emptyfy(value) {
 
 <template>
   <div class="greetings">
-		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
-		<div class="hint">
+		<!-- v-if="overall.ok" -->
+		<div  class="test-configufation-section">
+			<h3>Test Configuration</h3>
 			<p>
-				To utilize the SSJS Manager fully (including code previews within SFMC), configuration is necessary.
+				To ensure everything is set up correctly, you can test the configuration.
+			</p>
+			<Button
+					id="test-configufation-button"
+					 text="Test Configuration."
+					:disabled="testingConfiguration.running"
+					@click="testConfigufation()"
+				/>
+			<p v-if="testingConfiguration.running">{{ testingConfiguration.status }}</p>
+		</div>
+
+		<Status id="configStatus" :statusText="overall.status" :ok="overall.ok" />
+		<p v-if="!overall.ok">{{ overall.minutesToFinish }} minutes remaining</p>
+		<div v-if="!overall.ok" class="hint">
+			<p>
+				To utilize the SSJS Manager fully (including Preview in VSCode), configuration is necessary.
 				<br/>
-				This is a one-time setup per project.
-				<!-- <br/>
-				We'll provide step-by-step guidance on this screen. -->
+				This is a one-time setup per project (project should be related to a single MC Business Unit).
 				<br/>
 				NOTE: "Commands" are available via the Command Palette (Ctrl+Shift+P or CMD+Shift+P or F1).
 			</p>
@@ -515,7 +554,7 @@ function emptyfy(value) {
 				Some steps are missing...
 			</template>
       <template #content>
-				<div id="develop">
+				<div v-if="overall.ok" id="develop">
 					<div class="hint">
 
 						<p>Ready to develop SSJS code!
@@ -542,6 +581,9 @@ function emptyfy(value) {
 
 					</div>
 				</div>
+				<div>
+					<p>Complete previous steps to gain access to the full functionality! And usage guide.</p>
+				</div>
 			</template>
 			<template #right-side>	
 				<div>
@@ -550,7 +592,6 @@ function emptyfy(value) {
       </template>
     </AccordionSection>
   </Accordion>
-
 
   </div>
 </template>

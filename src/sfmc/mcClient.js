@@ -144,6 +144,10 @@ module.exports = class McClient {
     return allItems;
 	}
 
+	async getAssetFolderById(folderId) {
+		return this._get(`/asset/v1/content/categories/${folderId}`);
+	}
+
 	async validateApi() {
     let r = {
       ok: true,

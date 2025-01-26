@@ -226,6 +226,23 @@ class ExtensionHandler {
 		return await this.provider.deployAnyScriptUi(contexts);
 	}
 
+	async checkSfmcCredentials() {
+		if (this.isProviderInactive()) {
+			return { ok: false, message: `Extension is missing configuration.` };
+		}
+		return await this.provider.validateApiKeys();
+	}
+
+	/**
+	 * Get the MC Client instance.
+	 */
+	getMcClient() {
+		if (this.isProviderInactive() || !this.provider?.mc) {
+			return { ok: false, message: `Extension is missing configuration.` };
+		}
+		return this.provider.mc;
+	}
+
 	async checkDeployedDevAssets() {
 		if (this.isProviderInactive()) {
 			return { ok: false, message: `Extension is missing configuration.` };
