@@ -375,7 +375,7 @@ class SnippetHandler {
 	 */
 	snippetExists(filePath) {
 		const p = this.getMetadataFileName(filePath);
-		console.log(`assetExists:`, p, '. exists?', file.exists(p));
+		logger.log(`assetExists:`, p, '. exists?', file.exists(p));
 		return file.exists(p);
 	}
 

@@ -30,8 +30,6 @@ class Stats {
 		this.context.workspaceState.update(CACHE_NAME, {
 			apiCalls: this.getApiCalls() + incrementBy
 		});
-
-		console.log('API Calls:', this.getApiCalls());
 	}
 
 	/**

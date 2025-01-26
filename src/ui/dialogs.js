@@ -70,7 +70,6 @@ module.exports = {
 			ignoreFocusOut: true
 		});
 
-		console.log(`User confirmed options:`, selected);
 		if (!Array.isArray(selected) || selected.length < 3) {
 			vscode.window.showWarningMessage(`Finish steps to be able to continue. You can see all of them by running "SSJS: Show Setup Walkthrough" command (CTRL/CMD + SHIFT + P).`);
 			return false;
