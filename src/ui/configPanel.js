@@ -109,7 +109,7 @@ async function testConfigurations(panel) {
 		// small delay, for better UX:
 		return new Promise(resolve => setTimeout(resolve, Math.random() * 700 + 700));
 	}
-
+	telemetry.log(`testConfigurations`, {});
 	await updateStatus(false, `Testing...`);
 	// Validate API Credentials:
 	let credsRes = await ext.checkSfmcCredentials();

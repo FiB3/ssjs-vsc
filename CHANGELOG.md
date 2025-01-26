@@ -2,6 +2,26 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.8] - 2025-01-26
+
+### Added:
+- New `Upload Script to Dev` icon (cloud) for supported files (top right corner of editor tab) - next to `Run` icon.
+- New `SSJS: Check Dev Pages` command to test configuration of your Development Cloud Page and Text Resource.
+- New button with the _Check Dev Pages_ functionality replaced a checkbox in the Config's _Deploy Cloud Page & Text Resource_ section.
+- New _Test Configuration_ button in the Config panel, that validates your connection to SFMC (available only when configuration appears valid). Great when you have e.g. changed the Business unit.
+- Support for additional file types via new Preference: `Editor: Additional File Types`. Now you can test other files you are working on (like SSJS libraries in .js files).
+
+### Changed:
+- `Develop` section in the Config panel is no longer mandatory.
+- Config's _Folder in Content Builder_ shows configured folder.
+- When asset is not found in SFMC a more precise notification is shown.
+- Offer script's metadata deletetion, when asset is not found in SFMC.
+- Dev Pages return 3 new headers that allow for testing the Dev Pages.
+- Preview will always get focused when `Run` is used.
+
+### Fixed:
+- Switch between Preview of Cloud Pages and Text Resources.
+
 ## [0.6.7] - 2025-01-20
 
 ### Added:
