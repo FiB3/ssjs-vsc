@@ -297,6 +297,9 @@ class ExtensionHandler {
 				});
 	}
 
+	/**
+	 * Update Config file to the latest version, if needed.
+	 */
 	async checkSetup() {
 		const currentVersion = this.config.getSetupFileVersion();
 
@@ -324,15 +327,19 @@ class ExtensionHandler {
 		}
 	}
 	
+	/**
+	 * Check if the Dev Page is up to date, if not - update it.
+	 */
 	async checkDevPageVersion() {
-		const minVersion = '0.5.0';
+		const minVersion = '0.6.8';
 		const currentVersion = this.config.getSetupFileVersion();
 	
 		if (Config.parseVersion(currentVersion) >= Config.parseVersion(minVersion)) {
-			console.log(`Dev Page is up to date. Version: ${currentVersion}.`);
+			logger.log(`Dev Page is up to date. Version: ${currentVersion}.`);
 			return;
 		}
-		console.log(`Update Dev Page from version: ${currentVersion} to ${minVersion}.`);
+		logger.log(`Update Dev Page from version: ${currentVersion} to ${minVersion}.`);
+		vscode.window.showInformationMessage(`Updating Dev Pages to the newest version: ${minVersion}.`);
 		// update Dev Page:
 		this.provider.updateAnyScript(true);
 		this.config.setSetupFileVersion();

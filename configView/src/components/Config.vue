@@ -550,7 +550,7 @@ function emptyfy(value) {
     </AccordionSection>
 		<AccordionSection :ok="overall.ok">
       <template #title v-if="overall.ok">
-				Read the ... manual
+				Read the ... Manual
       </template>
 			<template #title v-else>
 				Some steps are missing...
