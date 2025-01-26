@@ -10,7 +10,17 @@ const logger = require('../auxi/logger');
 const { time } = require('console');
 
 let panel;
-let disposed = false;
+let panelState = {
+	disposed: false,
+	devPageContext: 'page',
+	column: vscode.ViewColumn.Two,
+	set: (disposed, devPageContext) => {
+		panelState.disposed = disposed;
+		panelState.devPageContext = devPageContext;
+	},
+	isNewDevPageContext: (newDevPageContext) =>
+		panelState.devPageContext !== newDevPageContext
+};
 
 const PANEL_PATH = 'templates/debugPanel.html';
 const TEXT_PANEL_PATH = 'templates/debugTextPanel.html';
@@ -21,13 +31,20 @@ const TEXT_PANEL_PATH = 'templates/debugTextPanel.html';
  * @param {*} pageData 
  */
 async function runDebug(context, pageData, devPageContext = 'page') {
+	if (!!panelState.devPageContext && panelState.isNewDevPageContext(devPageContext)) {
+		panel.dispose();
+		panelState.set(true, devPageContext);
+	}
+
 	if (!panel) {
 		logger.log('Creating new Debug panel...');
 		showDebug(context, pageData, devPageContext);
 	} else {
-		logger.log('Refreshing Debug panel...', panel);
+		logger.log(`Refreshing Debug panel... context: ${devPageContext}, isTextContext: ${isTextPageContext(devPageContext)}. Panel:`, panel);
+		ensureVisible();
 		triggerRefreshActions();
 		if (isTextPageContext(devPageContext)) {
+			logger.log('Loading script output (1)...');
 			loadScriptOutput(pageData);
 		} else {
 			loadScript(pageData);
@@ -39,21 +56,22 @@ async function showDebug(context, pageData, devPageContext) {
 	panel = vscode.window.createWebviewPanel(
 		'debug', // Identifies the type of the webview. Used internally
 		'SFMC Preview', // Title of the panel displayed to the user
-		vscode.ViewColumn.Two, // Editor column to show the new webview panel in.
+		panelState.column, // Editor column to show the new webview panel in.
 		{
 			enableScripts: true,
 			retainContextWhenHidden: true,
 			localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'node_modules'))],
 		}
 	);
-	disposed = false;
+	panelState.set(false, devPageContext);
 
 	panel.webview.onDidReceiveMessage(
 		async message => {
 			switch (message.command) {
 				case 'debugInitiated':
-					logger.log('Debug initiated:', message);
+					logger.log('Debug initiated:', message, ', devPageContext:', devPageContext);
 					if (isTextPageContext(devPageContext)) {
+						logger.log('Loading script output (2)...');
 						loadScriptOutput(pageData);
 					} else {
 						loadScript(pageData);
@@ -67,7 +85,7 @@ async function showDebug(context, pageData, devPageContext) {
 
 	panel.webview.html = getWebviewContent(context, pageData.url, devPageContext);
 	panel.onDidDispose(() => {
-		disposed = true;
+		panelState.set(true, undefined);
 		panel = undefined;
 	});
 }
@@ -142,6 +160,12 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 		time: t1 - t0,
 		data: result.data
 	});
+}
+
+function ensureVisible() {
+	if (panel && !panel.visible) {
+		panel.reveal();
+	}
 }
 
 function triggerRefreshActions() {

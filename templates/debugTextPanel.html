@@ -248,7 +248,7 @@
 		});
 
 		function refresh() {
-			vscode.postMessage({ command: 'debugInitiated' });
+			vscode.postMessage({ command: 'debugInitiated', devPageContext: 'text' });
 			console.log(`refresh`);
 			runRefreshActions();
 		}
@@ -372,7 +372,7 @@
 
 		window.onload = function() {
 			console.log('Document loaded');
-			vscode.postMessage({ command: 'debugInitiated' });
+			vscode.postMessage({ command: 'debugInitiated', devPageContext: 'text' });
 			showLoading();
 		}
 	</script>
