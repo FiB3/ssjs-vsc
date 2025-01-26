@@ -63,7 +63,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				logger.debug('File already exists.');
 			}
 		} else {
-			vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
+			if (Config.isDefaultFileTypeAllowed(filePath)) {
+				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
+			}
 		}
 	}
 

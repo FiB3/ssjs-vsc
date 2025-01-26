@@ -15,6 +15,7 @@ module.exports = class NoCodeProvider {
 		 *e.g.: if the extension is not set up correctly
 		 */
 		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'None');
+		Config.updateAllowedFileTypesInVsCodeContext();
 	}
 
 	async deactivate() {

@@ -28,13 +28,44 @@ module.exports = class Preferences extends BaseConfig {
 	 * @returns {boolean} true if file is supported, false otherwise.
 	 */
 	static isFileTypeAllowed(filePath, showWarning = true) {
-		if (USABLE_EXT.includes(path.extname(filePath))) {
+		let extName = path.extname(filePath);
+		let additionalFileTypes = Preferences.getAdditionalFileTypes();
+		console.log(`File extension: "${additionalFileTypes}".`);
+		if (USABLE_EXT.includes(extName) || additionalFileTypes.includes(extName)) {
 			return true;
 		}
 		if (showWarning) {
-			vscode.window.showWarningMessage(`File *${path.extname(filePath)} is not supported!`);
+			vscode.window.showWarningMessage(`File *${extName} is not allowed!`);
 		}
 		return false;
+	}
+
+	/**
+	 * Check if the file is one of the default file types allowed for deployment.
+	 * @param {string} filePath
+	 * @returns {boolean} true if file is supported, false otherwise.
+	 */
+	static isDefaultFileTypeAllowed(filePath) {
+		return USABLE_EXT.includes(path.extname(filePath));
+	}
+
+	static updateAllowedFileTypesInVsCodeContext() {
+		let allowedFileTypes = USABLE_EXT.concat(Preferences.getAdditionalFileTypes());
+		console.log(`Allowed file types: "${allowedFileTypes}".`);
+		vscode.commands.executeCommand('setContext', 'ssjs-vsc.allowedFileTypes', allowedFileTypes);
+	}
+
+	/**
+	 * Get additional supported file types from the Preferences.
+	 * @returns {array} array of additional file types.
+	 */
+	static getAdditionalFileTypes() {
+		let extensions = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('additionalFileTypes') ?? [];
+		let validExtensions = [];
+		extensions.forEach((ext) => {
+			if (/^\.[a-zA-Z0-9]{1,5}$/.test(ext)) validExtensions.push(ext);
+		});
+		return validExtensions;
 	}
 
 	static isAssetProvider() {

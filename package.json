@@ -178,12 +178,12 @@
         {
           "command": "ssjs-vsc.run",
           "group": "navigation",
-          "when": "resourceExtname == .ssjs || resourceExtname == .amp || resourceExtname == .ampscript || resourceExtname == .html"
+          "when": "resourceExtname in ssjs-vsc.allowedFileTypes"
         },
 				{
 					"command": "ssjs-vsc.upload-script",
 					"group": "navigation",
-					"when": "resourceExtname == .ssjs || resourceExtname == .amp || resourceExtname == .ampscript || resourceExtname == .html"
+					"when": "resourceExtname in ssjs-vsc.allowedFileTypes"
 				}
       ]
     },
@@ -210,6 +210,15 @@
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
         },
+				"ssjs-vsc.editor.additionalFileTypes": {
+					"type": "array",
+					"default": [],
+					"items": {
+						"type": "string",
+						"pattern": "^\\.[a-zA-Z0-9]{1,5}$"
+					},
+					"description": "Additional file types that can be deployed to SFMC:\n- Write in `.ext` format - e.g.: `.js`.\n- First deployment still needs to be manual.\n- Beware: this can interfere with your configured hooks."
+				},
         "ssjs-vsc.editor.runHandlingInCloudPages": {
           "type": "string",
           "default": "Preview",

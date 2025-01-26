@@ -86,7 +86,9 @@ function watchForConfigurationChanges() {
 		if (event.affectsConfiguration('ssjs-vsc.editor.codeProvider')) {
 			ext.pickCodeProvider();
 			telemetry.log(`changeCodeProvider`, { codeProvider: Config.getCodeProvider() });
-		}
+		} else if (event.affectsConfiguration('ssjs-vsc.editor.additionalFileTypes')) {
+			Config.updateAllowedFileTypesInVsCodeContext();		
+		}	
 	});
 }
 

@@ -77,7 +77,7 @@ module.exports = class Hooks {
 				return -1;
 			}
 		} else {
-			vscode.window.showInformationMessage(`Run 'SSJS: Upload Script to Dev' command to deploy any script for the first time.`);
+			vscode.window.showInformationMessage(`Run 'SSJS: Upload Script to Dev' to initial deploy of hooked script.`);
 			return 0;
 		}
 	}
