@@ -29,7 +29,7 @@ class ExtensionHandler {
 	}
 
 	async activateAssetProvider(testApiKeys) {
-		console.log(`Activating Asset Provider...`);
+		logger.log(`Activating Asset Provider...`);
 		this.provider = new AssetCodeProvider(this.config, this.statusBar, this.context);
 		await this.provider.init(testApiKeys);
 	}
@@ -40,18 +40,18 @@ class ExtensionHandler {
 	}
 	
 	async deactivateProviders() {
-		console.log(`Deactivating Providers...`);
+		logger.log(`Deactivating Providers...`);
 		this.provider = new NoCodeProvider(this.config, this.statusBar);
-		console.log(`Provider:`, this.provider);
+		logger.log(`Provider:`, this.provider);
 		await this.provider.init();
 	}
 	
 	async pickCodeProvider(testApiKeys, silent = false) {
 		await this.deactivateProviders();
 		
-		console.log(`pickCodeProvider => workspace: ${Config.isWorkspaceSet()}, config exists: ${Config.configFileExists()}, sfmc valid: ${await this.config?.isSfmcValid()}`);
+		logger.log(`pickCodeProvider => workspace: ${Config.isWorkspaceSet()}, config exists: ${Config.configFileExists()}, sfmc valid: ${await this.config?.isSfmcValid()}`);
 		if (!Config.isWorkspaceSet() || !Config.configFileExists() || !await this.config?.isSfmcValid()) {
-			console.log(`No valid setup found. Code Providers switched off!`);
+			logger.log(`No valid setup found. Code Providers switched off!`);
 		} else if (Config.isAssetProvider()) {
 			if (!silent) {
 				vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
@@ -66,14 +66,14 @@ class ExtensionHandler {
 			if (!silent) {
 				vscode.window.showWarningMessage(`Code Providers switched off!`);
 			} else {
-				console.log(`Code Providers switched off!`);
+				logger.log(`Code Providers switched off!`);
 			}
 		}
 	}
 
 	async workspaceOk() {
 		if (!Config.isWorkspaceSet()) {
-			console.log(`Workspace is not set.`);
+			logger.log(`Workspace is not set.`);
 			vscode.window.showInformationMessage(`No workspace found. Use "Open Folder" to set it.`);
 			telemetry.log(`noWorkspace`);
 			await this.deactivateProviders();
@@ -86,30 +86,30 @@ class ExtensionHandler {
 		this.config = new Config(context);
 
 		if (!Config.configFileExists()) {
-			console.log(`Setup file does not exists - creating empty.`);
+			logger.log(`Setup file does not exists - creating empty.`);
 			this.config.deployConfigFile();
 			return false;
 		}
 
 		this.config.loadConfig();
 		if (!this.config.isSfmcValid()) {
-			console.log(`SFMC Setup is invalid.`);
+			logger.log(`SFMC Setup is invalid.`);
 			// might need to add all basic empty props from the setup file template & re-load config
 			return false;
 		}
 
 		if (!this.config.isSetupValid()) {
-			console.log(`Setup file is invalid.`);
+			logger.log(`Setup file is invalid.`);
 			// might need to add all basic empty props from the setup file template & re-load config
 			return false;
 		}
 
 		if (!this.config.isManualConfigValid()) {
-			console.log(`Manual setup is invalid.`);
+			logger.log(`Manual setup is invalid.`);
 			return false;
 		}
 	
-		console.log(`Setup file is (at least mostly) valid.`);
+		logger.log(`Setup file is (at least mostly) valid.`);
 		this.checkSetup();
 		this.hooks = new Hooks(this.config);
 		return true;
@@ -166,7 +166,7 @@ class ExtensionHandler {
 						res.message = data.message
 						return;
 					}
-					console.log('createConfig() - API Response:', data);
+					logger.log('createConfig() - API Response:', data);
 					// store credentials:
 					this.config.storeSfmcClientSecret(clientId, clientSecret);
 					// TODO: automate the "update" parameter (based on config file existance)
@@ -222,7 +222,7 @@ class ExtensionHandler {
 			return { ok: false, message: `Extension is missing configuration.` };
 		}
 		let contexts = devPageContexts.map((page) => page.devPageContext);
-		console.log(`createDevAssets: `, contexts);
+		logger.log(`createDevAssets: `, contexts);
 		return await this.provider.deployAnyScriptUi(contexts);
 	}
 
@@ -346,7 +346,7 @@ class ExtensionHandler {
 	}
 	
 	isProviderInactive() {
-		console.log(`isProviderInactive - provider active: ${!this.provider} || instance of no code provider ${this.provider?.constructor === NoCodeProvider}`);
+		logger.log(`isProviderInactive - provider active: ${!this.provider} || instance of no code provider ${this.provider?.constructor === NoCodeProvider}`);
 		return !this.provider || this.provider?.constructor === NoCodeProvider;
 	}
 
