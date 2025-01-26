@@ -292,6 +292,21 @@ module.exports = class Config extends Preferences {
 		};
 	}
 
+	getAssetFolderNames() {
+		let folderPath = this.config['asset-folder'];
+		let folderNames = folderPath.split('>');
+		if (folderNames.length < 2) {
+			return {
+				parent: false,
+				folder: false
+			}
+		}
+		return {
+			parent: folderNames[0].trim(),
+			folder: folderNames[1].trim()
+		}
+	}
+
 	/**
 	 * Sets params for Dev Page/Resource. 
 	 */

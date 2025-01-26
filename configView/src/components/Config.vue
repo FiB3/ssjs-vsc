@@ -209,6 +209,8 @@ window.addEventListener('message', event => {
 			if (message.configFileExists && message.folder && message.folder.id) {
 				folderStatus.value.ok = true;
 				folderStatus.value.status = `Folder exists: ${message.folder.folderPath}.`;
+				folder.value.parentName = message.folderNames.parent;
+				folder.value.newName = message.folderNames.folder;
 			}
 			validateAnyScriptConfig(message);
 			anyScriptsDeployedStatus.value.ok = message.anyScriptsDeployed;

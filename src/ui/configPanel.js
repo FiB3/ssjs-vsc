@@ -23,7 +23,7 @@ async function showConfigPanel(context) {
 
 	panel.webview.onDidReceiveMessage(
 		async message => {
-			console.log(`BE: ${message.command} -`, message);
+			logger.log(`BE: ${message.command} -`, message);
 			switch (message.command) {
 				case 'initialized':
 					await handleInit(panel, getView);
@@ -170,7 +170,7 @@ async function validateApiCredentials(panel, sfmc) {
 	}
 
 	let r = await ext.handleNewSfmcCreds({ subdomain, clientId, clientSecret, mid }, false, 'ui', false);
-	console.log('BE: validateApiCredentials (2):', r);
+	logger.log('BE: validateApiCredentials (2):', r);
 
 	panel.webview.postMessage({
 		command: 'connectionValidated',
@@ -278,9 +278,9 @@ async function getConfigPanelInfo() {
 	let configViewData = ext.config?.getManualConfigSteps();
 
 	const configValid = ext.config?.isSetupValid() || false;
-	console.log(`Config Valid:`, configValid);
+	logger.log(`Config Valid:`, configValid);
 	const sfmc = await ext.config?.getSfmcInstanceData() || false;
-	// console.log(`SFMC Data:`, sfmc);
+	// logger.log(`SFMC Data:`, sfmc);
 
 	return {
 		showPanelAutomatically: Config.showPanelAutomatically(),
@@ -290,6 +290,7 @@ async function getConfigPanelInfo() {
 		configFileValid: configValid,
 		sfmc: sfmc,
 		folder: ext.config?.getAssetFolder() || { id: false, folderPath: `Not set.` },
+		folderNames: ext.config?.getAssetFolderNames(),
 		cloudPageData: ext.config?.getDevPageInfo('page'),
 		cloudPageOk: ext.config?.isDevPageSet(),
 		textResourceData: ext.config?.getDevPageInfo('text'),
@@ -308,7 +309,7 @@ async function isConfigPanelNeeded() {
 		showChangelog: false
 	};
 
-	console.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Valid: ${panelInfo.configFileValid}.`);
+	logger.log(`Launch Config Panel? automatically: ${panelInfo.showPanelAutomatically} && Workspace Set: ${panelInfo.workspaceSet} && Config File Valid: ${panelInfo.configFileValid}.`);
 	return panelInfo.showPanelAutomatically
 			&& (!panelInfo.workspaceSet || !panelInfo.configFileValid || panelInfo.showChangelog);
 }
@@ -329,7 +330,7 @@ function getTemplatingTags(panel, message, reloaded = false) {
 			prod: prodTags?.[key]
 		});
 	}
-	console.log(`getTemplatingTags():`, tags);
+	logger.log(`getTemplatingTags():`, tags);
 
 	panel.webview.postMessage({
 		command: 'templatingInitialized',
