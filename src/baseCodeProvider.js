@@ -40,8 +40,8 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			if (testConnection === true) {
 				await this.mc.validateApi()
 						.then((data) => {
-							if (data.ok && !this.config.getSfmcUserId()) {
-								this.config.setSfmcUserId(data.userId);
+							if (data.ok && (!this.config.getSfmcUserId() || !this.config.getMid())) {
+								this.config.setSfmcUserId(data.userId, data.mid);
 							} else if (!data.ok) {
 								vscode.window.showErrorMessage(data.message);
 							}

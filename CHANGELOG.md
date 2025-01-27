@@ -2,6 +2,11 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.9] - 2025-01-27
+
+### Fixed:
+- MID was not saved when missing - Dev Assets can now be checked correctly. 
+
 ## [0.6.8] - 2025-01-26
 
 ### Added:
