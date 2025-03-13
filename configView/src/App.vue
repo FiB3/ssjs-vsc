@@ -29,7 +29,8 @@ const appInfo = ref({
 });
 
 const appStats = ref({
-	apiCallsCount: 0
+	apiCallsCount: 0,
+	createdDate: `Unknown`
 });
 
 function autoShowSwitch() {
@@ -58,6 +59,8 @@ onMounted(() => {
 			case 'stats':
 				console.log(`STATS Response:`, message.data);
 				appStats.value.apiCallsCount = message.data.apiCalls;
+				// NOTE: could improve the format (like: 1s ago...)
+				appStats.value.createdDate = new Date(message.data.createdDate).toUTCString()
 				break;
 		}
 	});
@@ -105,7 +108,7 @@ onMounted(() => {
 
 		<footer>
 			<div class="app-stats">
-				<p title="Count of API Calls used by the extension in this workspace.">
+				<p :title="'Count of API Calls used by the extension since: ' + appStats.createdDate + '.'">
 					API Calls: {{ appStats.apiCallsCount }}
 				</p>
 			</div>

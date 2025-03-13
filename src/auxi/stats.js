@@ -1,4 +1,4 @@
-const { init } = require("../telemetry");
+const { logger } = require("./logger");
 
 const CACHE_NAME = 'ssjs-vsc:stats';
 
@@ -9,8 +9,19 @@ class Stats {
 	}
 
 	init(context) {
+		let defaultDate = new Date('2025-1-1').toISOString();
 		this.context = context;
-		this.state = this.context.workspaceState.get(CACHE_NAME, { apiCalls: 0 });
+		this.state = this.context.workspaceState.get(CACHE_NAME, {
+				apiCalls: 0,
+				createdDate: new Date().toISOString()
+		});
+		if (this.state.apiCalls === undefined || this.state.createdDate === undefined) {
+			this.state = {
+				apiCalls: this.state.apiCalls || 0,
+				createdDate: new Date().toISOString()
+			};
+			this.context.workspaceState.update(CACHE_NAME, this.state);
+		}
 	}
 
 	/**
@@ -18,17 +29,26 @@ class Stats {
 	 * @returns {number} - the number of API calls made.
 	 */
 	getApiCalls() {
-		let dt = this.context.workspaceState.get(CACHE_NAME, { apiCalls: 0 });
-		return dt.apiCalls || 0;
+		return this.state.apiCalls || 0;
 	}
 
 	/**
-	 * Add an API call to the stats.
+	 * Get the creation date of the stats data.
+	 * @returns {Date} - the creation date of the stats data.
+	 */
+	getCreatedDate() {
+		logger.log(`getCreatedDate`, this.state.createdDate);
+		return new Date(this.state.createdDate);
+	}
+
+	/**
+	 * Add an API call to the stats with timestamp tracking.
 	 * @param {number} [incrementBy=1] - number to increment the API call count by.
 	 */
 	addApiCalls(incrementBy = 1) {
 		this.context.workspaceState.update(CACHE_NAME, {
-			apiCalls: this.getApiCalls() + incrementBy
+			apiCalls: this.getApiCalls() + incrementBy,
+			createdDate: this.state.createdDate
 		});
 	}
 
@@ -36,7 +56,10 @@ class Stats {
 	 * Clear the stats data.
 	 */
 	clearData() {
-		this.context.workspaceState.update(CACHE_NAME, { apiCalls: 0 });
+		this.context.workspaceState.update(CACHE_NAME, {
+				apiCalls: 0,
+				createdDate: new Date().toISOString()
+		});
 	}
 }
 

@@ -173,9 +173,9 @@ async function validateApiCredentials(panel, sfmc) {
 	logger.log('BE: validateApiCredentials (2):', r);
 
 	panel.webview.postMessage({
-		command: 'connectionValidated',
-		ok: r.ok,
-		status: r.message
+			command: 'connectionValidated',
+			ok: r.ok,
+			status: r.message
 	});
 }
 
@@ -241,7 +241,8 @@ function handleAutoOpenChange(newValue) {
 
 function handleGetStats(panel) {
 	let statsData = {
-		apiCalls: stats.getApiCalls()
+		apiCalls: stats.getApiCalls(),
+		createdDate: stats.getCreatedDate()
 	};
 	panel.webview.postMessage({
 		command: 'stats',
