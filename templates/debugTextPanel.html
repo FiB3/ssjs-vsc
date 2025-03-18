@@ -12,11 +12,17 @@
 	<style>
 		body {
 			height: 100vh;
+			margin: 0;
+			padding: 0;
+			display: flex;
+			flex-direction: column;
+			overflow: hidden;
 		}
 
 		#previewFrame {
-			overflow: scroll;
+			overflow: auto;
 			height: 65%;
+			width: 100%;
 		}
 
 		#httpResults {
@@ -24,6 +30,7 @@
 			height: 28%;
 			display: flex;
 			flex-direction: column;
+			overflow: auto;
 		}
 
 		#httpResultsStatusRow {
@@ -64,40 +71,42 @@
 		}
 
 		.overlay {
-			position: fixed;
-			bottom: 35%;
-			left: 0;
+			position: relative;
 			width: 100%;
 			height: 40px;
 			display: flex;
 			justify-content: center;
 			align-items: center;
+			margin: 0;
+			background-color: rgb(240, 240, 240);
+			z-index: 1;
 		}
 
 		.control-panel {
-			position: fixed;
-			bottom: 60px;
 			width: fit-content;
 			margin: 0px auto;
 			display: flex;
 			justify-content: center;
-			background-color: rgb(200, 200, 200);
-			padding: 10px 0px;
+			padding: 5px 0px;
 			border-radius: 15px;
-			/* border: ; */
 		}
 
 		#language-selector {
-			/* display: flex; */
 			display: none;
-			position: fixed;
-			bottom: 30%;
+			position: absolute;
+			top: 100%;
 			left: 0;
 			width: 100%;
 			height: 40px;
 			justify-content: center;
 			align-items: center;
-			background: grey;
+			background: rgb(200, 200, 200);
+			z-index: 2;
+			box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+		}
+
+		#language-selector.show {
+			display: flex;
 		}
 
 		.panel-button {
@@ -139,12 +148,18 @@
 		}
 
 		#refresh-toast {
+			position: fixed;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
 			padding: 5px;
-			bottom: 40%;
-			left: calc(50% - 65px);
 			width: 120px;
 			display: none;
 			opacity: 0;
+			z-index: 10;
+			background: rgba(255, 255, 255, 0.9);
+			border-radius: 8px;
+			box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 			transition: opacity 1.5s ease-out, visibility 1.5s ease-out;
 		}
 
@@ -367,25 +382,24 @@
 			function changeLanguageHandler(event, language) {
 				e.updateLanguage(language);
 				updateLanguageButton();
-				document.getElementById('language-selector').style.display = 'none';
+				document.getElementById('language-selector').classList.remove('show');
 			}
 
 			// build the language select element
 			const languageSelector = document.getElementById('language-selector');
-			const selectorShown = languageSelector.style.display === 'flex';
+			const selectorShown = languageSelector.classList.contains('show');
 			if (selectorShown) {
-				languageSelector.style.display = 'none';
+				languageSelector.classList.remove('show');
 				return;
 			}
 
-			languageSelector.style.display = 'flex';
+			languageSelector.classList.add('show');
 			languageSelector.innerHTML = '';
 
 			let selectedLanguage = e.getLanguage();
 			console.log(`selectedLanguage: ${selectedLanguage}`);
 
 			for (const key in e.languages) {
-				// <p class="language-select-button panel-button">Text</p>
 				const languageButton = document.createElement('p');
 				languageButton.className = key === selectedLanguage
 					? 'language-select-button panel-button selected'
@@ -441,6 +455,12 @@
 			vscode.postMessage({ command: 'debugInitiated', devPageContext: 'text' });
 			showLoading();
 		}
+
+		window.addEventListener('resize', function() {
+			if (e.editor) {
+				e.editor.layout();
+			}
+		});
 	</script>
 </head>
 
@@ -450,7 +470,18 @@
 			title="myTest"
 		></div>
 
-	<hr/>
+	<div class="overlay">
+		<div class="control-panel">
+			<a class="panel-button" onclick="refresh()">Refresh</a>
+			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
+			<a id="toggleLanguage" class="panel-button" onclick="changeLanguage()">Language</a>
+			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
+		</div>
+
+		<div id="language-selector">
+		</div>
+	</div>
+
 	<div id="httpResults">
 		<div id="httpResultsStatusRow">
 			<span id="httpResultsStatus"></span>
@@ -467,25 +498,9 @@
 		<div class="loading-wheel"></div>
 	</div>
 
-	<!-- overlay with: refresh button, username and password when using forms -->
-	<div class="overlay">
-		<!-- TODO: add controls to set different script params -->
-		<div class="control-panel"></div>
-			<a class="panel-button" onclick="refresh()">Refresh</a>
-			<a class="panel-button" onclick="e.formatEditorContent()">Beautify</a>
-			<a id="toggleLanguage" class="panel-button" onclick="changeLanguage()">Language</a>
-			<a id="toggleTheme" class="panel-button" onclick="e.toogleTheme()">Toggle theme</a>
-			<!-- <a class="panel-button" onclick="showDebugHint()">Info</a> -->
-		</div>
-		<div id="language-selector">
-		</div>
 
-		<div id="debug-hint">
-			<!-- TODO: improve me -->
-			<span>This is the result of your script.</span>
-			<!-- <br/> -->
-			<!-- <span id="creds-hint">No credentials provided.</span> -->
-		</div>
+	<div id="debug-hint">
+		<span>This is the result of your script.</span>
 	</div>
 </body>
 
