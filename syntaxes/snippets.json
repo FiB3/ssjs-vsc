@@ -163,6 +163,7 @@
 			"req.retries = 2;",
 			"req.continueOnError = true;",
 			"req.setHeader(${2:headerName}, ${3:headerValue});",
+			"req.contentType = \"application/json\";",
 			"req.method = '${4:HttpMethod}';",
 			"req.postData = ${5:postData};",
 			"",
