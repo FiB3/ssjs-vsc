@@ -48,7 +48,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 						})
 						.catch((err) => {
 							vscode.window.showErrorMessage(`Unrecognized error while testing SFMC connection.`);
-							console.error('TEST SFMC-Connection ERR:', err);
+							logger.error('TEST SFMC-Connection ERR:', err);
 							telemetry.error('apiValidation', { error: err });
 						});
 			}
@@ -94,7 +94,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		}
 
 		for (let pageContext of devPageContexts) {
-			console.log(`Dev Page Context:`, pageContext);
+			logger.log(`Dev Page Context:`, pageContext);
 			// Ask for Cloud Page URL from user and store to ssjs-setup.json:
 			let cloudPageUrl = await dialogs.getDevPageUrl(pageContext);
 			if (!cloudPageUrl) {
@@ -137,12 +137,12 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 				...this.config.getDevPageAuth(devPageContext),
 				...view
 			}
-			console.log(`View:`, view);
-			console.log(`Tokens:`, this.config.getDevPageAuth(devPageContext));
+			logger.log(`View:`, view);
+			logger.log(`Tokens:`, this.config.getDevPageAuth(devPageContext));
 
 			let r = await this.runAnyScriptDeployment(devPageContext, assetFile, view, cloudPageFile, silenced);
 			res.push(r);
-			console.log(`${devPageContext} asset deployed`, r);
+			logger.log(`${devPageContext} asset deployed`, r);
 		}
 		return res;
 	}
@@ -163,7 +163,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		let assetId;
 		if (devAssetId) {
 			// update existing asset:
-			console.log(`UPDATE DEV asset: ${devAssetId}`);
+			logger.log(`UPDATE DEV asset: ${devAssetId}`);
 			assetId = await this.updateSnippetBlock(devAssetId, snippetScript, devPageContext);
 			// ask if to re-deploy the Cloud Page (NO as default)
 			if (!silenced) {
@@ -171,9 +171,9 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			}			
 		} else {
 			// create new asset:
-			console.log(`CREATE DEV asset`);
+			logger.log(`CREATE DEV asset`);
 			assetId = await this.createSnippetBlock(snippetScript, devPageContext);
-			console.log(`Asset ID:`, assetId);
+			logger.log(`Asset ID:`, assetId);
 			if (assetId) {
 				this.config.setDevPageInfo(devPageContext, undefined, undefined, assetId);
 				runCloudPage = true;
@@ -186,7 +186,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		}
 
 		if (runCloudPage) {
-			console.log(`Create Cloud Page for: ${devPageContext}`);
+			logger.log(`Create Cloud Page for: ${devPageContext}`);
 			// BUILD ASSET TEMPLATE
 			const cpTemplatePath = path.join(Config.getExtensionSourceFolder(), cloudPageFile);
 			const deploymentScript = template.runFile(cpTemplatePath, {
@@ -222,7 +222,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			return fileText;
 
 		} else {
-			console.log('No file is currently open.');
+			logger.log('No file is currently open.');
 			// vscode.window.showErrorMessage('No file is currently open.');
 			return false;
 		}
@@ -327,7 +327,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	 */
 	// eslint-disable-next-line no-unused-vars
 	_getContextInfoForDeployment(contexts = ['page', 'text'], tokenTemplatePath, basicAuthTemplatePath, webAppTemplatePath) {
-		console.log(`Deploy any script prep:`, contexts, '.');
+		logger.log(`Deploy any script prep:`, contexts, '.');
 		let deployments = [];
 		for (let devPageContext of contexts) {
 			let authType = this.config.getDevPageAuthType(devPageContext);
@@ -349,7 +349,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	 * Get URL for Dev Page based on File.
 	 */
 	_getOpenUrlCommand(urlInfo, provider, pageDetails, copyOnly = false) {
-		console.log('URL:', urlInfo);
+		logger.log('URL:', urlInfo);
 		if (copyOnly === true || Config.isCopyingUrl(pageDetails.devPageContext)) {
 			vscode.env.clipboard.writeText(urlInfo.url);
 			vscode.window.showInformationMessage(urlInfo.msg);
