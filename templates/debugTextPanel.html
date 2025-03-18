@@ -181,7 +181,8 @@
 			languages: {
 				'json': 'JSON',
 				'html': 'HTML',
-				'text': 'Text'
+				'text': 'Text',
+				'log': 'Log'
 			},
 			updateEditorContent: () => {},
 			updateLanguage: () => {},
@@ -191,11 +192,67 @@
 		}
 
 		require(['vs/editor/editor.main'], function () {
+			// Register log language
+			monaco.languages.register({ id: 'log' });
+			
+			// Define custom token types for different log levels
+			monaco.languages.setMonarchTokensProvider('log', {
+				tokenizer: {
+					root: [
+						// Timestamp
+						[/\[\d{4}-\d{2}-\d{2}T?\d{2}:\d{2}:\d{2}\.?\d{0,3}\]/, 'log.timestamp'],
+						// Other brackets content
+						[/\[(?!\d{4}|INFO|ERROR|WARN|DEBUG|TRACE).*?\]/, 'log.identifier'],
+						// Log levels with different severities
+						[/\[INFO\]/, 'log.info'],
+						[/\[DEBUG\]/, 'log.debug'],
+						[/\[WARN\]/, 'log.warning'],
+						[/\[ERROR\]/, 'log.error'],
+						[/\[TRACE\]/, 'log.trace'],
+						// Message content
+						[/[^\[]+/, 'log.content']
+					]
+				}
+			});
+
+			// Define custom theme rules
+			monaco.editor.defineTheme('vs-dark-logs', {
+				base: 'vs-dark',
+				inherit: true,
+				rules: [
+					{ token: 'log.timestamp', foreground: '6C95EB' },
+					{ token: 'log.identifier', foreground: '569CD6' },
+					{ token: 'log.info', foreground: '75B7B1' },
+					{ token: 'log.debug', foreground: '75B7B1' },
+					{ token: 'log.warning', foreground: 'FFB366' },
+					{ token: 'log.error', foreground: 'F14C4C' },
+					{ token: 'log.trace', foreground: '75B7B1' },
+					{ token: 'log.content', foreground: 'D4D4D4' }
+				],
+				colors: {}
+			});
+
+			monaco.editor.defineTheme('vs-light-logs', {
+				base: 'vs',
+				inherit: true,
+				rules: [
+					{ token: 'log.timestamp', foreground: '0451A5' },
+					{ token: 'log.identifier', foreground: '0451A5' },
+					{ token: 'log.info', foreground: '098658' },
+					{ token: 'log.debug', foreground: '098658' },
+					{ token: 'log.warning', foreground: 'CD6200' },
+					{ token: 'log.error', foreground: 'CD0000' },
+					{ token: 'log.trace', foreground: '098658' },
+					{ token: 'log.content', foreground: '000000' }
+				],
+				colors: {}
+			});
+
 			e.editor = monaco.editor.create(document.getElementById('previewFrame'), {
 				value: '',
 				language: e.language,
 				readOnly: true,
-				theme: e.theme,
+				theme: e.theme === 'vs-dark' ? 'vs-dark-logs' : 'vs-light-logs',
 				scrollBeyondLastLine: false
 			});
 
@@ -234,7 +291,9 @@
 				} else {
 					e.theme = newTheme;
 				}
-				e.editor.updateOptions({ theme: e.theme });
+				e.editor.updateOptions({ 
+					theme: e.theme === 'vs-dark' ? 'vs-dark-logs' : 'vs-light-logs' 
+				});
 				e.changeThemeText();
 			}
 
@@ -269,8 +328,15 @@
 				console.log('HTML content');
 				e.updateEditorContent(message.data, 'html');
 			} else {
-				console.log('Text content');
-				e.updateEditorContent(message.data, 'text');
+				// Check if content matches log format pattern
+				const logPattern = /\[.*?\]\s*\[(INFO|ERROR|WARN|DEBUG|TRACE)\]\s+.*/;
+				if (logPattern.test(message.data)) {
+					console.log('Log content detected');
+					e.updateEditorContent(message.data, 'log');
+				} else {
+					console.log('Text content');
+					e.updateEditorContent(message.data, 'text');
+				}
 			}
 			updateLanguageButton();
 
