@@ -3,7 +3,7 @@ const beautifier = require("beauty-amp-core2");
 const Config = require('./config');
 const checks = require ('./checks');
 const telemetry = require('./telemetry');
-
+const logger = require('./auxi/logger');
 const TELEMETRY_EVENT = 'formatting';
 
 class LanguageFormatter {
@@ -50,8 +50,25 @@ class LanguageFormatter {
 
 			try {
 				const editor = vscode.window.activeTextEditor;
-				const code = editor.document.getText();
+				let code = editor.document.getText();
 				const setup = Config.getBeautyfierSetup();
+				const templatingTags = Config.getTemplatingTags();
+				if (!templatingTags || !Array.isArray(templatingTags)) {
+					logger.warn(`No templating tags found.`, templatingTags);
+					templatingTags = ['{{', '}}'];
+				}
+				
+				// Create regex pattern for the templating tags
+				const tagPattern = new RegExp(
+					`${templatingTags[0]}\\s*([^\\s]+)\\s*${templatingTags[1]}`,
+					'g'
+				);
+				
+				// Replace tags with JS block comments
+				code = code.replace(tagPattern, (match) => {
+					return `/*${match}*/`;
+				});
+				
 				
 				let formattedCode;
 				beautifier.setup(setup, formattingOptions, { loggerOn: false });
@@ -73,6 +90,13 @@ class LanguageFormatter {
 					vscode.window.showErrorMessage(`Error on formatting. Please, let us know in our GitHub issues.`);
 					telemetry.error(TELEMETRY_EVENT, { error: err.message, language: document.languageId});
 				}
+
+				// First remove any semicolons after the comments
+				let restorePattern = new RegExp(
+					`\\/\\*(${templatingTags[0]}\\s*?[^\\s]+?\\s*?${templatingTags[1]})\\s*?\\*\\/(\\s*?;|)`,
+					'g'
+				);
+				formattedCode = formattedCode.replace(restorePattern, '$1');
 
 				editor.edit((editBuilder) => {
 					const documentStart = new vscode.Position(0, 0);
