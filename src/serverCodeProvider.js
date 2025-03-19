@@ -8,6 +8,7 @@ const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const checks = require('./checks');
 const telemetry = require('./telemetry');
+const logger = require('./auxi/logger');
 
 const DEPLOYMENT_TOKEN_TEMPLATE = './templates/serverProvider/tokenDeployment.ssjs';
 const DEPLOYMENT_BASIC_AUTH_TEMPLATE = './templates/serverProvider/formAuthDeployment.ssjs';
@@ -97,7 +98,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 
 	async stopServer() {
 		// vscode.window.showWarningMessage(`Code Providers switched off!`);
-		console.log(`Attempting to stop the SSJS Server.`);
+		logger.log(`Attempting to stop the SSJS Server.`);
 		if (app.running) {
 			app.close();
 			vscode.window.showInformationMessage(`SSJS Server stopped.`);
@@ -145,7 +146,7 @@ module.exports = class ServerCodeProvider extends BaseCodeProvider {
 				devPageContext
 			};
 		}
-		console.log(`Path not supported? ${filePath}?`);
+		logger.log(`Path not supported? ${filePath}?`);
 		return false;
 	}
 

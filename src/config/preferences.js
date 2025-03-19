@@ -1,8 +1,9 @@
 const vscode = require('vscode');
 const path = require('path');
 
+const logger = require('../auxi/logger');
 const BaseConfig = require('./baseConfig');
-const { error } = require('console');
+// const { error } = require('console');
 
 const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
@@ -17,7 +18,7 @@ module.exports = class Preferences extends BaseConfig {
 	 * Is passed language ID allowed?
 	 */
 	static isLanguageAllowed(langId) {
-		console.log(`LanguageID: "${langId}".`);
+		logger.log(`LanguageID: "${langId}".`);
 		return USABLE_LANG_IDS.includes(langId);
 	}
 
@@ -30,7 +31,7 @@ module.exports = class Preferences extends BaseConfig {
 	static isFileTypeAllowed(filePath, showWarning = true) {
 		let extName = path.extname(filePath);
 		let additionalFileTypes = Preferences.getAdditionalFileTypes();
-		console.log(`File extension: "${additionalFileTypes}".`);
+		logger.log(`File extension: "${additionalFileTypes}".`);
 		if (USABLE_EXT.includes(extName) || additionalFileTypes.includes(extName)) {
 			return true;
 		}
@@ -51,7 +52,7 @@ module.exports = class Preferences extends BaseConfig {
 
 	static updateAllowedFileTypesInVsCodeContext() {
 		let allowedFileTypes = USABLE_EXT.concat(Preferences.getAdditionalFileTypes());
-		console.log(`Allowed file types: "${allowedFileTypes}".`);
+		logger.log(`Allowed file types: "${allowedFileTypes}".`);
 		vscode.commands.executeCommand('setContext', 'ssjs-vsc.allowedFileTypes', allowedFileTypes);
 	}
 
@@ -124,7 +125,7 @@ module.exports = class Preferences extends BaseConfig {
 
 	static getBeautyfierSetup() {
 		const settings = vscode.workspace.getConfiguration("ssjs-vsc.language.ampscript");
-		console.log(`Settings`, settings);
+		logger.log(`Settings`, settings);
 		const s = {
 			capitalizeSet: settings.get('capitalizeKeywords'),
 			capitalizeVar: settings.get('capitalizeKeywords'),

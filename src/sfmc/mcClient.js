@@ -35,7 +35,7 @@ module.exports = class McClient {
 		assetTypeId: webpage (205), json (182) ?
 	*/
 	async createAsset(name, content, assetTypeId) {
-		console.log('CREATE ASSET');
+		logger.log('CREATE ASSET');
 		let body = {
 			"name": name,
 			// "content": content,
@@ -73,7 +73,7 @@ module.exports = class McClient {
 					"html"
 			]
 		};
-		console.log('BODY:', body);
+		logger.log('BODY:', body);
 		return this._post(`/asset/v1/content/assets`, body);
 	}
 
@@ -95,14 +95,14 @@ module.exports = class McClient {
 
 	async getAssetFolder(folderName, refresh = true) {
 		if (refresh || !this.folders) {
-			console.log('Refreshing Asset Folders...');
+			logger.log('Refreshing Asset Folders...');
 			this.folders = await this.getAssetFolders();
 		}
 		
 		let filtered = this.folders.filter((fldr) => {
 			return fldr.name === folderName;
 		});
-		console.log('Filtered Asset Folders:', filtered);
+		logger.log('Filtered Asset Folders:', filtered);
 		return filtered ? filtered[0] : false;
 	}
 
@@ -118,18 +118,18 @@ module.exports = class McClient {
 				});
 
 				if (r.statusCode !== 200) {
-					console.errpr(`Get Asset Folders: ${r.statusCode}:`, r);
+					logger.errpr(`Get Asset Folders: ${r.statusCode}:`, r);
 					break;
 				}
 				const result = r.body;
 				if (!result || result.items?.length === 0) {
-					console.log('No Result!');
+					logger.log('No Result!');
 					break;
 				}
 				allItems.push(...result.items);
 				// If the current page is the last page, exit the loop
 				if (result.page >= Math.ceil(result.count / result.pageSize)) {
-					console.log(`Last Page: ${result.count} total items.`);
+					logger.log(`Last Page: ${result.count} total items.`);
 					break;
 				}
 
@@ -137,7 +137,7 @@ module.exports = class McClient {
 				page++;
 			} catch (error) {
 				// Handle errors, e.g., network errors or other exceptions
-				console.error('Error retrieving items:', error);
+				logger.error('Error retrieving items:', error);
 				break; // Exit the loop on error
 			}
     }
@@ -156,10 +156,10 @@ module.exports = class McClient {
 
     try {
         await this.validateScopes();
-        console.log(`API Scopes OK.`);
+        logger.log(`API Scopes OK.`);
     } catch (err) {
         r.ok = false;
-				console.error('validateApiKeys error:', err);
+				logger.error('validateApiKeys error:', err);
         if (Array.isArray(err)) {
             r.message = `Installed Package is missing required scopes: \n${err.join(', ')}. Please update the package in SFMC and reopen VSCode.`;
         } else {
@@ -171,7 +171,7 @@ module.exports = class McClient {
 
     try {
         const data = await this.validateApiKeys();
-        console.log(`API Keys OK. user: ${data.body?.user?.id}, mid: ${data.body?.organization?.id}.`);
+        logger.log(`API Keys OK. user: ${data.body?.user?.id}, mid: ${data.body?.organization?.id}.`);
         r.userId = data.body?.user?.id;
 				r.mid = data.body?.organization?.id;
     } catch (err) {
@@ -196,7 +196,7 @@ module.exports = class McClient {
 			// this.client.FuelAuthClient.getAccessToken()
 			this.client.getAccessToken()
 					.then((data) => {
-						console.log('validateApiKeys.getAccessToken.scopes: ', data.scope, '.');
+						logger.log('validateApiKeys.getAccessToken.scopes: ', data.scope, '.');
 						let scopes = data.scope ? data.scope.split(' ') : [];
 						let missingScopes = [];
 						REQUIRED_SCOPES.forEach((reqScope) => {
@@ -211,7 +211,7 @@ module.exports = class McClient {
 						}
 					})
 					.catch((err) => {
-						console.error('validateApiKeys.getAccessToken error:', err);
+						logger.error('validateApiKeys.getAccessToken error:', err);
 						resolve(err);
 					});
 		});
@@ -244,7 +244,7 @@ module.exports = class McClient {
 	}
 
 	isDuplicateAssetError(err) {
-		console.log('isDuplicateAssetError:', err?.statusCode, '-', err.statusMessage);
+		logger.log('isDuplicateAssetError:', err?.statusCode, '-', err.statusMessage);
 		let parsed = this.parseRestError(err);
 		if (
 				err?.statusCode === 400

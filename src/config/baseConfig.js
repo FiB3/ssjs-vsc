@@ -4,6 +4,7 @@ const file = require('../auxi/file');
 const folder = require('../auxi/folder');
 const jsonHandler = require('../auxi/json');
 const telemetry = require('../telemetry');
+const logger = require('../auxi/logger');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FOLDER_NAME = '.vscode';
@@ -44,14 +45,14 @@ module.exports = class BaseConfig {
 	 */
 	loadConfig() {
 		const configPath = BaseConfig.getUserConfigPath();
-		console.log(`Loading Config File...:`, configPath);
+		logger.log(`Loading Config File...:`, configPath);
 		if (file.exists(configPath)) {
 			const config = jsonHandler.load(configPath);
 
 			if (config.error) {
 				throw `No SSJS Setup File found. Use "SSJS: Show Config" command to setup the extension.`;
 			} else {
-				console.log(`Config Reloaded.`);
+				logger.log(`Config Reloaded.`);
 			}
 			this.config = config;
 			return config;
@@ -85,10 +86,10 @@ module.exports = class BaseConfig {
 	static getUserConfigPath() {
 		let pth = false;
 		try {
-			// console.log(`PATH SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
+			// logger.log(`PATH SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
 			pth = path.join(BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
 		} catch (err) {
-			console.log(`PATH NOT SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
+			logger.log(`PATH NOT SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
 		}
 		return pth;
 	}

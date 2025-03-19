@@ -1,5 +1,6 @@
 const fs = require('fs');
 const path = require('path');
+const logger = require('./logger');
 
 function exists(folderPath) {
 	try {
@@ -53,7 +54,7 @@ function remove(directoryPath) {
 			recursive: true
 		});
 	} catch (err) {
-		console.error(`Error while deleting directory '${directoryPath}': ${err}`);
+		logger.error(`Error while deleting directory '${directoryPath}': ${err}`);
 	}
 }
 

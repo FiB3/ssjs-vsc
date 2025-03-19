@@ -45,13 +45,13 @@ module.exports = class Config extends Preferences {
 
 	getPublicPath() {
 		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
-		console.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
-		console.log(`Config: PUBLIC PATH: "${publicPath}".`);
+		logger.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
+		logger.log(`Config: PUBLIC PATH: "${publicPath}".`);
 		publicPath = publicPath.startsWith('\/')
 				? publicPath
 				: path.join(Config.getUserWorkspacePath(), publicPath);
 		
-		console.log(`PUBLIC PATH: "${publicPath}".`);
+		logger.log(`PUBLIC PATH: "${publicPath}".`);
 		
 		return publicPath;
 	}
@@ -62,7 +62,7 @@ module.exports = class Config extends Preferences {
 	 * @returns {object}
 	 */
 	getTemplatingView(isDev = true) {
-		console.log(this.config);
+		logger.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
 		return this.config?.[tokensKey] && Object.keys(this.config[tokensKey])
 				? Object.assign({}, this.config[tokensKey])
@@ -143,7 +143,7 @@ module.exports = class Config extends Preferences {
 		const mid = Config.validateConfigValue(this.config['sfmc-mid'], '');
 
 		if (!subdomain || !clientId) {
-			console.log(`No SFMC data found in config - getSfmcInstanceData().`);
+			logger.log(`No SFMC data found in config - getSfmcInstanceData().`);
 			return false;
 		}
 
@@ -152,10 +152,10 @@ module.exports = class Config extends Preferences {
 		
 		SECRET_NAME = SECRET_NAME.substring(0, 13) + '...';
 		if (!clientSecret) {
-			console.log(`Loading secret failed for: "${SECRET_NAME}`);
+			logger.log(`Loading secret failed for: "${SECRET_NAME}`);
 			return false;
 		}
-		console.log(`Loaded secret for: "${SECRET_NAME}"`);
+		logger.log(`Loaded secret for: "${SECRET_NAME}"`);
 
 		return {
 			subdomain,
@@ -230,7 +230,7 @@ module.exports = class Config extends Preferences {
 		let devContextsValid = this.isDevPageSet() || this.isDevResourceSet();
 
 		let valid = sfmcValid && serverProviderValid && assetFolderValid && devContextsValid;
-		console.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
+		logger.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
 		return valid;
 	}
 
@@ -249,7 +249,7 @@ module.exports = class Config extends Preferences {
 	 */
 	async storeSfmcClientSecret(clientId, clientSecret) {
 		await this.context.secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
-		console.log(`Credentials stored.`);
+		logger.log(`Credentials stored.`);
 	}
 
 	createConfigFile(subdomain, clientId, mid) {
@@ -281,7 +281,7 @@ module.exports = class Config extends Preferences {
 	 */
 	getAssetFolderId() {
 		const folderId = Config.validateConfigValue(this.config?.['asset-folder-id'], false);
-		console.log(`FOLDER ID: ${folderId}.`);
+		logger.log(`FOLDER ID: ${folderId}.`);
 		return folderId;
 	}
 
@@ -338,7 +338,7 @@ module.exports = class Config extends Preferences {
 		// TODO: add optional args for token, username & password
 		let contextKey = pageContext == 'page' ? 'dev-page' : 'dev-resource';
 		if (!this.config[contextKey]['use-auth']) {
-			console.log(`generateDevTokens(): No Auth used.`);
+			logger.log(`generateDevTokens(): No Auth used.`);
 		} else {
 			if (this.config[contextKey]['auth-type'] === 'token') {
 				this.config[contextKey]["dev-token"] = generator.generate({ length: 36, numbers: true, uppercase: false });
@@ -349,7 +349,7 @@ module.exports = class Config extends Preferences {
 				this.config[contextKey]["dev-password"] = generator.generate({ length: 16, numbers: true });
 				delete this.config[contextKey]["dev-token"];
 			} else {
-				console.log(`generateDevTokens(): Unknown Auth used.`);
+				logger.log(`generateDevTokens(): Unknown Auth used.`);
 			}
 		}
 		this.saveConfigFile();

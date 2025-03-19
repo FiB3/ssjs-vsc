@@ -5,6 +5,7 @@ const morgan = require("morgan");
 
 const { template } = require('./template');
 const Config = require('./config');
+const logger = require('./auxi/logger');
 
 let config;
 let server;
@@ -26,7 +27,7 @@ exports.app = {
     let app = express();
     app.use(morgan('dev'));
 
-		console.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
+		logger.log(`Any-proxy URL: ${config.getAnyMainPath()}`);
 		app.use(config.getAnyMainPath(), checkPathSecurity, checkResourcePath, (req, res) => {
 			let pth = req.query?.path;
 			if (pth) {
@@ -38,17 +39,17 @@ exports.app = {
 		});
 
     server = app.listen(this.port, () => {
-      console.log(`Server listening on: localhost:${this.port}`);
-      console.log(`Proxied to: ${this.host}`);
-      console.log(`=====================================`);
+      logger.log(`Server listening on: localhost:${this.port}`);
+      logger.log(`Proxied to: ${this.host}`);
+      logger.log(`=====================================`);
       this.running = true;
     });
   },
 
   close: function() {
-    console.log('Closing...');
+    logger.log('Closing...');
     server.close(() => {
-      console.log('Closed out remaining connections');
+      logger.log('Closed out remaining connections');
       this.running = false;
     });
   }
@@ -86,13 +87,13 @@ function checkPathSecurity(req, res, next) {
       passOk = username === anyUser && password === anyPassword;
     }
   } catch (err) {
-    console.error(err);
+    logger.error(err);
   }
 
   if (passOk) {
 		next();
   } else {
-    console.error('Basic AUTH not valid!');
+    logger.error('Basic AUTH not valid!');
     send401Response(res, 'Not Authorised by Path.');
   }
 }
@@ -111,20 +112,20 @@ function checkResourcePath(req, res, next) {
     if (fs.existsSync(p) && p.startsWith(publicPath)) {
       if (Config.isFileTypeAllowed(p)) {
         // path OK:
-        console.log('checkResourcePath: OK');
+        logger.log('checkResourcePath: OK');
         req.query.path = p;
         next();
       } else {
-        console.error('Any-proxy path invalid (2):', p);
+        logger.error('Any-proxy path invalid (2):', p);
         send401Response(res, 'File type not allowed.', false);
       }
     } else {
       // TODO: Path NOK
-      console.error('Any-proxy path invalid (1):', p);
+      logger.error('Any-proxy path invalid (1):', p);
       send404Response(res, queryPath, 'Path not valid.');
     }
   } else {
-    console.error('Any-proxy path not set...');
+    logger.error('Any-proxy path not set...');
     send404Response(res, 'none', 'Path not set.');
   }
 }
@@ -150,7 +151,7 @@ function send404Response(res, pth, message, sendJson=true) {
  * @param {Boolean=true} sendJson true for JSON, false for  HTML
  */
 function sendErrorResponse(res, httpStatus, renderView, sendJson) {
-  // console.log(`===== ${httpStatus} =====`);
+  // logger.log(`===== ${httpStatus} =====`);
   if (sendJson !== false) {
     // TODO: JSON reply
     res.status(httpStatus).send({

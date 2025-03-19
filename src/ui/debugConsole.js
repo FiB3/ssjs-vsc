@@ -1,5 +1,8 @@
 const vscode = require('vscode');
 
+/**
+ * Outputs through the VSCode Console (not browser console).
+ */
 class DebugConsole {
 	constructor(channel = 'SSJS') {
 		this.setup(channel);

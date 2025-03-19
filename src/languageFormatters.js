@@ -21,7 +21,7 @@ class LanguageFormatter {
 			});
 
 			if (!checks.beautyAmpEnabled()) {
-				console.log('Registering AMPscript beautifiers.');
+				logger.log('Registering AMPscript beautifiers.');
 				this.registerFormatter('AMPscript', {
 					provideDocumentFormattingEdits: this.formatSsjsAndAmpscript,
 				});
@@ -45,7 +45,7 @@ class LanguageFormatter {
     }
 
     async formatSsjsAndAmpscript(document, formattingOptions, token) {
-			console.log(`SFMC Beautifier running for ${document.languageId}.`);
+			logger.log(`SFMC Beautifier running for ${document.languageId}.`);
 			telemetry.log(TELEMETRY_EVENT, { language: document.languageId });
 
 			try {
@@ -86,7 +86,7 @@ class LanguageFormatter {
 						}
 					}
 				} catch(err) {
-					console.log(`Error on Beautify:`, err);
+					logger.log(`Error on Beautify:`, err);
 					vscode.window.showErrorMessage(`Error on formatting. Please, let us know in our GitHub issues.`);
 					telemetry.error(TELEMETRY_EVENT, { error: err.message, language: document.languageId});
 				}
@@ -105,9 +105,9 @@ class LanguageFormatter {
 	
 					editBuilder.replace(documentRange, formattedCode);
 				});
-				console.log('DONE FORMAT');
+				logger.log('DONE FORMAT');
 			} catch(e) {
-				console.log(`ERR:`, e);
+				logger.log(`ERR:`, e);
 			}
     }
 
@@ -118,7 +118,7 @@ class LanguageFormatter {
         if (formatter) {
             return formatter.provideDocumentFormattingEdits(document, options, token);
         } else {
-            console.warn(`No formatter registered for language: ${language}`);
+            logger.warn(`No formatter registered for language: ${language}`);
             return [];
         }
     }
