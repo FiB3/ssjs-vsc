@@ -11,6 +11,12 @@
   "engines": {
     "vscode": "^1.77.0"
   },
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "Some features like code formatting and execution will be disabled in Restricted Mode."
+    }
+  },
   "categories": [
     "Programming Languages",
     "Formatters",

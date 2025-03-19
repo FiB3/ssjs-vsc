@@ -49,6 +49,12 @@ class LanguageFormatter {
 			telemetry.log(TELEMETRY_EVENT, { language: document.languageId });
 
 			try {
+				// Check if we're in a restricted workspace
+				if (!vscode.workspace.isTrusted) {
+					vscode.window.showWarningMessage('Code formatting is disabled in Restricted Mode. Please trust this workspace to enable formatting.');
+					return [];
+				}
+
 				const editor = vscode.window.activeTextEditor;
 				let code = editor.document.getText();
 				const setup = Config.getBeautyfierSetup();
