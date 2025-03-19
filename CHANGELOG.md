@@ -2,6 +2,19 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented in this file.
 
+## [0.6.9] - 2025-03-19
+
+### Added:
+- Api counter shows since when it's being counted (on hover).
+- New "Log" type for text preview, which automatically detects format used in Email360 SSJS Lib - let me know, if you want other formats.
+- Workspace trust support.
+
+### Fixed:
+- Improved HttpRequest snippet.
+- Text preview resizing and styling improvements.
+- Formatting: mustache syntax will no longer get broken.
+- Other smaller bugs.
+
 ## [0.6.9] - 2025-01-27
 
 ### Fixed:
