@@ -26,7 +26,6 @@ class TelemetryHandler {
 		}
 		this.isProd = context.extensionMode === vscode.ExtensionMode.Production;
 		logger.debug(`Telemetry logging in Prod mode: ${this.isProd}, logging OFF: ${TELEMETRY_DEV_OFF}`);
-		this.reporter.sendTelemetryEvent('test', { isTest: true});
 	}
 
 	/**
