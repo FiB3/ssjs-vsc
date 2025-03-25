@@ -110,8 +110,6 @@ class SnippetHandler {
 		return assetId;
 	}
 
-
-
 	saveScriptText(filePath, snippetText, withFileOpen = false) {
 		const scriptPath = path.join(Config.getUserWorkspacePath(), filePath);
 		// logger.log(`Code Snippet Path: ${scriptPath}`);

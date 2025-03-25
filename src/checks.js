@@ -1,9 +1,7 @@
 const vscode = require('vscode');
-const path = require('path');
 const telemetry = require('./telemetry');
 
 const BEAUTY_AMP_ID = 'FiB.beautyAmp';
-const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
 
 module.exports = {
 

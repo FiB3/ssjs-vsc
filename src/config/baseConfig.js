@@ -3,7 +3,6 @@ const path = require('path');
 const file = require('../auxi/file');
 const folder = require('../auxi/folder');
 const jsonHandler = require('../auxi/json');
-const telemetry = require('../telemetry');
 const logger = require('../auxi/logger');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';

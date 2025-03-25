@@ -6,7 +6,6 @@ const Config = require('./config');
 const { app, generateBasicAuthHeader } = require('./proxy');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
-const checks = require('./checks');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
 

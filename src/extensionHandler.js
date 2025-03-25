@@ -13,7 +13,6 @@ const statusBar = require('./ui/statusBar');
 const McClient = require('./sfmc/mcClient');
 const logger = require('./auxi/logger');
 const telemetry = require('./telemetry');
-const { min } = require('moment');
 
 class ExtensionHandler {
 	constructor() {
@@ -152,7 +151,7 @@ class ExtensionHandler {
 	 * @param {String} [caller='command'] command/ui
 	 * @return {Object} result: { ok: Boolean, message: String }
 	 */
-	async handleNewSfmcCreds(creds, update = false, caller = 'command', openConfig = true) {
+	async handleNewSfmcCreds(creds, update = false, openConfig = true) {
 		const { subdomain, clientId, clientSecret, mid } = creds;
 		let mc = new McClient(subdomain, clientId, clientSecret, mid);
 		let res = {

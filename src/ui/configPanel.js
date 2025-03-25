@@ -130,7 +130,7 @@ async function testConfigurations(panel) {
 	let mc = ext.getMcClient();
 	logger.log(`MC Client:`, mc);
 	let folderResOk = await mc.getAssetFolderById(folderId)
-			.then(async res => {
+			.then(async () => {
 				await updateStatus(false, `Content Builder Folder exists. Checking Dev Assets...`);
 				return true;
 			})
@@ -169,7 +169,7 @@ async function validateApiCredentials(panel, sfmc) {
 		return;
 	}
 
-	let r = await ext.handleNewSfmcCreds({ subdomain, clientId, clientSecret, mid }, false, 'ui', false);
+	let r = await ext.handleNewSfmcCreds({ subdomain, clientId, clientSecret, mid }, false, false);
 	logger.log('BE: validateApiCredentials (2):', r);
 
 	panel.webview.postMessage({

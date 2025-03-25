@@ -25,7 +25,9 @@ class DebugConsole {
 		this._log('INFO', ...message);
 	}
 
-	info = this.log;
+	info(...message) {
+		this._log('INFO', ...message);
+	}
 
 	debug(...message) {
 		this._log('DEBUG', ...message);

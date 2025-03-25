@@ -3,11 +3,9 @@ let path = require('path');
 let md5 = require('md5');
 let axios = require('axios');
 
-let file = require('../auxi/file');
 let { template } = require('../template');
 const Config = require('../config');
 const logger = require('../auxi/logger');
-const { time } = require('console');
 
 let panel;
 let panelState = {

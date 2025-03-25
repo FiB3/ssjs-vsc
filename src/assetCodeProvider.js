@@ -184,7 +184,6 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	_getDevUrl(devPageContext, metadata) {
 		let tokenConfig = this.config.getDevPageAuth(devPageContext);
 		let id = metadata.id;
-		let tkn;
 		let res = {
 			msg: `URL ready.`,
 			visible: false

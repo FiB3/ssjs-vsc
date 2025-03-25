@@ -11,7 +11,6 @@ const { template } = require('./template');
 
 const vsc = require('./vsc.js');
 const dialogs = require('./ui/dialogs');
-const checks = require('./checks');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
 

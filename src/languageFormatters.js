@@ -58,7 +58,7 @@ class LanguageFormatter {
 				const editor = vscode.window.activeTextEditor;
 				let code = editor.document.getText();
 				const setup = Config.getBeautyfierSetup();
-				const templatingTags = Config.getTemplatingTags();
+				let templatingTags = Config.getTemplatingTags();
 				if (!templatingTags || !Array.isArray(templatingTags)) {
 					logger.warn(`No templating tags found.`, templatingTags);
 					templatingTags = ['{{', '}}'];

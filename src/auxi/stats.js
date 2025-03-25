@@ -9,7 +9,6 @@ class Stats {
 	}
 
 	init(context) {
-		let defaultDate = new Date('2025-1-1').toISOString();
 		this.context = context;
 		this.state = this.context.workspaceState.get(CACHE_NAME, {
 				apiCalls: 0,

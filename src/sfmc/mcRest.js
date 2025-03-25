@@ -12,7 +12,7 @@ class McRest {
     this.accessToken = null;
     this.tokenExpiry = null;
     this.authPromise = null; // to only run one auth at the time
-    this.onApiCall = onApiCall || ((method, url) => {}); // Fallback no-op function
+    this.onApiCall = onApiCall || ((method, url) => { logger.log(`MC._request ${method} ${url}`); }); // Fallback no-op function
   }
 
   async authenticate() {
@@ -21,7 +21,7 @@ class McRest {
     }
 
     this.authPromise = this.getAccessToken()
-				.then(response => {
+				.then(() => {
 					this.authPromise = null;
 				}).catch(error => {
 					this.authPromise = null;
