@@ -395,7 +395,9 @@
     "vscode:prepublish": "cd ./configView && npm install && npm run build",
     "lint": "eslint .",
     "pretest": "npm run lint",
-    "test": "node ./test/runTest.js"
+    "test": "npm run test:integration && npm run test:unit",
+    "test:integration": "node ./test/runTest.js --platform darwin-arm64",
+    "test:unit": "mocha ./test/unitTests/**/*.test.js"
   },
   "dependencies": {
     "@vscode/extension-telemetry": "^0.9.2",

@@ -18,7 +18,7 @@ module.exports = {
   },
 
   /**
-   * Load JS object from text file.
+   * Load content of the text file.
    * @param {string} fileName
    * @returns string | string with error
    */
