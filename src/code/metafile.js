@@ -61,6 +61,14 @@ class Metafile {
     json.save(metaPath, dt);
   }
 
+	/**
+	 * Delete metadata file for the asset.
+	 * @param {*} filePath 
+	 */
+	static delete(filePath) {
+		file.delete(metaFile);
+	}
+
   /**
 	 * Checks if assets exists based on asset-metadata file existence.
 	 * @param {string} filePath 
@@ -88,6 +96,20 @@ class Metafile {
     const hasNoError = data.error === undefined;
 
     return (hasRegularMetadata || hasLinkedMetadata || hasServerMetadata) && hasNoError;
+	}
+
+	/**
+	 * Save metadata for file in different folder.
+	 * @param {string} filePath file of current script.
+	 * @param {string} linkedPath file of linked script.
+	 */
+	static saveLinkedMetadata(filePath, linkedPath) {
+		let dt = {
+			linkedPath: linkedPath
+		};
+		const metadataPath = Metafile.getFileName(filePath);
+		logger.debug(`linked-metadata-path: ${metadataPath}`);
+		json.save(metadataPath, dt);
 	}
 
   /**

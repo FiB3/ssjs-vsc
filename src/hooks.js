@@ -3,7 +3,7 @@ const vscode = require('vscode');
 const { exec } = require('child_process');
 
 const BaseConfig = require('./config/baseConfig');
-const SnippetHandler = require('./snippetHandler');
+const Metafile = require('./code/metafile');
 const vsc = require('./vsc');
 const logger = require('./auxi/logger');
 
@@ -11,7 +11,6 @@ module.exports = class Hooks {
 
 	constructor(config) {
 		this.config = config;
-		this.snippets = new SnippetHandler(this.config);
 	}
 
 	/**
@@ -40,7 +39,7 @@ module.exports = class Hooks {
 			return -1;
 		}
 		
-		let snippetExists = this.snippets.snippetExists(filePath);
+		let snippetExists = Metafile.exists(filePath);
 		if (snippetExists || !autoUpload) {
 			let execOk = await execute(hook.command);
 			if (!execOk) {
@@ -67,7 +66,7 @@ module.exports = class Hooks {
 				}
 				// create Metadata if needed - linkMetadata
 				if (!snippetExists) {
-					await this.snippets.saveLinkMetadata(filePath, newPath);
+					await Metafile.saveLinkedMetadata(filePath, newPath);
 				}
 				// cannot use path from root, but absolute path from workspace root
 				newPath = path.join(BaseConfig.getUserWorkspacePath(), newPath);

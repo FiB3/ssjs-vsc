@@ -2,6 +2,7 @@ const vscode = require('vscode');
 
 const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
+const Metafile = require('./code/metafile');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
@@ -38,7 +39,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			return;
 		}
 
-		if (this.snippets.snippetExists(filePath)) {
+		if (Metafile.exists(filePath)) {
 			let assetId = await this.updateCode(filePath);
 			// continue only if updated successfully:
 			if (assetId) {
@@ -167,8 +168,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 */
 	async updateCode(filePath) {
 		// get metadata:
-		let metaPath = this.snippets.getMetadataFileName(filePath);
-		let meta = json.load(metaPath);
+		let meta = Metafile.load(filePath);
 		// get templated file:
 		let scriptText = template.runScriptFile(filePath, this.config, true);
 		return await this.snippets.updateSfmcSnippet(meta.id, scriptText, false, filePath);

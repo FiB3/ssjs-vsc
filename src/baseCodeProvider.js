@@ -5,6 +5,8 @@ const NoCodeProvider = require('./noCodeProvider');
 
 const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
+const SourceCode = require('./code/sourceCode');
+const Metafile = require('./code/metafile');
 const SnippetHandler = require('./snippetHandler');
 const { runDebug } = require('./ui/debugPanel');
 const { template } = require('./template');
@@ -197,7 +199,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 				"pageContextReadable": view['pageContextReadable']
 			});
 			// CREATE FILE:
-			this.snippets.saveScriptText(this.snippets.getDeploymentFileName(devPageContext), deploymentScript, !silenced);
+			SourceCode.save(Metafile.getDeploymentFileName(devPageContext), deploymentScript, !silenced);
 			if (!silenced) {
 				vscode.window.showInformationMessage(`Installation for: "${dialogs.getFriendlyDevContext(devPageContext)}" almost complete - please follow steps from this file to finish.`);
 			}
@@ -235,7 +237,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	 */
 	async createSnippetBlock(scriptText, devPageContext) {
 		let asset = this.snippets.getReqForDeploymentAsset(scriptText, devPageContext);
-		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
+		let snippetPath = SourceCode.save(Metafile.getDevAssetFileName(devPageContext), scriptText);
 		return await this.snippets.createSfmcSnippet(asset, devPageContext, snippetPath);
 	}
 	
@@ -246,7 +248,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	 * @returns {number|false} assetId
 	 */
 	async updateSnippetBlock(devAssetId, scriptText, devPageContext) {
-		let snippetPath = this.snippets.saveScriptText(this.snippets.getDevAssetFileName(devPageContext), scriptText);
+		let snippetPath = SourceCode.save(Metafile.getDevAssetFileName(devPageContext), scriptText);
 		return await this.snippets.updateSfmcSnippet(devAssetId, scriptText, devPageContext, snippetPath);
 	}
 
@@ -259,7 +261,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			return;
 		}
 
-		let deployedAlready = this.snippets.snippetExists(filePath);
+		let deployedAlready = Metafile.exists(filePath);
 		if (!deployedAlready) {
 			vscode.window.showErrorMessage(`It seems you have not yet deployed this script. Please, deploy it first, using 'SSJS: Upload Script to Dev' command.`);
 			return;
@@ -286,8 +288,8 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		const filePath = vsc.getActiveEditor();
 		logger.debug(`_getContextForGetUrl(): File Path: ${filePath}, isFileTypeAllowed: ${Config.isFileTypeAllowed(filePath, false)}, hookExists: ${this.config.hookExists(filePath)}`);
 		if (filePath && (Config.isFileTypeAllowed(filePath, false) || this.config.hookExists(filePath))) {
-			let metadata = this.snippets.loadMetadata(filePath);
-			if (!metadata || metadata.error === true) {
+			let metadata = Metafile.load(filePath);
+			if (!metadata || !Metafile.isValid(metadata)) {
 				logger.debug(`_getContextForGetUrl(): Metadata not found or error:`, metadata);
 				return false;
 			}

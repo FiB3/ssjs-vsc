@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const beautifier = require("beauty-amp-core2");
+const beautifier = require('beauty-amp-core2');
 const Config = require('./config');
 const checks = require ('./checks');
 const telemetry = require('./telemetry');
