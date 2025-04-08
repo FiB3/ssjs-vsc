@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-var path = require('path');
 
 const NoCodeProvider = require('./noCodeProvider');
 
@@ -7,6 +6,7 @@ const Config = require('./config');
 const mcClient = require('./sfmc/mcClient');
 const SourceCode = require('./code/sourceCode');
 const Metafile = require('./code/metafile');
+const Pathy = require('./auxi/pathy');
 const SnippetHandler = require('./snippetHandler');
 const { runDebug } = require('./ui/debugPanel');
 const { template } = require('./template');
@@ -154,7 +154,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	async runAnyScriptDeployment(devPageContext, assetFile, view = {}, cloudPageFile = DEPLOYMENT_TEMPLATE, silenced = false) {
 		let res = { devPageContext };
 		// PREPARE ASSET FILE:
-		const snippetTemplatePath = path.join(Config.getExtensionSourceFolder(), assetFile);
+		const snippetTemplatePath = Pathy.joinToSource(assetFile);
 		// BUILD ASSET TEMPLATE - build view separately, extract rest to super
 		const snippetScript = template.runFile(snippetTemplatePath, view);
 		
@@ -189,7 +189,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		if (runCloudPage) {
 			logger.log(`Create Cloud Page for: ${devPageContext}`);
 			// BUILD ASSET TEMPLATE
-			const cpTemplatePath = path.join(Config.getExtensionSourceFolder(), cloudPageFile);
+			const cpTemplatePath = Pathy.joinToSource(cloudPageFile);
 			const deploymentScript = template.runFile(cpTemplatePath, {
 				"page": view['homepage'],
 				"version": view['version'],

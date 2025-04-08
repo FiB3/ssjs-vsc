@@ -2,15 +2,7 @@ const vscode = require('vscode');
 const path = require('path');
 const logger = require('./auxi/logger');
 const debug = require('./ui/debugConsole');
-
-/**
- * Get the path to the root of the workspace.
- * @returns {string} path to the workspace
- */
-function getUserWorkspacePath() {
-	// TODO: improve with e.g.: workspace.workspaceFolders
-	return vscode.workspace.rootPath;
-}
+const Pathy = require('./auxi/pathy');
 
 /**
 * Check if there is an active editor tab window and get URL of active file.
@@ -21,7 +13,7 @@ function getActiveEditor(relativePath = false) {
 	if (activeTextEditor) {
 			const fileUri = activeTextEditor.document.uri;
 			if (relativePath) {
-				return path.relative(getUserWorkspacePath(), fileUri.fsPath);
+				return path.relative(Pathy.getWorkspacePath(), fileUri.fsPath);
 			}
 			return fileUri.fsPath;
 	} else {
@@ -31,7 +23,6 @@ function getActiveEditor(relativePath = false) {
 }
 
 module.exports = {
-	getUserWorkspacePath,
 	getActiveEditor,
 	debug
 }

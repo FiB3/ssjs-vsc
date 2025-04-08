@@ -1,10 +1,9 @@
-const path = require('path');
-
 const generator = require('generate-password');
 
 const Preferences = require('./config/preferences');
 const checks = require('./checks');
 const logger = require('./auxi/logger');
+const Pathy = require('./auxi/pathy');
 
 module.exports = class Config extends Preferences {
 
@@ -37,11 +36,9 @@ module.exports = class Config extends Preferences {
 
 	getPublicPath() {
 		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
-		logger.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
+		logger.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Pathy.getWorkspacePath(), ',', publicPath);
 		logger.log(`Config: PUBLIC PATH: "${publicPath}".`);
-		publicPath = publicPath.startsWith('\/')
-				? publicPath
-				: path.join(Config.getUserWorkspacePath(), publicPath);
+		publicPath = Pathy.joinToRoot(publicPath);
 		
 		logger.log(`PUBLIC PATH: "${publicPath}".`);
 		
@@ -434,7 +431,7 @@ module.exports = class Config extends Preferences {
 	 */
 	hookExists(filePath) {
 		// get file extension:
-		let ext = path.extname(filePath);
+		let ext = Pathy.extname(filePath);
 		let h = this.getHooks('on-save', ext);
 		return h.enabled;
 	}

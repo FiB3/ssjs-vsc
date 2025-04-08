@@ -1,6 +1,7 @@
 const vscode = require('vscode');
 const path = require('path');
 const file = require('../auxi/file');
+const Pathy = require('../auxi/pathy');
 const folder = require('../auxi/folder');
 const jsonHandler = require('../auxi/json');
 const logger = require('../auxi/logger');
@@ -26,12 +27,12 @@ module.exports = class BaseConfig {
 	 * @param {boolean} [withFileOpen=false] Open the file after creation.
 	 */
 	deployConfigFile() {
-		const templatePath = path.join(BaseConfig.getExtensionSourceFolder(), SETUP_TEMPLATE);
+		const templatePath = Pathy.joinToSource(SETUP_TEMPLATE);
 		let configTemplate = jsonHandler.load(templatePath);
 
 		configTemplate["extension-version"] = BaseConfig.getExtensionVersion();
 		
-		const setupFolder = path.join(BaseConfig.getUserWorkspacePath(), SETUP_FOLDER_NAME);
+		const setupFolder = Pathy.joinToRoot(SETUP_FOLDER_NAME);
 		folder.create(setupFolder);
 	
 		jsonHandler.save(BaseConfig.getUserConfigPath(), configTemplate);
@@ -85,10 +86,9 @@ module.exports = class BaseConfig {
 	static getUserConfigPath() {
 		let pth = false;
 		try {
-			// logger.log(`PATH SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
-			pth = path.join(BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
+			pth = Pathy.joinToRoot(SETUP_FILE_NAME);
 		} catch (err) {
-			logger.log(`PATH NOT SET! Data:`, BaseConfig.getUserWorkspacePath(), SETUP_FILE_NAME);
+			logger.log(`PATH NOT SET! Data:`, Pathy.getWorkspacePath(), SETUP_FILE_NAME);
 		}
 		return pth;
 	}
@@ -98,7 +98,7 @@ module.exports = class BaseConfig {
 	 * @returns {Object} Repository and version data.
 	 */
 	static getPackageJson() {
-		const packageJsonFile = path.join(BaseConfig.getExtensionSourceFolder(), './package.json');
+		const packageJsonFile = Pathy.getPackageJson();
 		let packageJson = jsonHandler.load(packageJsonFile);
 
 		return {
@@ -121,20 +121,7 @@ module.exports = class BaseConfig {
 	}
 
 	static isWorkspaceSet() {
-		return BaseConfig.getUserWorkspacePath() ? true : false;
-	}
-
-	/**
-	 * Get the path to the workspace.
-	 * @returns {string} Path to the workspace, or false if not set.
-	 */
-	static getUserWorkspacePath() {
-		const [workspaceFolder] = vscode.workspace.workspaceFolders || [];
-    if (!workspaceFolder) {
-        return false;
-    }
-
-    return workspaceFolder.uri.fsPath;
+		return Pathy.getWorkspacePath() ? true : false;
 	}
 
 	/**
@@ -143,7 +130,7 @@ module.exports = class BaseConfig {
 	 * @returns {boolean} True if the file is in the workspace. false otherwise or if the workspace or file is not set.
 	 */
 	static isFileInWorkspace(filePath) {
-		const workspacePath = BaseConfig.getUserWorkspacePath();
+		const workspacePath = Pathy.getWorkspacePath();
 		if (!workspacePath || !filePath) {
 			return false;
 		}
@@ -152,15 +139,6 @@ module.exports = class BaseConfig {
     const absoluteWorkspacePath = path.resolve(workspacePath);
 
     return absoluteFilePath.startsWith(absoluteWorkspacePath);
-	}
-
-	/**
-	 * Get the main (root) folder of the extension - where the package.json/extension.js is.
-	 * @note this depends on location of this script!
-	 * @returns {string} Path to the main folder of the extension.
-	 */
-	static getExtensionSourceFolder() {
-		return path.join(__dirname, '../..');
 	}
 
 	/**

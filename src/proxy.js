@@ -106,7 +106,7 @@ function checkResourcePath(req, res, next) {
     if(path.isAbsolute(queryPath)) {
       p = queryPath;
     } else {
-      p = path.join(publicPath, req.query.path);
+      p = Pathy.join(publicPath, req.query.path);
     }
 
     if (fs.existsSync(p) && p.startsWith(publicPath)) {
@@ -159,7 +159,7 @@ function sendErrorResponse(res, httpStatus, renderView, sendJson) {
       ...renderView
     });
   } else {
-    const pth = path.join(__dirname, `../templates/${httpStatus}.html`);
+    const pth = Pathy.joinToSource(`templates/${httpStatus}.html`);
 		let html = template.runFile(pth);
     res.status(httpStatus).send(html);
   }

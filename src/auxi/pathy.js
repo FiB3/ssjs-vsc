@@ -6,9 +6,6 @@ const vscode = require('vscode');
  * Pathy class to handle path operations.
  */
 class Pathy {
-
-  // TODO: TEST
-  // TODO: replace the Config.getUserWorkspacePath()
   /**
 	 * Get the path to the workspace.
 	 * @returns {string} Path to the workspace, or false if not set.
@@ -22,8 +19,6 @@ class Pathy {
     return workspaceFolder.uri.fsPath;
   }
 
-  // TODO: TEST
-  // TODO: replace path.join
   /**
    * Join paths. Works with string paths and VSCode URIs.
    * @param  {string|vscode.Uri} args - String paths or VSCode URIs to join.
@@ -47,10 +42,24 @@ class Pathy {
     return path.join(...args);
   }
 
-  // TODO: TEST
-  // TODO: replace other similar methods with this one
+  /**
+   * Join to workspace root.
+   * @param  {string|vscode.Uri} args - String paths or VSCode URIs to join.
+   * Only first argument is required and is converted to absolute path (from workspace root).
+   * @returns {string} joined path.
+   */
   static joinToRoot(...args) {
     return Pathy.join(Pathy.getWorkspacePath(), ...args);
+  }
+
+  /**
+   * Join to extension source folder.
+   * @param  {string|vscode.Uri} args - String paths or VSCode URIs to join.
+   * Only first argument is required and is converted to absolute path (from workspace root).
+   * @returns {string} joined path.
+   */
+  static joinToSource(...args) {
+    return Pathy.join(Pathy.getExtensionSourceFolder(), ...args);
   }
 
   /**
@@ -66,8 +75,6 @@ class Pathy {
     }
   }
 
-  // TODO: TEST
-  // TODO: replace the Config.getExtensionSourceFolder()
   /**
 	 * Get the main (root) folder of the extension - where the package.json/extension.js is.
 	 * @note this depends on location of this script!
@@ -79,6 +86,15 @@ class Pathy {
 
   static getPackageJson() {
     return path.join(this.getExtensionSourceFolder(), 'package.json');
+  }
+
+  /**
+   * Get the extension of a file.
+   * @param {string} filePath - Path to the file.
+   * @returns {string} Extension of the file.
+   */
+  static extname(filePath) {
+    return path.extname(filePath);
   }
 }
 

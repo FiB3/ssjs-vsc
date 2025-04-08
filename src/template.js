@@ -1,6 +1,5 @@
-const path = require('path');
 const Mustache = require('mustache');
-
+const Pathy = require('./auxi/pathy');
 const textFile = require('./auxi/file');
 const Config = require('./config');
 
@@ -41,7 +40,7 @@ exports.template = {
 		// loop through tokens, for each that starts with: `file://` replace value with loaded file's value
 		for (let [token, value] of Object.entries(tokens)) {
 			if (value.startsWith('file://')) {
-				let libPath = path.join(Config.getUserWorkspacePath(), value.substring(7));
+				let libPath = Pathy.joinToRoot(value.substring(7));
 				let fileContent = textFile.load(libPath);
 				tokens[token] = fileContent;
 			}

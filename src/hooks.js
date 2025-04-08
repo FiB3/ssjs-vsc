@@ -2,7 +2,7 @@ const path = require('path');
 const vscode = require('vscode');
 const { exec } = require('child_process');
 
-const BaseConfig = require('./config/baseConfig');
+const Pathy = require('./auxi/pathy');
 const Metafile = require('./code/metafile');
 const vsc = require('./vsc');
 const logger = require('./auxi/logger');
@@ -69,7 +69,7 @@ module.exports = class Hooks {
 					await Metafile.saveLinkedMetadata(filePath, newPath);
 				}
 				// cannot use path from root, but absolute path from workspace root
-				newPath = path.join(BaseConfig.getUserWorkspacePath(), newPath);
+				newPath = Pathy.joinToRoot(newPath);
 				return newPath;
 			} else {
 				vscode.window.showErrorMessage(`Hook configuration incorrect or not found (success-handling).`);
@@ -134,7 +134,7 @@ ${data}
 		return;
 	}
 
-	let usePath = BaseConfig.getUserWorkspacePath();
+	let usePath = Pathy.getWorkspacePath();
 	let cmd = `cd ${usePath}; ${command}`;
 
 	let cmdOk = false;

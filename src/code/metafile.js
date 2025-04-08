@@ -4,7 +4,7 @@ const path = require('path');
 const Config = require('../config');
 const file = require('../auxi/file');
 const json = require('../auxi/json');
-
+const Pathy = require('../auxi/pathy');
 const logger = require('../auxi/logger');
 
 class Metafile {
@@ -136,7 +136,7 @@ class Metafile {
 	 * @returns {string} path of the metadata file. 
 	 */
 	static getFileName(filePath) {
-		return path.join(path.dirname(filePath), `.${this.getBlockName(filePath)}.json`);
+		return Pathy.join(path.dirname(filePath), `.${this.getBlockName(filePath)}.json`);
 	}
 
   /**
@@ -146,7 +146,7 @@ class Metafile {
 	 * @returns 
 	 */
 	static getLinkedScriptPath(content) {
-		return path.join(Config.getUserWorkspacePath(), content.linkedPath);
+		return Pathy.joinToRoot(content.linkedPath);
 	}
 
 	static getBlockName(filePath) {

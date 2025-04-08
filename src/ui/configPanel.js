@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-let path = require('path');
 
 const Config = require('../config');
 let file = require('../auxi/file');
@@ -8,6 +7,7 @@ let ext = require('../extensionHandler');
 let telemetry = require('../telemetry');
 let stats = require('../auxi/stats');
 let logger = require('../auxi/logger');
+const Pathy = require('../auxi/pathy');
 
 async function showConfigPanel(context) {
 	const getView = getConfigPanelInfo;
@@ -207,8 +207,8 @@ async function handleAnyScript(panel, message) {
 }
 
 function handleCopyResourceCode(panel, message) {
-	if (Config.getUserWorkspacePath()) {
-		let p = path.join(Config.getUserWorkspacePath(), `./.vscode/deploy.me.${message.devPageContext}.ssjs`);
+	if (Pathy.getWorkspacePath()) {
+		let p = Pathy.joinToRoot(`./.vscode/deploy.me.${message.devPageContext}.ssjs`);
 		let code = file.load(p);
 		vscode.env.clipboard.writeText(code);
 		// Notification:

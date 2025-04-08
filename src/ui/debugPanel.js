@@ -5,6 +5,7 @@ let axios = require('axios');
 
 let { template } = require('../template');
 const Config = require('../config');
+const Pathy = require('../auxi/pathy');
 const logger = require('../auxi/logger');
 
 let panel;
@@ -47,7 +48,7 @@ async function runDebug(context, pageData, devPageContext = 'page') {
 			loadScriptOutput(pageData);
 		} else {
 			loadScript(pageData);
-		}			
+		}
 	}
 }
 
@@ -59,7 +60,7 @@ async function showDebug(context, pageData, devPageContext) {
 		{
 			enableScripts: true,
 			retainContextWhenHidden: true,
-			localResourceRoots: [vscode.Uri.file(path.join(context.extensionPath, 'node_modules'))],
+			localResourceRoots: [vscode.Uri.file(Pathy.join(context.extensionPath, 'node_modules'))],
 		}
 	);
 	panelState.set(false, devPageContext);
@@ -104,7 +105,7 @@ function refreshDebug() {
 function getWebviewContent(context, devUrl, devPageContext) {
 	let templatePath = isTextPageContext(devPageContext) ? TEXT_PANEL_PATH : PANEL_PATH;
 
-	let p = path.join(Config.getExtensionSourceFolder(), templatePath);
+	let p = Pathy.joinToSource(templatePath);
 	
 	let monacoPath = ``;
 	let monacoBasePath = false;
@@ -114,11 +115,11 @@ function getWebviewContent(context, devUrl, devPageContext) {
 	if (isTextPageContext(devPageContext)) {
 		// load from node_modules:
 		let scriptPathOnDisk = vscode.Uri.file(
-			path.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs', 'loader.js')
+			Pathy.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs', 'loader.js')
 		);
 		monacoPath = panel.webview.asWebviewUri(scriptPathOnDisk);
 		scriptPathOnDisk = vscode.Uri.file(
-			path.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs')
+			Pathy.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs')
 		);
 		monacoBasePath = panel.webview.asWebviewUri(scriptPathOnDisk);
 	}
