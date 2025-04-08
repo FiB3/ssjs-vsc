@@ -22,8 +22,6 @@ module.exports = {
 	setEnabled(isNoneProvider = false) {
 		if (!isNoneProvider && Config.isAssetProvider()) {
 			this.setMessage(`SSJS Connected`, `Script upload enabled.`);
-		} else if (!isNoneProvider && Config.isServerProvider()) {
-			this.setMessage(`SSJS Active`, `SSJS Server ready.`);
 		} else {
 			this.setMessage(`SSJS file`, `SSJS Supported File.`);
 		}
@@ -32,10 +30,7 @@ module.exports = {
 	},
 
 	setStart(fqdn) {
-		if (Config.isServerProvider()) {
-			this.fqdn = fqdn;
-			this.setMessage(`SSJS Active`, `SSJS Server running on: ${fqdn}`);
-		} else if (Config.isAssetProvider()) {
+		if (Config.isAssetProvider()) {
 			this.setMessage(`SSJS Connected`, `Script upload enabled.`);
 		} else {
 			this.setMessage(`SSJS file`, `SSJS Supported File.`);
@@ -45,9 +40,7 @@ module.exports = {
 	},
 
 	setDeactivated() {
-		if (Config.isServerProvider()) {
-			this.setMessage(`SSJS Not Running`, `SSJS Server not running.`);
-		} else if (Config.isAssetProvider()) {
+		if (Config.isAssetProvider()) {
 			this.setMessage(`SSJS Not Active`, `Not possible to deploy.`);
 		} else {
 			this.setMessage(`SSJS Inactive`, `No Code Provider Selected.`);

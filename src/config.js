@@ -35,14 +35,6 @@ module.exports = class Config extends Preferences {
 		return Config.validateConfigValue(this.config?.['proxy-any-file']?.['port'], 4000);
 	}
 
-	/**
-	 * Returns main path for Server Provider.
-	 * @returns {string}
-	 */
-	getAnyMainPath() {
-		return this.config['proxy-any-file']?.['main-path'] || '/all-in-dev';
-	}
-
 	getPublicPath() {
 		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
 		logger.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Config.getUserWorkspacePath(), ',', publicPath);
@@ -107,31 +99,16 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
-	 * Get Basic Auth data for Server Provider.
-	 * @returns {object} with keys: anyUser, anyPassword
-	 */
-	getServerProviderBasicAuth() {
-		return {
-			anyUser: this.config['proxy-any-file']['auth-username'],
-			anyPassword: this.config['proxy-any-file']['auth-password']
-		};
-	}
-
-	/**
 	 * Get Server Provider data.
-	 * @returns {object} with keys: serverUrl, publicDomain, mainPath, authUser, authPassword
+	 * @returns {object} with keys: mainPath, authUser, authPassword
 	 */
 	getServerProvider() {
-		const publicDomain = Config.validateConfigValue(this.config?.['proxy-any-file']?.['public-domain']);
-		const mainPath = Config.validateConfigValue(this.config?.['proxy-any-file']?.['main-path']);
 		const authUser = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-username']);
 		const authPassword = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-password']);
-		const serverUrl = checks.isUrl(publicDomain) && mainPath ? Config.createUrl(publicDomain, mainPath) : false;
 
 		return {
-			serverUrl: serverUrl,
-			publicDomain,
-			mainPath,
+			// TODO: makes sense to have this here?
+			serverUrl: `https://${authUser}:${authPassword}@127.0.0.1:4000`,
 			authUser,
 			authPassword
 		};
@@ -221,16 +198,12 @@ module.exports = class Config extends Preferences {
 	 */
 	isSetupValid() {
 		let sfmcValid = Boolean(Config.validateConfigValue(this.config['sfmc-domain'])) && Boolean(Config.validateConfigValue(this.config['sfmc-client-id']));
-		let serverProviderValid = true;
-		if (Config.isServerProvider()) {
-			serverProviderValid = Boolean(this.config['proxy-any-file']?.['public-domain']);
-		}
 		const assetFolderValid = Boolean(this.config['asset-folder-id']);
 
 		let devContextsValid = this.isDevPageSet() || this.isDevResourceSet();
 
-		let valid = sfmcValid && serverProviderValid && assetFolderValid && devContextsValid;
-		logger.log(`isSetupValid(): ${valid} =>` , sfmcValid, serverProviderValid, assetFolderValid, devContextsValid);
+		let valid = sfmcValid && assetFolderValid && devContextsValid;
+		logger.log(`isSetupValid(): ${valid} =>` , sfmcValid, assetFolderValid, devContextsValid);
 		return valid;
 	}
 
@@ -371,12 +344,10 @@ module.exports = class Config extends Preferences {
 	 * @param {string} publicDomain
 	 * @param {string} mainPath
 	 */
-	setServerProvider(publicDomain = 'https://127.0.0.1', mainPath = '/all-in-dev') {
+	setServerProvider(publicDomain = 'https://127.0.0.1') {
 		if (!this.config['proxy-any-file']) {
 			this.config['proxy-any-file'] = {
-				"public-domain": publicDomain,
 				"port": 4000,
-				"main-path": mainPath,
 				"auth-username": "user",
 				"auth-password": generator.generate({ length: 16, numbers: true })
 			};
@@ -499,9 +470,7 @@ module.exports = class Config extends Preferences {
 
 		// serverProvider:
 		newConfig['proxy-any-file'] = {
-			'public-domain': Config.validateConfigValue(this.config['public-domain'], '<< publicly accessible domain, e.g. NGROK forwarding domain >>'),
 			'port': Config.validateConfigValue(this.config['port'], 4000),
-			'main-path': Config.validateConfigValue(this.config['proxy-any-file']?.['main-path'], '/all-in-dev'),
 			'auth-username': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-username'], 'user'),
 			'auth-password': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-password'], generator.generate({ length: 16, numbers: true }))
 		};

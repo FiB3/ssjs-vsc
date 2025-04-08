@@ -73,10 +73,6 @@ module.exports = class Preferences extends BaseConfig {
 		return Preferences.getCodeProvider() === 'Asset';
 	}
 
-	static isServerProvider() {
-		return Preferences.getCodeProvider() === 'Server';
-	}
-
 	static isNoneProvider() {
 		return Preferences.getCodeProvider() === 'None';
 	}

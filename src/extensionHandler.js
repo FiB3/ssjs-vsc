@@ -5,7 +5,6 @@ let md5 = require('md5');
 const Config = require('./config');
 const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
-const ServerCodeProvider = require('./serverCodeProvider');
 const vsc = require('./vsc');
 const Hooks = require('./hooks');
 
@@ -33,11 +32,6 @@ class ExtensionHandler {
 		await this.provider.init(testApiKeys);
 	}
 	
-	async activateServerProvider() {
-		this.provider = new ServerCodeProvider(this.config, this.statusBar, this.context);
-		await this.provider.init();
-	}
-	
 	async deactivateProviders() {
 		logger.log(`Deactivating Providers...`);
 		this.provider = new NoCodeProvider(this.config, this.statusBar);
@@ -56,11 +50,6 @@ class ExtensionHandler {
 				vscode.window.showInformationMessage(`Switched to: Asset Code Provider.`);
 			};
 			await this.activateAssetProvider(testApiKeys);
-		} else if (Config.isServerProvider()) {
-			if (!silent) {
-				vscode.window.showInformationMessage(`Switched to: Server Code Provider.`);
-			};
-			await this.activateServerProvider();
 		} else {
 			if (!silent) {
 				vscode.window.showWarningMessage(`Code Providers switched off!`);

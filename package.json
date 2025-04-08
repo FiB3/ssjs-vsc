@@ -82,19 +82,19 @@
         "title": "Get Standalone Run Script",
         "category": "SSJS"
       },
-			{
-				"command": "ssjs-vsc.change-script-options",
-				"title": "Change Script Options",
-				"category": "SSJS"
-			},
+      {
+        "command": "ssjs-vsc.change-script-options",
+        "title": "Change Script Options",
+        "category": "SSJS"
+      },
       {
         "command": "ssjs-vsc.start",
-        "title": "Start",
+        "title": "Start Server [WIP]",
         "category": "SSJS"
       },
       {
         "command": "ssjs-vsc.stop",
-        "title": "Stop",
+        "title": "Stop Server [WIP]",
         "category": "SSJS"
       },
       {
@@ -122,7 +122,7 @@
         "title": "Update Dev Page",
         "category": "SSJS"
       },
-			{
+      {
         "command": "ssjs-vsc.check-any-path",
         "title": "Check Dev Pages",
         "category": "SSJS"
@@ -147,10 +147,10 @@
           "command": "ssjs-vsc.get-standalone-script",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
-				{
-					"command": "ssjs-vsc.change-script-options",
-					"when": "ssjs-vsc.codeProvider != 'None'"
-				},
+        {
+          "command": "ssjs-vsc.change-script-options",
+          "when": "ssjs-vsc.codeProvider != 'None'"
+        },
         {
           "command": "ssjs-vsc.get-url",
           "when": "ssjs-vsc.codeProvider != 'None'"
@@ -160,12 +160,10 @@
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
         {
-          "command": "ssjs-vsc.start",
-          "when": "ssjs-vsc.codeProvider == 'Server'"
+          "command": "ssjs-vsc.start"
         },
         {
-          "command": "ssjs-vsc.stop",
-          "when": "ssjs-vsc.codeProvider == 'Server'"
+          "command": "ssjs-vsc.stop"
         },
         {
           "command": "ssjs-vsc.deploy-any-path",
@@ -175,10 +173,10 @@
           "command": "ssjs-vsc.update-any-path",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
-				{
-					"command": "ssjs-vsc.check-any-path",
-					"when": "ssjs-vsc.codeProvider != 'None'"
-				}
+        {
+          "command": "ssjs-vsc.check-any-path",
+          "when": "ssjs-vsc.codeProvider != 'None'"
+        }
       ],
       "editor/title": [
         {
@@ -186,11 +184,11 @@
           "group": "navigation",
           "when": "resourceExtname in ssjs-vsc.allowedFileTypes"
         },
-				{
-					"command": "ssjs-vsc.upload-script",
-					"group": "navigation",
-					"when": "resourceExtname in ssjs-vsc.allowedFileTypes"
-				}
+        {
+          "command": "ssjs-vsc.upload-script",
+          "group": "navigation",
+          "when": "resourceExtname in ssjs-vsc.allowedFileTypes"
+        }
       ]
     },
     "configuration": {
@@ -198,17 +196,16 @@
       "properties": {
         "ssjs-vsc.editor.codeProvider": {
           "type": "string",
+          "deprecationMessage": "The Asset provider is now the default option.",
           "default": "Asset",
           "enum": [
             "None",
-            "Asset",
-            "Server"
+            "Asset"
           ],
           "description": "Specifies the way the code is provided to SFMC.",
           "enumDescriptions": [
             "Code is not provided from VSCode to SFMC.",
-            "Asset - Code is provided using Content Block. Slower but more secure.",
-            "Server - Code is server using local sever. Faster, but requires reverse tunneling."
+            "Asset - how the code is provided to SFMC."
           ]
         },
         "ssjs-vsc.editor.autoSave": {
@@ -216,15 +213,15 @@
           "default": "true",
           "description": "Upload script automatically when using Asset Provider?"
         },
-				"ssjs-vsc.editor.additionalFileTypes": {
-					"type": "array",
-					"default": [],
-					"items": {
-						"type": "string",
-						"pattern": "^\\.[a-zA-Z0-9]{1,5}$"
-					},
-					"description": "Additional file types that can be deployed to SFMC:\n- Write in `.ext` format - e.g.: `.js`.\n- First deployment still needs to be manual.\n- Beware: this can interfere with your configured hooks."
-				},
+        "ssjs-vsc.editor.additionalFileTypes": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string",
+            "pattern": "^\\.[a-zA-Z0-9]{1,5}$"
+          },
+          "description": "Additional file types that can be deployed to SFMC:\n- Write in `.ext` format - e.g.: `.js`.\n- First deployment still needs to be manual.\n- Beware: this can interfere with your configured hooks."
+        },
         "ssjs-vsc.editor.runHandlingInCloudPages": {
           "type": "string",
           "default": "Preview",
@@ -290,60 +287,60 @@
         "title": "SSJS Manager Usage",
         "description": "How to use the SSJS Manager?",
         "steps": [
-					{
-						"id": "ssjs-use-workspace",
-						"title": "Use Workspace",
-						"description": "Open a workspace for your SSJS project. Workspace is basically a folder on your computer where you store your scripts. One workspace should be used for one SFMC BU.",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/noWorkspace.png",
-							"altText": "Opening a workspace."
-						}
-					},
-					{
-						"id": "run-ssjs-config",
-						"title": "Run SSJS Config",
-						"description": "Run the `SSJS: Show Config` to launch configuration wizzard. Follow presented steps to set up the extension.",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createConfig.png",
-							"altText": "Running the config."
-						}
-					},
-					{
-						"id": "config-finished",
-						"title": "Configuration Finished",
-						"description": "Once you finish the configuration, including creation of Installed Package, Cloud Page and Cloud Page Text Resource, you will be able to start developing your scripts.",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/setCloudPage.png",
-							"altText": "Configuration finished."
-						}
-					},
-					{
-						"id": "create-script",
-						"title": "Create Script",
-						"description": "New script is created as any other file. Use `.ssjs`, `.amp` or `.html` extension.",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
-							"altText": "Creating a new script."
-						}
-					},
-					{
-						"id": "upload-script",
-						"title": "Upload Script",
-						"description": "Run the `SSJS: Upload Script` command to upload the script to SFMC for the first time. Following file saves will automatically update the script in SFMC (really, just press that `CTRL / CMD + S`).",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
-							"altText": "Uploading the script."
-						}
-					},
-					{
-						"id": "run-script",
-						"title": "Run Script",
-						"description": "Run the script using the `SSJS: Run` command. Or use the 'Run' button in the editor. You can also open the script in the browser or copy the URL to the clipboard (command `Get dev URL`).",
-						"media": {
-							"image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
-							"altText": "Running the script."
-						}
-					}
+          {
+            "id": "ssjs-use-workspace",
+            "title": "Use Workspace",
+            "description": "Open a workspace for your SSJS project. Workspace is basically a folder on your computer where you store your scripts. One workspace should be used for one SFMC BU.",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/noWorkspace.png",
+              "altText": "Opening a workspace."
+            }
+          },
+          {
+            "id": "run-ssjs-config",
+            "title": "Run SSJS Config",
+            "description": "Run the `SSJS: Show Config` to launch configuration wizzard. Follow presented steps to set up the extension.",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/createConfig.png",
+              "altText": "Running the config."
+            }
+          },
+          {
+            "id": "config-finished",
+            "title": "Configuration Finished",
+            "description": "Once you finish the configuration, including creation of Installed Package, Cloud Page and Cloud Page Text Resource, you will be able to start developing your scripts.",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/walkthrough/setCloudPage.png",
+              "altText": "Configuration finished."
+            }
+          },
+          {
+            "id": "create-script",
+            "title": "Create Script",
+            "description": "New script is created as any other file. Use `.ssjs`, `.amp` or `.html` extension.",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo1.2.gif",
+              "altText": "Creating a new script."
+            }
+          },
+          {
+            "id": "upload-script",
+            "title": "Upload Script",
+            "description": "Run the `SSJS: Upload Script` command to upload the script to SFMC for the first time. Following file saves will automatically update the script in SFMC (really, just press that `CTRL / CMD + S`).",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
+              "altText": "Uploading the script."
+            }
+          },
+          {
+            "id": "run-script",
+            "title": "Run Script",
+            "description": "Run the script using the `SSJS: Run` command. Or use the 'Run' button in the editor. You can also open the script in the browser or copy the URL to the clipboard (command `Get dev URL`).",
+            "media": {
+              "image": "https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/ssjs-vsc-demo2.0.gif",
+              "altText": "Running the script."
+            }
+          }
         ]
       }
     ],
