@@ -131,13 +131,13 @@ class LivePreview {
 		let fullPath = Pathy.join(publicPath, requestPath);
 
 		if (fs.existsSync(fullPath) && fullPath.startsWith(publicPath)) {
-			if (checkExtname(fullPath)) {
+			if (!fullPath.split('/').includes('.vscode') && checkExtname(fullPath)) {
 				logger.log('Resource path OK:', fullPath);
 				req.resourcePath = fullPath; // Store the validated path
 				next();
 			} else {
 				logger.error('File type not allowed:', fullPath);
-				this._send401Response(res, 'File type not allowed.', false);
+				this._send401Response(res, 'File type not allowed.', true);
 			}
 		} else {
 			logger.error('Invalid resource path:', fullPath);
