@@ -89,12 +89,12 @@
       },
       {
         "command": "ssjs-vsc.start",
-        "title": "Start Server",
+        "title": "Start Live Preview",
         "category": "SSJS"
       },
       {
         "command": "ssjs-vsc.stop",
-        "title": "Stop Server",
+        "title": "Stop Live Preview",
         "category": "SSJS"
       },
       {

@@ -33,7 +33,7 @@
 		"dev-password": "<< dev-password-comes-here >>"
 	},
 
-	"asset-server": {
+	"live-preview": {
 		"port": 4000,
 		"dev-folder-path": "",
 		"auth-enabled": false,

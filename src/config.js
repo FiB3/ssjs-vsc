@@ -31,7 +31,7 @@ module.exports = class Config extends Preferences {
 	 * Get Server Provider server PORT.
 	 */
 	getHostPort() {
-		return Config.validateConfigValue(this.config?.['asset-server']?.['port'], 4000);
+		return Config.validateConfigValue(this.config?.['live-preview']?.['port'], 4000);
 	}
 
 	getPublicPath() {
@@ -101,10 +101,10 @@ module.exports = class Config extends Preferences {
 	 * @returns {object} with keys: authEnabled, serverUrl, authUser, authPassword
 	 */
 	getServerInfo() {
-		const authEnabled = Config.validateConfigValue(this.config?.['asset-server']?.['auth-enabled']);
+		const authEnabled = Config.validateConfigValue(this.config?.['live-preview']?.['auth-enabled']);
 		const port = this.getHostPort();
-		const authUser = authEnabled ? Config.validateConfigValue(this.config?.['asset-server']?.['auth-username']) : '';
-		const authPassword = authEnabled ? Config.validateConfigValue(this.config?.['asset-server']?.['auth-password']) : '';
+		const authUser = authEnabled ? Config.validateConfigValue(this.config?.['live-preview']?.['auth-username']) : '';
+		const authPassword = authEnabled ? Config.validateConfigValue(this.config?.['live-preview']?.['auth-password']) : '';
 
 		return {
 			authEnabled,
@@ -231,8 +231,8 @@ module.exports = class Config extends Preferences {
 		this.config['sfmc-client-id'] = clientId;
 		this.config['sfmc-mid'] = mid;
 
-		this.config['asset-server']['auth-username'] = 'user';
-		this.config['asset-server']['auth-password'] = generator.generate({ length: 16, numbers: true });
+		this.config['live-preview']['auth-username'] = 'user';
+		this.config['live-preview']['auth-password'] = generator.generate({ length: 16, numbers: true });
 		this.config['extension-version'] = Config.getExtensionVersion();
 		this.saveConfigFile(true);
 	}
@@ -345,8 +345,8 @@ module.exports = class Config extends Preferences {
 	 * @param {string} mainPath
 	 */
 	setServerProvider(publicDomain = 'https://127.0.0.1') {
-		if (!this.config['asset-server']) {
-			this.config['asset-server'] = {
+		if (!this.config['live-preview']) {
+			this.config['live-preview'] = {
 				"port": 4000,
 				"auth-username": "user",
 				"auth-password": generator.generate({ length: 16, numbers: true })
@@ -448,8 +448,8 @@ module.exports = class Config extends Preferences {
 	}
 
 	migrateToV0_7_0() {
-		// move asset server:
-		this.config['asset-server'] = {
+		// move live preview server:
+		this.config['live-preview'] = {
 			"port": this.config['proxy-any-file']?.['port'] || 4000,
 			"dev-folder-path": this.config['dev-folder-path'] || './',
 			"auth-enabled": false,

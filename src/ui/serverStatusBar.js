@@ -18,7 +18,7 @@ class ServerStatusBar {
 			return;
 		}
 		this.statusBar.text = `$(radio-tower) SSJS: ${port}`;
-		this.statusBar.tooltip = `SSJS Asset Server running on port ${port}`;
+		this.statusBar.tooltip = `SSJS Live Preview Server running on port ${port}`;
 		this.statusBar.show();
 	}
 

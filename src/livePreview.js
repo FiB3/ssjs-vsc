@@ -8,7 +8,7 @@ const fs = require('fs');
 const Config = require('./config');
 const serverStatus = require('./ui/serverStatusBar');
 
-class AssetServer {
+class LivePreview {
 	constructor(config) {
 		this.config = config;
 		this.running = false;
@@ -25,7 +25,7 @@ class AssetServer {
 		this.app.use(morgan('dev'));
 
 		// Setup main route - now using path parameter
-		logger.log(`Asset Server starting...`);
+		logger.log(`Live Preview Server starting...`);
 		this.app.use('/*',
 			this._checkPathSecurity.bind(this), 
 			this._checkResourcePath.bind(this),
@@ -43,7 +43,7 @@ class AssetServer {
 		// Start server
 		this.port = this.config.getHostPort();
 		this.server = this.app.listen(this.port, () => {
-			logger.log(`===== Asset Server listening on: localhost:${this.port} =====`);
+			logger.log(`===== Live Preview Server listening on: localhost:${this.port} =====`);
 			this.running = true;
 			serverStatus.show(this.port);
 		});
@@ -51,7 +51,7 @@ class AssetServer {
 
 	stop() {
 		if (this.server) {
-			logger.log('Closing Asset Server...');
+			logger.log('Closing Live Preview Server...');
 			this.server.close(() => {
 				logger.log('Closed out remaining connections');
 				this.running = false;
@@ -134,4 +134,4 @@ class AssetServer {
 	}
 }
 
-module.exports = AssetServer; 
+module.exports = LivePreview; 

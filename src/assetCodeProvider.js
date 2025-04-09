@@ -7,7 +7,7 @@ const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
-const AssetServer = require('./assetServer');
+const LivePreview = require('./livePreview');
 
 const { template } = require('./template');
 const json = require('./auxi/json');
@@ -198,31 +198,31 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 	async startServer() {
 		if (this.server && this.server.running) {
-			logger.warn('Asset server is already running');
+			logger.warn('Live Preview server is already running');
 			return;
 		}
 
 		try {
-			this.server = new AssetServer(this.config);
+			this.server = new LivePreview(this.config);
 			this.server.start();
 		} catch (error) {
-			logger.error('Failed to start asset server:', error);
+			logger.error('Failed to start Live Preview server:', error);
 			throw error;
 		}
 	}
 
 	async stopServer() {
 		if (!this.server || !this.server.running) {
-			logger.warn('Asset server is not running');
+			logger.warn('Live Preview server is not running');
 			return;
 		}
 
 		try {
 			this.server.stop();
 			this.server = null;
-			logger.log('Asset server stopped successfully');
+			logger.log('Live Preview server stopped successfully');
 		} catch (error) {
-			logger.error('Failed to stop asset server:', error);
+			logger.error('Failed to stop Live Preview server:', error);
 			throw error;
 		}
 	}
