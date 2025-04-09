@@ -52,7 +52,6 @@ module.exports = class Config extends Preferences {
 	 * @returns {object}
 	 */
 	getTemplatingView(isDev = true) {
-		logger.log(this.config);
 		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
 		return this.config?.[tokensKey] && Object.keys(this.config[tokensKey])
 				? Object.assign({}, this.config[tokensKey])
@@ -340,16 +339,17 @@ module.exports = class Config extends Preferences {
 	}
 
 	/**
-	 * Set Server Provider.
-	 * @param {string} publicDomain
-	 * @param {string} mainPath
+	 * Set Live Preview Server.
+	 * @param {number} port
+	 * @param {string} username
+	 * @param {string} password
 	 */
-	setServerProvider(publicDomain = 'https://127.0.0.1') {
+	setLivePreviewServer(port = 4000, username = 'user', password = generator.generate({ length: 16, numbers: true })) {
 		if (!this.config['live-preview']) {
 			this.config['live-preview'] = {
-				"port": 4000,
-				"auth-username": "user",
-				"auth-password": generator.generate({ length: 16, numbers: true })
+				"port": port,
+				"auth-username": username,
+				"auth-password": password
 			};
 		}
 		this.saveConfigFile();
