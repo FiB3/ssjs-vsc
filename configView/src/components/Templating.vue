@@ -22,25 +22,25 @@ const templatingStatus = reactive({
 
 const tags = ref([
 	// just for dev:
-	// {
-	// 	key: 'IS_PROD',
-	// 	prod: 'true',
-	// 	dev: 'false',
-	// 	preview: 'false'
-	// },
-	// {
-	// 	key: 'ENV',
-	// 	prod: 'prod',
-	// 	dev: 'dev',
-	// 	preview: 'live-preview'
-	// },
-	// {
-	// 	key: 'LIB_TEST',
-	// 	type: 'lib',
-	// 	prod: 'file://./libs/testLib1.js',
-	// 	dev: 'file://./libs/testLib1.js',
-	// 	preview: 'file://./libs/testLib1.js'
-	// }
+	{
+		key: 'IS_PROD',
+		prod: 'true',
+		dev: 'false',
+		preview: 'false'
+	},
+	{
+		key: 'ENV',
+		prod: 'prod',
+		dev: 'dev',
+		preview: 'live-preview'
+	},
+	{
+		key: 'LIB_TEST',
+		type: 'lib',
+		prod: 'file://./libs/testLib1.js',
+		dev: 'file://./libs/testLib1.js',
+		preview: 'file://./libs/testLib1.js'
+	}
 ]);
 
 function removeTag(lineNum) {
@@ -221,54 +221,97 @@ onMounted(() => {
 </template>
 
 <style scoped>
-	.tags-header {
-		display: flex;
-		flex-direction: row;
-		align-items: center;
-		margin-bottom: 3px;
-	}
+    .tags {
+        min-width: 300px;
+        overflow-x: scroll; /* Force scrollbar to always show */
+        padding-bottom: 12px;
+        scrollbar-width: thin; /* For Firefox */
+        scrollbar-gutter: stable; /* Prevent layout shift */
+    }
 
-	.tags-header > div {
-		/* padding: 0 6px; */
-		margin-right: 3px;
-	}
+    /* Webkit (Chrome, Safari, Edge) scrollbar styling */
+    .tags::-webkit-scrollbar {
+        height: 8px; /* Horizontal scrollbar height */
+        width: 8px; /* Vertical scrollbar width */
+    }
 
-	.tags > div {
-		margin-bottom: 3px;
-	}
+    .tags::-webkit-scrollbar-track {
+        background: var(--vscode-scrollbarSlider-background);
+        border-radius: 4px;
+    }
 
-	.tag-input, .tag-header-key, .tag-header-prod, .tag-header-dev, .tag-header-preview {
-		width: 20%;
-		max-width: 250px;
-		margin-right: 3px;
-	}
+    .tags::-webkit-scrollbar-thumb {
+        background: var(--vscode-scrollbarSlider-hoverBackground);
+        border-radius: 4px;
+    }
 
-	/* .tag-header-key, .tag-header-prod, .tag-header-dev, .tag-header-preview {	
-		width: calc(20% - 2*6px);
-	} */
+    .tags::-webkit-scrollbar-thumb:hover {
+        background: var(--vscode-scrollbarSlider-activeBackground);
+    }
 
-	.tag-input-value {
-		width: 26%;
-	}
+    .tags-header, .tag {
+        display: grid;
+        grid-template-columns: 
+            minmax(120px, 1fr)    /* Key */
+            minmax(100px, 0.75fr) /* Type */
+            minmax(150px, 1.3fr)  /* Prod */
+            minmax(150px, 1.3fr)  /* Dev */
+            minmax(150px, 1.3fr)  /* Preview */
+            minmax(80px, 0.5fr);  /* Remove button */
+        gap: 8px;
+        align-items: center;
+        padding: 4px 0;
+    }
 
-	.remove-tag {
-		margin-left: 7px;
-		width: 10%;
-		max-width: 120px;
-		display: inline;
-	}
+    .tags-header {
+        font-weight: bold;
+        border-bottom: 1px solid var(--vscode-panel-border);
+        padding-bottom: 8px;
+        margin-bottom: 8px;
+    }
 
-	select.tag-input, .tag-header-type {
-		width: 15%;
-		max-width: 200px;
-	}
+    .tag {
+        /* Subtle visual separation between rows */
+        padding: 4px 0;
+    }
 
-	/* .tag-header-type {
-		width: calc(15% - 12px);
-	} */
+    .tag:hover {
+        background-color: var(--vscode-list-hoverBackground);
+    }
 
-	a#addTag {
-		width: 20%;
-		max-width: 250px;
-	}
+    /* Remove the now redundant width classes */
+    .tag-input, 
+    .tag-header-key, 
+    .tag-header-prod, 
+    .tag-header-dev, 
+    .tag-header-preview,
+    .tag-input-value,
+    .remove-tag,
+    select.tag-input, 
+    .tag-header-type {
+        width: 100%; /* Let grid handle the widths */
+        max-width: none;
+        margin-right: 0;
+    }
+
+    /* Add button styling */
+    a#addTag {
+        margin-top: 12px;
+        width: 250px;
+        max-width: none;
+    }
+
+    /* Container responsiveness */
+    .templating-form {
+        max-width: 100%;
+        overflow-x: auto;
+    }
+
+    /* Optional: Sticky header */
+    .tags-header {
+        position: sticky;
+        top: 0;
+        background-color: var(--vscode-editor-background);
+        z-index: 1;
+    }
 </style>
