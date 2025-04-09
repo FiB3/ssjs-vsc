@@ -72,51 +72,6 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	}
 
 	/**
-	 * Handles preparation of Any Scripts to SFMC, like creating Asset Folder, storing Cloud Page URL etc.
-	 */
-	async prepareAnyScriptDeployment() {		
-		// Confirm that everything is set by user:
-		if (!this.config.isSetupValid()) {
-			const confirmed = await dialogs.confirmPreInstallSetup();
-			if (!confirmed) {
-				return false;
-			}
-		}
-
-		// Check Asset Folder existence:
-		if (!await this.snippets.checkAssetFolder()) {
-			return false;
-		}
-
-		// Ask for Dev Page Type:
-		const devPageContexts = await dialogs.getDevPageOptions();
-		if (!devPageContexts) { 
-			return false;
-		}
-
-		for (let pageContext of devPageContexts) {
-			logger.log(`Dev Page Context:`, pageContext);
-			// Ask for Cloud Page URL from user and store to ssjs-setup.json:
-			let cloudPageUrl = await dialogs.getDevPageUrl(pageContext);
-			if (!cloudPageUrl) {
-				// TODO: maybe allow empty input when already set to keep old value
-				return false;
-			}
-
-			// Ask for selection of the deployment asset to use:
-			let authOption = await dialogs.getAuthOptions();
-			if (!authOption) {
-				return false;
-			}
-			// save combination of options:
-			this.config.setDevPageInfo(pageContext, authOption, cloudPageUrl);
-			// TODO: add options to set own basic auth creds & skip when already filled:
-			this.config.generateDevTokens(pageContext);
-		}
-		return devPageContexts;
-	}
-
-	/**
 	 * Runs deployments for all Any Scripts based on parameters.
 	 * @param {Array<>} pagesData
 	 */

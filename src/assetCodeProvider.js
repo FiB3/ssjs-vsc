@@ -7,6 +7,7 @@ const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
+const AssetServer = require('./assetServer');
 
 const { template } = require('./template');
 const json = require('./auxi/json');
@@ -19,6 +20,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	constructor(config, statusBar, context) {
 		super(config, statusBar, context);
 		this.folderId;
+		this.server = null;
 		vscode.commands.executeCommand('setContext', 'ssjs-vsc.codeProvider', 'Asset');
 	}
 
@@ -192,5 +194,36 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		res.url = res.tkn ? `${url}?token=${res.tkn}&asset-id=${id}` : `${url}?asset-id=${id}`;
 		res.cleanUrl = `${url}?asset-id=${id}`;
 		return res;
+	}
+
+	async startServer() {
+		if (this.server && this.server.running) {
+			logger.warn('Asset server is already running');
+			return;
+		}
+
+		try {
+			this.server = new AssetServer(this.config);
+			this.server.start();
+		} catch (error) {
+			logger.error('Failed to start asset server:', error);
+			throw error;
+		}
+	}
+
+	async stopServer() {
+		if (!this.server || !this.server.running) {
+			logger.warn('Asset server is not running');
+			return;
+		}
+
+		try {
+			this.server.stop();
+			this.server = null;
+			logger.log('Asset server stopped successfully');
+		} catch (error) {
+			logger.error('Failed to stop asset server:', error);
+			throw error;
+		}
 	}
 }

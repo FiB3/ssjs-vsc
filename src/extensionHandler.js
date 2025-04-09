@@ -10,6 +10,7 @@ const vsc = require('./vsc');
 const Hooks = require('./hooks');
 
 const statusBar = require('./ui/statusBar');
+const serverStatusBar = require('./ui/serverStatusBar');
 const McClient = require('./sfmc/mcClient');
 const logger = require('./auxi/logger');
 const telemetry = require('./telemetry');
@@ -25,6 +26,8 @@ class ExtensionHandler {
 		this.context = context;
 		this.statusBar = statusBar;
 		this.statusBar.create(context, this.config);
+
+		serverStatusBar.create(context, this.config);
 	}
 
 	async activateAssetProvider(testApiKeys) {
@@ -289,16 +292,14 @@ class ExtensionHandler {
 		const currentVersion = this.config.getSetupFileVersion();
 
 		let migrations = [{
-			minVersion: '0.3.0',
-			action: () => {
-				this.config.migrateToV0_3_0();
-				// show a warning message:
-				vscode.window.showWarningMessage(`Please, run 'SSJS: Show Config' command to finish update. This is one time action.`);
-			}
-		}, {
 			minVersion: '0.6.0',
 			action: () => {
 				this.config.migrateToV0_6_0();
+			}
+		}, {
+			minVersion: '0.7.0',
+			action: () => {
+				this.config.migrateToV0_7_0();
 			}
 		}];
 

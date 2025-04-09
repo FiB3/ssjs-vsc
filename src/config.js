@@ -31,16 +31,17 @@ module.exports = class Config extends Preferences {
 	 * Get Server Provider server PORT.
 	 */
 	getHostPort() {
-		return Config.validateConfigValue(this.config?.['proxy-any-file']?.['port'], 4000);
+		return Config.validateConfigValue(this.config?.['asset-server']?.['port'], 4000);
 	}
 
 	getPublicPath() {
-		let publicPath = this.config['dev-folder-path'] ? this.config['dev-folder-path'] : './';
-		logger.log('PARSE CONFIG:',  publicPath.startsWith('\/'), '?', publicPath, ',', Pathy.getWorkspacePath(), ',', publicPath);
-		logger.log(`Config: PUBLIC PATH: "${publicPath}".`);
-		publicPath = Pathy.joinToRoot(publicPath);
-		
-		logger.log(`PUBLIC PATH: "${publicPath}".`);
+		let publicPathConf = typeof this.config['dev-folder-path'] === 'string' && (this.config['dev-folder-path'].trim().length > 0)
+				? this.config['dev-folder-path']
+				: './';
+
+		let publicPath = publicPathConf.trim();
+		publicPath = !publicPath.startsWith('\/') ? Pathy.joinToRoot(publicPath) : publicPath;
+		logger.log('PARSE CONFIG:',  publicPathConf, ' => ', publicPath);
 		
 		return publicPath;
 	}
@@ -97,15 +98,17 @@ module.exports = class Config extends Preferences {
 
 	/**
 	 * Get Server Provider data.
-	 * @returns {object} with keys: mainPath, authUser, authPassword
+	 * @returns {object} with keys: authEnabled, serverUrl, authUser, authPassword
 	 */
-	getServerProvider() {
-		const authUser = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-username']);
-		const authPassword = Config.validateConfigValue(this.config?.['proxy-any-file']?.['auth-password']);
+	getServerInfo() {
+		const authEnabled = Config.validateConfigValue(this.config?.['asset-server']?.['auth-enabled']);
+		const port = this.getHostPort();
+		const authUser = authEnabled ? Config.validateConfigValue(this.config?.['asset-server']?.['auth-username']) : '';
+		const authPassword = authEnabled ? Config.validateConfigValue(this.config?.['asset-server']?.['auth-password']) : '';
 
 		return {
-			// TODO: makes sense to have this here?
-			serverUrl: `https://${authUser}:${authPassword}@127.0.0.1:4000`,
+			authEnabled,
+			serverUrl: `http://127.0.0.1:${port}`,
 			authUser,
 			authPassword
 		};
@@ -228,8 +231,8 @@ module.exports = class Config extends Preferences {
 		this.config['sfmc-client-id'] = clientId;
 		this.config['sfmc-mid'] = mid;
 
-		this.config['proxy-any-file']['auth-username'] = 'user';
-		this.config['proxy-any-file']['auth-password'] = generator.generate({ length: 16, numbers: true });
+		this.config['asset-server']['auth-username'] = 'user';
+		this.config['asset-server']['auth-password'] = generator.generate({ length: 16, numbers: true });
 		this.config['extension-version'] = Config.getExtensionVersion();
 		this.saveConfigFile(true);
 	}
@@ -342,8 +345,8 @@ module.exports = class Config extends Preferences {
 	 * @param {string} mainPath
 	 */
 	setServerProvider(publicDomain = 'https://127.0.0.1') {
-		if (!this.config['proxy-any-file']) {
-			this.config['proxy-any-file'] = {
+		if (!this.config['asset-server']) {
+			this.config['asset-server'] = {
 				"port": 4000,
 				"auth-username": "user",
 				"auth-password": generator.generate({ length: 16, numbers: true })
@@ -436,53 +439,26 @@ module.exports = class Config extends Preferences {
 		return h.enabled;
 	}
 
-	/**
-	 * Migrate setup file to new version - currently to v0.3.0+.
-	 */
-	migrateToV0_3_0() {	
-		let newConfig = {
-			'sfmc-domain': this.config['sfmc-domain'],
-			'sfmc-client-id': this.config['sfmc-client-id'],
-			'sfmc-mid': this.confgi['sfmc-mid'],
-			'sfmc-user-id': this.config['sfmc-user-id'] || 0,
-			'dev-folder-path': this.config['dev-folder-path'],
-			'dev-tokens': this.config['dev-tokens'] || {},
-			'prod-tokens': this.config['prod-tokens'] || {},
-			'asset-folder-id': 0,
-			'asset-folder': '<< asset-folder >>',
-			'dev-page': {},
-			'dev-resource': {},
-			'proxy-any-file': {},
-			'config-view': {},
-			'extension-version': Config.getExtensionVersion()
-		};
-
-		// move asset folder IDs:
-		newConfig['asset-folder-id'] = Config.validateConfigValue(
-				Config.validateConfigValue(this.config['asset-provider']?.['folder-id'], this.config['asset-folder-id']),
-			newConfig['asset-folder-id']);
-		newConfig['asset-folder'] = Config.validateConfigValue(
-				Config.validateConfigValue(this.config['asset-provider']?.['folder'], this.config['asset-folder']),
-			newConfig['asset-folder']);
-
-		// serverProvider:
-		newConfig['proxy-any-file'] = {
-			'port': Config.validateConfigValue(this.config['port'], 4000),
-			'auth-username': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-username'], 'user'),
-			'auth-password': Config.validateConfigValue(this.config['proxy-any-file']?.['auth-password'], generator.generate({ length: 16, numbers: true }))
-		};
-
-		// save setup file
-		this.config = newConfig;
-		logger.info(`Migrated Config:`, newConfig);
-		this.saveConfigFile();
-	}
-
 	migrateToV0_6_0() {
 		// move hooks:
 		this.config['hooks'] = this.config['hooks'] || { 'on-save': {} };
 		this.config['extension-version'] = Config.getExtensionVersion();
-		logger.info(`Migrated Config:`, this.config);
+		logger.info(`Migrated Config (0.6.0):`, this.config);
+		this.saveConfigFile();
+	}
+
+	migrateToV0_7_0() {
+		// move asset server:
+		this.config['asset-server'] = {
+			"port": this.config['proxy-any-file']?.['port'] || 4000,
+			"dev-folder-path": this.config['dev-folder-path'] || './',
+			"auth-enabled": false,
+			"auth-username": this.config['proxy-any-file']?.['auth-username'] || 'user',
+			"auth-password": this.config['proxy-any-file']?.['auth-password'] || generator.generate({ length: 16, numbers: true })
+		};
+		delete this.config['dev-folder-path'];
+		delete this.config['proxy-any-file'];
+		logger.info(`Migrated Config (0.7.0):`, this.config);
 		this.saveConfigFile();
 	}
 }

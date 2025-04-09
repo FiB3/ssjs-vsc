@@ -179,20 +179,6 @@ module.exports = {
 		});
 		return cloudPageUrl || false;
 	},
-
-	/**
-	 * Ask for Tunnel public URL.
-	 * @returns {Promise<string|boolean>}
-	 */
-	async getTunnelPublicDomain() {
-		const domain = await vscode.window.showInputBox({
-			title: `Tunneling service Public Domain`,
-			prompt: `Enter the public domain of your tunneling service instance:`,
-			placeHolder: "Example: https://my-domain.ngrok-free.app",
-			ignoreFocusOut: true
-		});
-		return domain || false;
-	},
 	
 	/**
 	 * Simple Yes/No prompt.

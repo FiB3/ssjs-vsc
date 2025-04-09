@@ -1,16 +1,15 @@
 {
-  "sfmc-domain": "<< sfmc-subdomain from AUTH URL: https://mc-subdomain.auth.marketingcloudapis.com/ >>",
-  "sfmc-client-id": "<< client-id of installed package >>",
-  "sfmc-mid": "<< optional: only if MID is needed >>",
+	"sfmc-domain": "<< sfmc-subdomain from AUTH URL: https://mc-subdomain.auth.marketingcloudapis.com/ >>",
+	"sfmc-client-id": "<< client-id of installed package >>",
+	"sfmc-mid": "<< optional: only if MID is needed >>",
 	"sfmc-user-id": -1,
-	"dev-folder-path": "",
 
-  "dev-tokens": {
-    "IS_PROD": "false"
-  },
-  "prod-tokens": {
-    "IS_PROD": "true"
-  },
+	"dev-tokens": {
+		"IS_PROD": "false"
+	},
+	"prod-tokens": {
+		"IS_PROD": "true"
+	},
 
 	"asset-folder-id": 0,
 	"asset-folder": "<< asset-folder >>",
@@ -18,31 +17,29 @@
 	"dev-page": {
 		"url": "<< dev page url >>",
 		"snippet-id": "<< asset ID of the code snippet >>",
-
 		"use-auth": true,
 		"auth-type": "<<token|basic|web (future)|none>>",
-    "dev-token": "<< dev-token-comes-here >>",
+		"dev-token": "<< dev-token-comes-here >>",
 		"dev-username": "<< dev-username-comes-here >>",
-    "dev-password": "<< dev-password-comes-here >>"
+		"dev-password": "<< dev-password-comes-here >>"
 	},
-
 	"dev-resource": {
 		"url": "<< dev page url >>",
 		"snippet-id": "<< asset ID of the code snippet >>",
-
 		"use-auth": true,
 		"auth-type": "<<token|basic>>",
-    "dev-token": "<< dev-token-comes-here >>",
+		"dev-token": "<< dev-token-comes-here >>",
 		"dev-username": "<< dev-username-comes-here >>",
-    "dev-password": "<< dev-password-comes-here >>"
+		"dev-password": "<< dev-password-comes-here >>"
 	},
 
-  "proxy-any-file": {
-		"enabled": true,
+	"asset-server": {
 		"port": 4000,
-    "auth-username": "<< dev-username-comes-here >>",
-    "auth-password": "<< dev-password-comes-here >>"
-  },
+		"dev-folder-path": "",
+		"auth-enabled": false,
+		"auth-username": "<< dev-username-comes-here >>",
+		"auth-password": "<< dev-password-comes-here >>"
+	},
 
 	"hooks": {
 		"on-save": {
@@ -56,8 +53,8 @@
 	},
 
 	"config-view": {
-    "any-script-deployed": false,
-    "dev-read": false
-  },
-  "extension-version": "0.0.0"
+		"any-script-deployed": false,
+		"dev-read": false
+	},
+	"extension-version": "0.0.0"
 }
