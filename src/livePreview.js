@@ -27,12 +27,24 @@ class LivePreview {
 		// Setup main route - now using path parameter
 		logger.log(`Live Preview Server starting...`);
 		this.app.use('/*',
-			this._checkPathSecurity.bind(this), 
+			this._authenticate.bind(this), 
 			this._checkResourcePath.bind(this),
 			(req, res) => {
 				let pth = req.resourcePath; // Set by _checkResourcePath
 				if (pth) {
 					let html = template.runScriptFile(pth, this.config, true);
+					
+					// Set Content-Type based on file extension
+					const ext = path.extname(pth).toLowerCase();
+					const contentType = {
+							'.html': 'text/html',
+							'.js': 'application/javascript',
+							'.css': 'text/css',
+							'.json': 'application/json',
+							'.txt': 'text/plain'
+					}[ext] || 'text/plain';
+	
+					res.setHeader('Content-Type', contentType);
 					res.status(200).send(html);
 				} else {
 					throw ("Resource path not set!");
@@ -60,7 +72,7 @@ class LivePreview {
 		}
 	}
 
-	_checkPathSecurity(req, res, next) {
+	_authenticate(req, res, next) {
 		let passOk = false;
 		try {
 			const { authEnabled, authUser, authPassword } = this.config.getServerInfo();
@@ -89,16 +101,20 @@ class LivePreview {
 	}
 
 	_checkResourcePath(req, res, next) {
+		function checkExtname(p) {
+			let extname = Pathy.extname(p);
+			return [ '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico' ].includes(extname);
+		}
 		let requestPath = req.originalUrl;
 		const publicPath = this.config.getPublicPath();
 
 		logger.log('CHECK RESOURCE PATH:', requestPath, ' => ', publicPath);
 		requestPath = requestPath.split('?')[0];
 
-		let fullPath = path.join(publicPath, requestPath);
+		let fullPath = Pathy.join(publicPath, requestPath);
 
 		if (fs.existsSync(fullPath) && fullPath.startsWith(publicPath)) {
-			if (Config.isFileTypeAllowed(fullPath)) {
+			if (checkExtname(fullPath)) {
 				logger.log('Resource path OK:', fullPath);
 				req.resourcePath = fullPath; // Store the validated path
 				next();
