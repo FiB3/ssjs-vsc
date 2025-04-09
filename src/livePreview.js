@@ -32,61 +32,86 @@ class LivePreview {
 		this.app = null;
 	}
 
-	start() {
-		// Load config
-		this.config.loadConfig();
+	async start() {
+		return new Promise((resolve, reject) => {
+			try {
+				// Load config
+				this.config.loadConfig();
 
-		// Setup Express
-		this.app = express();
-		this.app.use(morgan('dev'));
+				// Setup Express
+				this.app = express();
+				this.app.use(morgan('dev'));
 
-		// Setup main route - now using path parameter
-		logger.log(`Live Preview Server starting...`);
-		this.app.use('/*',
-			this._authenticate.bind(this), 
-			this._checkResourcePath.bind(this),
-			(req, res) => {
-				let pth = req.resourcePath; // Set by _checkResourcePath
-				if (pth) {
-					const ext = path.extname(pth).toLowerCase();
-					const contentType = CONTENT_TYPES[ext] || 'text/plain';
+				// Setup main route - now using path parameter
+				logger.log(`Live Preview Server starting...`);
+				this.app.use('/*',
+					this._authenticate.bind(this), 
+					this._checkResourcePath.bind(this),
+					this._sendResource.bind(this)
+				);
 
-					if (contentType.startsWith('image/')) {
-						const imageBuffer = fs.readFileSync(pth);
-						res.setHeader('Content-Type', contentType);
-						telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
-						res.status(200).send(imageBuffer);
-					} else {
-						let html = template.runScriptFile(pth, this.config, true);
-						res.setHeader('Content-Type', contentType);
-						telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
-						res.status(200).send(html);
-					}
-					
-				} else {
-					throw ("Resource path not set!");
-				}
+				// Start server
+				this.port = this.config.getHostPort();
+				this.server = this.app.listen(this.port, () => {
+					logger.log(`===== Live Preview Server listening on: localhost:${this.port} =====`);
+					this.running = true;
+					serverStatus.show(this.port);
+					resolve();
+				});
+			} catch (error) {
+				reject(error);
 			}
-		);
-
-		// Start server
-		this.port = this.config.getHostPort();
-		this.server = this.app.listen(this.port, () => {
-			logger.log(`===== Live Preview Server listening on: localhost:${this.port} =====`);
-			this.running = true;
-			serverStatus.show(this.port);
 		});
 	}
 
-	stop() {
-		if (this.server) {
-			logger.log('Closing Live Preview Server...');
-			this.server.close(() => {
+	async stop() {
+    return new Promise((resolve, reject) => {
+			if (!this.server) {
+				resolve();
+				return;
+			}
+
+			this.server.close((error) => {
+				if (error) {
+					reject(error);
+					return;
+				}
 				logger.log('Closed out remaining connections');
 				this.running = false;
 				serverStatus.hide();
+				resolve();
 			});
+    });
+	}
+
+	_sendResource(req, res) {
+		let pth = req.resourcePath; // Set by _checkResourcePath
+		if (pth) {
+			const ext = path.extname(pth).toLowerCase();
+			const contentType = CONTENT_TYPES[ext] || 'text/plain';
+
+			if (contentType.startsWith('image/')) {
+				const imageBuffer = fs.readFileSync(pth);
+				res.setHeader('Content-Type', contentType);
+				telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
+				res.status(200).send(imageBuffer);
+			} else {
+				let html = template.runScriptFile(pth, this.config, true);
+				res.setHeader('Content-Type', contentType);
+				telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
+				res.status(200).send(html);
+			}
+			
+		} else {
+			throw ("Resource path not set!");
 		}
+	}
+
+	getLivePreviewUrl(filePath) {
+		const publicPath = this.config.getPublicPath();
+		const relativePath = path.relative(publicPath, filePath);
+		// relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
+		return `${this.config.getServerInfo().serverUrl}/${relativePath}`;
 	}
 
 	_authenticate(req, res, next) {

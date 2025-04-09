@@ -40,6 +40,14 @@ module.exports = class NoCodeProvider {
 		}
 	}
 
+	async getDevUrl() {
+		this._checkCommand();
+	}
+
+	async getStandaloneScript() {
+		this._checkCommand();
+	}
+
 	async startServer() {
 		this._checkCommand();
 	}
@@ -48,11 +56,7 @@ module.exports = class NoCodeProvider {
 		this._checkCommand();
 	}
 
-	async getDevUrl() {
-		this._checkCommand();
-	}
-
-	async getStandaloneScript() {
+	async getLivePreviewUrl() {
 		this._checkCommand();
 	}
 

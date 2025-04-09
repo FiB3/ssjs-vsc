@@ -31,14 +31,15 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.upload-script', callback: async () => await ext.uploadScript() },
 		{ name: 'ssjs-vsc.get-standalone-script', callback: async () => await ext.provider.getStandaloneScript() },
 		{ name: 'ssjs-vsc.change-script-options', callback: async () => await ext.provider.changeScriptMetadata() },
-		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
-		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await ext.provider.updateAnyScript() },
 		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl(true) },
 		{ name: 'ssjs-vsc.run', callback: async () => await ext.provider.getDevUrl() },
-		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
 		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) },
-		{ name: 'ssjs-vsc.check-any-path', callback: async () => await checkDeployedDevAssets()	}
+		{ name: 'ssjs-vsc.check-any-path', callback: async () => await checkDeployedDevAssets()	},
+		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
+		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
+		{ name: 'ssjs-vsc.get-live-preview-url', callback: async () => await ext.provider.getLivePreviewUrl() },
+		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough }
 	]);
 
 	let workspaceOk = await ext.workspaceOk();

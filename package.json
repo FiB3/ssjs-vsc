@@ -88,16 +88,6 @@
         "category": "SSJS"
       },
       {
-        "command": "ssjs-vsc.start",
-        "title": "Start Live Preview",
-        "category": "SSJS"
-      },
-      {
-        "command": "ssjs-vsc.stop",
-        "title": "Stop Live Preview",
-        "category": "SSJS"
-      },
-      {
         "command": "ssjs-vsc.show-config",
         "title": "Show Config",
         "category": "SSJS"
@@ -110,6 +100,21 @@
       {
         "command": "ssjs-vsc.check-any-path",
         "title": "Check Dev Pages",
+        "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.start",
+        "title": "Start Live Preview",
+        "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.stop",
+        "title": "Stop Live Preview",
+        "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.get-live-preview-url",
+        "title": "Get Live Preview URL",
         "category": "SSJS"
       },
       {
@@ -145,18 +150,21 @@
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
         {
-          "command": "ssjs-vsc.start"
-        },
-        {
-          "command": "ssjs-vsc.stop"
-        },
-        {
           "command": "ssjs-vsc.update-any-path",
           "when": "ssjs-vsc.codeProvider != 'None'"
         },
         {
           "command": "ssjs-vsc.check-any-path",
           "when": "ssjs-vsc.codeProvider != 'None'"
+        },
+        {
+          "command": "ssjs-vsc.start"
+        },
+        {
+          "command": "ssjs-vsc.stop"
+        },
+        {
+          "command": "ssjs-vsc.get-live-preview-url"
         }
       ],
       "editor/title": [

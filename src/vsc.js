@@ -37,8 +37,18 @@ function openTextDocument(filePath, doOpen = true) {
 	);
 }
 
+function openInBrowser(url) {
+	vscode.env.openExternal(vscode.Uri.parse(url));
+}
+
+function copyToClipboard(text) {
+	vscode.env.clipboard.writeText(text);
+}
+
 module.exports = {
 	getActiveEditor,
 	openTextDocument,
+	openInBrowser,
+	copyToClipboard,
 	debug
 }

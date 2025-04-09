@@ -317,7 +317,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			if (urlInfo.visible) {
 				vscode.window.showInformationMessage(urlInfo.msg);
 			}
-			vscode.env.openExternal(urlInfo.url);
+			vsc.openInBrowser(urlInfo.url);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Open' });
 		}
 	}

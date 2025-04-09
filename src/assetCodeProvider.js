@@ -204,7 +204,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 
 		try {
 			this.server = new LivePreview(this.config);
-			this.server.start();
+			await this.server.start();
 			telemetry.log('livePreviewStart');
 		} catch (error) {
 			logger.error('Failed to start Live Preview server:', error);
@@ -220,7 +220,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 
 		try {
-			this.server.stop();
+			await this.server.stop();
 			this.server = null;
 			logger.log('Live Preview server stopped successfully');
 			telemetry.log('livePreviewStop');
@@ -229,5 +229,33 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			telemetry.error('livePreviewError', { on: 'stop', error: error.message });
 			throw error;
 		}
+	}
+
+	async getLivePreviewUrl() {
+		if (!this.server || !this.server.running) {
+			let runStart = await dialogs.yesNoConfirm('Live Preview server is not running. Start it now?');
+			if (!runStart) {
+				vscode.window.showWarningMessage('Live Preview server is not running. Please, start it manually.');
+				return;
+			}
+			await this.startServer();
+		}
+
+		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			logger.warn('No file is currently open');
+			return;
+		}
+		const url = this.server.getLivePreviewUrl(filePath);
+
+		if (Config.isOpeningUrl() || Config.isPreviewUrl()) {
+			logger.log('Opening URL:', url);
+			vsc.openInBrowser(vscode.Uri.parse(url));
+		} else { // (Config.isCopyingUrl())
+			logger.log('Copying URL:', url);
+			vsc.copyToClipboard(url);
+			vscode.window.showInformationMessage('Live Preview URL copied to clipboard: ' + url);
+		}
+		// TODO: open in vscode panel for preview panel	
 	}
 }
