@@ -205,8 +205,10 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		try {
 			this.server = new LivePreview(this.config);
 			this.server.start();
+			telemetry.log('livePreviewStart');
 		} catch (error) {
 			logger.error('Failed to start Live Preview server:', error);
+			telemetry.error('livePreviewError', { on: 'start', error: error.message });
 			throw error;
 		}
 	}
@@ -221,8 +223,10 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			this.server.stop();
 			this.server = null;
 			logger.log('Live Preview server stopped successfully');
+			telemetry.log('livePreviewStop');
 		} catch (error) {
 			logger.error('Failed to stop Live Preview server:', error);
+			telemetry.error('livePreviewError', { on: 'stop', error: error.message });
 			throw error;
 		}
 	}

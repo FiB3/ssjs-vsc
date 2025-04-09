@@ -7,6 +7,22 @@ const Pathy = require('./auxi/pathy');
 const fs = require('fs');
 const Config = require('./config');
 const serverStatus = require('./ui/serverStatusBar');
+const telemetry = require('./telemetry');
+
+const CONTENT_TYPES = {
+	'.html': 'text/html',
+	'.js': 'application/javascript',
+	'.css': 'text/css',
+	'.json': 'application/json',
+	'.txt': 'text/plain',
+	'.png': 'image/png',
+	'.jpg': 'image/jpeg',
+	'.jpeg': 'image/jpeg',
+	'.gif': 'image/gif',
+	'.svg': 'image/svg+xml',
+	'.ico': 'image/x-icon'
+};
+
 
 class LivePreview {
 	constructor(config) {
@@ -32,20 +48,21 @@ class LivePreview {
 			(req, res) => {
 				let pth = req.resourcePath; // Set by _checkResourcePath
 				if (pth) {
-					let html = template.runScriptFile(pth, this.config, true);
-					
-					// Set Content-Type based on file extension
 					const ext = path.extname(pth).toLowerCase();
-					const contentType = {
-							'.html': 'text/html',
-							'.js': 'application/javascript',
-							'.css': 'text/css',
-							'.json': 'application/json',
-							'.txt': 'text/plain'
-					}[ext] || 'text/plain';
-	
-					res.setHeader('Content-Type', contentType);
-					res.status(200).send(html);
+					const contentType = CONTENT_TYPES[ext] || 'text/plain';
+
+					if (contentType.startsWith('image/')) {
+						const imageBuffer = fs.readFileSync(pth);
+						res.setHeader('Content-Type', contentType);
+						telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
+						res.status(200).send(imageBuffer);
+					} else {
+						let html = template.runScriptFile(pth, this.config, true);
+						res.setHeader('Content-Type', contentType);
+						telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
+						res.status(200).send(html);
+					}
+					
 				} else {
 					throw ("Resource path not set!");
 				}
@@ -103,7 +120,7 @@ class LivePreview {
 	_checkResourcePath(req, res, next) {
 		function checkExtname(p) {
 			let extname = Pathy.extname(p);
-			return [ '.html', '.css', '.js', '.png', '.jpg', '.jpeg', '.gif', '.svg', '.ico' ].includes(extname);
+			return CONTENT_TYPES[extname] !== undefined;
 		}
 		let requestPath = req.originalUrl;
 		const publicPath = this.config.getPublicPath();
