@@ -23,26 +23,23 @@ const templatingStatus = reactive({
 const tags = ref([
 	// just for dev:
 	// {
-	// 		"key": "IS_PROD",
-	// 		"type": "value",
-	// 		"dev": "false",
-	// 		"prod": "true"
+	// 	key: 'IS_PROD',
+	// 	prod: 'true',
+	// 	dev: 'false',
+	// 	preview: 'false'
 	// },
 	// {
-	// 		"key": "LIB_TEST",
-	// 		"type": "lib",
-	// 		"dev": "file://./libs/testLib1.js",
-	// 		"prod": "file://./libs/testLib1.js"
+	// 	key: 'ENV',
+	// 	prod: 'prod',
+	// 	dev: 'dev',
+	// 	preview: 'live-preview'
 	// },
 	// {
-	// 		"key": "EXTRA_DEV",
-	// 		"type": "value",
-	// 		"dev": "test_1"
-	// },
-	// {
-	// 		"key": "EXTRA_PROD",
-	// 		"type": "value",
-	// 		"prod": "test_2"
+	// 	key: 'LIB_TEST',
+	// 	type: 'lib',
+	// 	prod: 'file://./libs/testLib1.js',
+	// 	dev: 'file://./libs/testLib1.js',
+	// 	preview: 'file://./libs/testLib1.js'
 	// }
 ]);
 
@@ -77,14 +74,17 @@ function saveTags() {
 			return t;
 		}
 		if (t.type === 'lib') {
-			let devVal = t.dev.trim();
 			let prodVal = t.prod.trim();
-
-			t.dev = devVal.startsWith('file://') ? devVal : `file://${devVal}`;
+			let devVal = t.dev.trim();
+			let previewVal = t.preview.trim();
+			
 			t.prod = prodVal.startsWith('file://') ? prodVal : `file://${prodVal}`;
+			t.dev = devVal.startsWith('file://') ? devVal : `file://${devVal}`;
+			t.preview = previewVal.startsWith('file://') ? previewVal : `file://${previewVal}`;
 		} else {
-			t.dev = t.dev.trim();
 			t.prod = t.prod.trim();
+			t.dev = t.dev.trim();
+			t.preview = t.preview.trim();
 		}
 		return { ...t};
 	});
@@ -104,14 +104,18 @@ window.addEventListener('message', event => {
 		case 'templatingInitialized':
 			console.log(`Templating Initialized:`, message);
 			message.tags.forEach(t => {
-				if (typeof(t.dev) == 'string' && t.dev.startsWith('file://')) {
+				console.log(`Tag:`, t);
+
+				if (
+					(typeof(t.prod) === 'string' && t.prod.startsWith('file://'))
+					|| (typeof(t.dev) === 'string' && t.dev.startsWith('file://'))
+					|| (typeof(t.preview) === 'string' && t.preview.startsWith('file://'))
+				) {
 					t.type = 'lib';
-					t.dev = t.dev.replace('file://', '');
+					console.log(`Tag is a library:`, t);
 					t.prod = typeof(t.prod) === 'string' ? t.prod.replace('file://', '') : '';
-				} else if (typeof(t.prod) == 'string' && t.prod.startsWith('file://')) {
-					t.type = 'lib';
 					t.dev = typeof(t.dev) === 'string' ? t.dev.replace('file://', '') : '';
-					t.prod = t.prod.replace('file://', '');
+					t.preview = typeof(t.preview) === 'string' ? t.preview.replace('file://', '') : '';
 				} else {
 					t.type = 'value';
 				}
@@ -151,6 +155,13 @@ onMounted(() => {
 
 		<div class="form-group" v-if="configurable">
 			<div class="tags">
+				<div class="tags-header">
+					<div class="tag-header-key">Key</div>
+					<div class="tag-header-type">Type</div>
+					<div class="tag-header-prod">Prod</div>
+					<div class="tag-header-dev">Dev</div>
+					<div class="tag-header-preview">Live Preview</div>
+				</div>
 				<div v-for="(key, index) in tags" :key="tags[index]" class="tag">
 					<!-- Needs to use $index instead of tag.key to allow for proper key naming/renaming -->
 					<InlineInput
@@ -168,18 +179,25 @@ onMounted(() => {
 						/>
 					<InlineInput
 							class="tag-input tag-input-value"
-							:id="index + '-dev-input'"		
-							type="text"
-							v-model="tags[index].dev"
-							placeholder="Dev value"
-						/>
-					<InlineInput
-							class="tag-input tag-input-value"
 							:id="index + '-prod-input'"
 							type="text"
 							v-model="tags[index].prod"
 							placeholder="Prod value"
 						/>
+					<InlineInput
+							class="tag-input tag-input-value"
+							:id="index + '-dev-input'"		
+							type="text"
+							v-model="tags[index].dev"
+							placeholder="Dev value"
+						/>
+						<InlineInput
+								class="tag-input tag-input-value"
+								:id="index + '-preview-input'"		
+								type="text"
+								v-model="tags[index].preview"
+								placeholder="Live Preview value"
+							/>
 					<InlineButton
 							class="remove-tag"
 							id="index + '-remove'"
@@ -203,15 +221,31 @@ onMounted(() => {
 </template>
 
 <style scoped>
+	.tags-header {
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		margin-bottom: 3px;
+	}
+
+	.tags-header > div {
+		/* padding: 0 6px; */
+		margin-right: 3px;
+	}
+
 	.tags > div {
 		margin-bottom: 3px;
 	}
 
-	.tag-input {
+	.tag-input, .tag-header-key, .tag-header-prod, .tag-header-dev, .tag-header-preview {
 		width: 20%;
 		max-width: 250px;
 		margin-right: 3px;
 	}
+
+	/* .tag-header-key, .tag-header-prod, .tag-header-dev, .tag-header-preview {	
+		width: calc(20% - 2*6px);
+	} */
 
 	.tag-input-value {
 		width: 26%;
@@ -224,10 +258,14 @@ onMounted(() => {
 		display: inline;
 	}
 
-	select.tag-input {
+	select.tag-input, .tag-header-type {
 		width: 15%;
 		max-width: 200px;
 	}
+
+	/* .tag-header-type {
+		width: calc(15% - 12px);
+	} */
 
 	a#addTag {
 		width: 20%;

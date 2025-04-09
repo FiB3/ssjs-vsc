@@ -473,6 +473,7 @@ module.exports = class Config extends Preferences {
 		};
 		delete this.config['dev-folder-path'];
 		delete this.config['proxy-any-file'];
+		this.config['extension-version'] = Config.getExtensionVersion();
 		logger.info(`Migrated Config (0.7.0):`, this.config);
 		this.saveConfigFile();
 	}

@@ -333,7 +333,7 @@ function getTemplatingTags(panel, message, reloaded = false) {
 			key: key,
 			prod: prodTags?.[key],
 			dev: devTags?.[key],
-			livePreview: livePreviewTags?.[key]
+			preview: livePreviewTags?.[key]
 		});
 	}
 	logger.log(`getTemplatingTags():`, tags);
@@ -355,7 +355,7 @@ function handleTemplatingTags(panel, message) {
 	message.tags.forEach(tag => {
 		prodTokens[tag.key] = tag.prod;
 		devTokens[tag.key] = tag.dev;
-		livePreviewTokens[tag.key] = tag.livePreview;
+		livePreviewTokens[tag.key] = tag.preview;
 	});
 	ext.config?.setTemplatingView(prodTokens, devTokens, livePreviewTokens, true);
 
