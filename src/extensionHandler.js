@@ -137,7 +137,7 @@ class ExtensionHandler {
 	 * Handle new SFMC credentials - test & save.
 	 * @param {Object} creds 
 	 * @param {Boolean} [update=false] update existing setup file / create new
-	 * @param {String} [caller='command'] command/ui
+	 * @param {Boolean} [openConfig=true] open the setup file after saving
 	 * @return {Object} result: { ok: Boolean, message: String }
 	 */
 	async handleNewSfmcCreds(creds, update = false, openConfig = true) {

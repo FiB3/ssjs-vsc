@@ -22,10 +22,6 @@ module.exports = class NoCodeProvider {
 		this.statusBarsetDeactivated();
 	}
 
-	async deployAnyScript() {
-		this._checkCommand();
-	}
-
 	async updateAnyScript() {
 		this._checkCommand();
 	}

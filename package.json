@@ -103,21 +103,6 @@
         "category": "SSJS"
       },
       {
-        "command": "ssjs-vsc.create-config",
-        "title": "Create Config",
-        "category": "SSJS"
-      },
-      {
-        "command": "ssjs-vsc.update-config",
-        "title": "Update API Credentials",
-        "category": "SSJS"
-      },
-      {
-        "command": "ssjs-vsc.deploy-any-path",
-        "title": "Install Dev Page",
-        "category": "SSJS"
-      },
-      {
         "command": "ssjs-vsc.update-any-path",
         "title": "Update Dev Page",
         "category": "SSJS"
@@ -164,10 +149,6 @@
         },
         {
           "command": "ssjs-vsc.stop"
-        },
-        {
-          "command": "ssjs-vsc.deploy-any-path",
-          "when": "ssjs-vsc.codeProvider != 'None'"
         },
         {
           "command": "ssjs-vsc.update-any-path",

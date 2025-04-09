@@ -33,9 +33,6 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.change-script-options', callback: async () => await ext.provider.changeScriptMetadata() },
 		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
-		{ name: 'ssjs-vsc.create-config', callback: () => createConfig() },
-		{ name: 'ssjs-vsc.update-config', callback: () => createConfig(true) },
-		{ name: 'ssjs-vsc.deploy-any-path', callback: async () => await ext.provider.deployAnyScript() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await ext.provider.updateAnyScript() },
 		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl(true) },
 		{ name: 'ssjs-vsc.run', callback: async () => await ext.provider.getDevUrl() },
@@ -135,26 +132,6 @@ function registerFormatters() {
 function showWalkthrough() {
 	telemetry.log('showWalkthrough');
 	vscode.commands.executeCommand('workbench.action.openWalkthrough', { category: 'FiB.ssjs-vsc#setup-ssjs-manager' }, false);
-}
-
-const createConfig = async function(update = false) {
-	try {
-		const creds = await dialogs.api.getCredentials(update);
-		if (!creds) {
-			logger.warn(`createConfig(): No creds provided.`);
-			return;
-		}
-		
-		let r = await ext.handleNewSfmcCreds(creds, update);
-		if (!r.ok) {
-			vscode.window.showErrorMessage(r.message);
-			return;
-		} else {
-			vscode.window.showInformationMessage(r.message);
-		}
-	}	catch (e) {
-		telemetry.error('createConfig', { error: e.message });
-	}
 }
 
 // This method is called when your extension is deactivated
