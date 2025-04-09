@@ -5,6 +5,7 @@ const Pathy = require('../auxi/pathy');
 const folder = require('../auxi/folder');
 const jsonHandler = require('../auxi/json');
 const logger = require('../auxi/logger');
+const vsc = require('../vsc');
 
 const SETUP_TEMPLATE = './templates/setup.example.json';
 const SETUP_FOLDER_NAME = '.vscode';
@@ -66,9 +67,7 @@ module.exports = class BaseConfig {
 	 */
 	saveConfigFile(withFileOpen = false) {
 		jsonHandler.save(BaseConfig.getUserConfigPath(), this.config);
-		if (withFileOpen) {
-			vscode.workspace.openTextDocument(BaseConfig.getUserConfigPath());
-		}
+		vsc.openTextDocument(BaseConfig.getUserConfigPath(), withFileOpen);
 	}
 
 	static configFileExists() {

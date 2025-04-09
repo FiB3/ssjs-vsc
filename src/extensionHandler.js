@@ -3,6 +3,7 @@ const axios = require('axios');
 let md5 = require('md5');
 
 const Config = require('./config');
+const Pathy = require('./auxi/pathy');
 const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const vsc = require('./vsc');
@@ -170,12 +171,8 @@ class ExtensionHandler {
 					this.config.setSfmcUserId(data.userId, data.mid);
 					
 					// Open the setup  file:
-					if (openConfig) {
-						vscode.workspace.openTextDocument(Config.getUserConfigPath()).then((doc) =>
-							vscode.window.showTextDocument(doc, {
-							})
-						);
-					}
+					vsc.openTextDocument(Config.getUserConfigPath(), openConfig);
+					
 					this.pickCodeProvider();
 					res.ok = true;
 					res.message = `API Credentials valid. Setup at: ./vscode/ssjs-setup.json.`;

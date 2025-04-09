@@ -4,6 +4,7 @@ const path = require('path');
 const Config = require('../config');
 const file = require('../auxi/file');
 const Pathy = require('../auxi/pathy');
+const vsc = require('../vsc');
 // const logger = require('../auxi/logger');
 
 class SourceCode {
@@ -21,12 +22,8 @@ class SourceCode {
 
 		// logger.log(`Code Snippet Path: ${scriptPath}`);
 		file.save(scriptPath, snippetText);
-		if (withFileOpen) {
-			vscode.workspace.openTextDocument(scriptPath).then((doc) =>
-				vscode.window.showTextDocument(doc, {
-				})
-			);
-		}
+		vsc.openTextDocument(scriptPath, withFileOpen);
+
 		return scriptPath;
 	}
 

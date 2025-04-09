@@ -22,7 +22,23 @@ function getActiveEditor(relativePath = false) {
 	}
 }
 
+/**
+ * Open the given file path.
+ * @param {string} filePath
+ * @param {boolean} [doOpen=true] open the file (just to simplify the code elsewhere)
+ */
+function openTextDocument(filePath, doOpen = true) {
+	if (!doOpen) {
+		return;
+	}
+	vscode.workspace.openTextDocument(filePath).then((doc) =>
+		vscode.window.showTextDocument(doc, {
+		})
+	);
+}
+
 module.exports = {
 	getActiveEditor,
+	openTextDocument,
 	debug
 }
