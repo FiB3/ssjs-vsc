@@ -28,14 +28,15 @@ exports.template = {
 	/**
 	 * Get Templated Script file.
 	 * @param {string} pth path to the file
-	 * @param {boolean} isDev true: for testing / false: for deployment
+	 * @param {object} config - config object
+	 * @param {string} env - `dev`, `prod` or `live-preview` (dev is default)
 	 * @returns 
 	 */
-	runScriptFile: function(pth, config, isDev = true) {
+	runScriptFile: function(pth, config, env = 'dev') {
 		const htmlTemplate = textFile.load(pth);
 		const customTags = Config.getTemplatingTags();
 
-		let tokens = config.getTemplatingView(isDev);
+		let tokens = config.getTemplatingView(env);
 
 		// loop through tokens, for each that starts with: `file://` replace value with loaded file's value
 		for (let [token, value] of Object.entries(tokens)) {

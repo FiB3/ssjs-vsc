@@ -174,7 +174,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			if (!Config.isFileTypeAllowed(filePath, false)) {
 				return false;
 			}
-			let fileText = template.runScriptFile(filePath, this.config, isDev);
+			let fileText = template.runScriptFile(filePath, this.config, isDev ? 'dev' : 'prod');
 			return fileText;
 
 		} else {

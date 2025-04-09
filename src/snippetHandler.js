@@ -255,7 +255,7 @@ class SnippetHandler {
 	 * @returns {object} Request Body for Asset Creation.
 	 */
 	getReqForDevAsset(filePath) {
-		let fileText = template.runScriptFile(filePath, this.config, true);
+		let fileText = template.runScriptFile(filePath, this.config, 'dev');
 		let assetName = Metafile.getBlockName(filePath);
 		this.folderId = this.config.getAssetFolderId();
 		// prepare minimal asset:

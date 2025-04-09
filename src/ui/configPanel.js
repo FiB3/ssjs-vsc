@@ -317,18 +317,23 @@ async function isConfigPanelNeeded() {
 
 function getTemplatingTags(panel, message, reloaded = false) {
 	// get tags:
-	let devTags = ext.config?.getTemplatingView(true);
-	let prodTags = ext.config?.getTemplatingView(false);
-
+	let prodTags = ext.config?.getTemplatingView('prod');
+	let devTags = ext.config?.getTemplatingView('dev');
+	let livePreviewTags = ext.config?.getTemplatingView('live-preview');
 	let tags = [];
 
-	let allKeys = new Set([...Object.keys(devTags || {}), ...Object.keys(prodTags || {})]);
+	let allKeys = new Set([
+		...Object.keys(prodTags || {}),
+		...Object.keys(devTags || {}),
+		...Object.keys(livePreviewTags || {})
+	]);
 
 	for (let key of allKeys) {
 		tags.push({
 			key: key,
+			prod: prodTags?.[key],
 			dev: devTags?.[key],
-			prod: prodTags?.[key]
+			livePreview: livePreviewTags?.[key]
 		});
 	}
 	logger.log(`getTemplatingTags():`, tags);
@@ -343,14 +348,16 @@ function getTemplatingTags(panel, message, reloaded = false) {
 
 function handleTemplatingTags(panel, message) {
 	// set tags:
-	let devTokens = {};
 	let prodTokens = {};
+	let devTokens = {};
+	let livePreviewTokens = {};
 
 	message.tags.forEach(tag => {
-		devTokens[tag.key] = tag.dev;
 		prodTokens[tag.key] = tag.prod;
+		devTokens[tag.key] = tag.dev;
+		livePreviewTokens[tag.key] = tag.livePreview;
 	});
-	ext.config?.setTemplatingView(devTokens, prodTokens, true);
+	ext.config?.setTemplatingView(prodTokens, devTokens, livePreviewTokens, true);
 
 	telemetry.log(`templatingTagsSet`, {}, { count: message.tags?.length || -1 });
 	// trigger templating tags update: (via init)

@@ -48,11 +48,17 @@ module.exports = class Config extends Preferences {
 
 	/**
 	 * Get Mustache template tokens.
-	 * @param {boolean} isDev
+	 * @param {string} env - `dev`, `prod` or `live-preview` (dev is default)
 	 * @returns {object}
 	 */
-	getTemplatingView(isDev = true) {
-		let tokensKey = isDev ? 'dev-tokens' : 'prod-tokens';
+	getTemplatingView(env = 'dev') {
+		let tokensKey = {
+			dev: 'dev-tokens',
+			prod: 'prod-tokens',
+			'live-preview': 'live-preview-tokens'
+		}[env];
+		tokensKey = tokensKey || 'dev-tokens';
+
 		return this.config?.[tokensKey] && Object.keys(this.config[tokensKey])
 				? Object.assign({}, this.config[tokensKey])
 				: {};
@@ -393,20 +399,28 @@ module.exports = class Config extends Preferences {
 
 	/**
 	 * Set Mustache template tokens - both dev and prod.
-	 * @param {object} views
+	 * @param {object} prodViews
+	 * @param {object} devViews
+	 * @param {object} livePreviewTokens
+	 * @param {boolean} plainReplace - if true, the views will replace the existing ones, otherwise they will be merged
 	 */
-	setTemplatingView(devViews = {}, prodViews = {}, plainReplace = false) {
+	setTemplatingView(prodViews = {}, devViews = {}, livePreviewTokens = {}, plainReplace = false) {
 		if (plainReplace) {
-			this.config['dev-tokens'] = devViews;
 			this.config['prod-tokens'] = prodViews;
+			this.config['dev-tokens'] = devViews;
+			this.config['live-preview-tokens'] = livePreviewTokens;
 		} else {
+			this.config['prod-tokens'] = {
+				...this.config['prod-tokens'],
+				...prodViews
+			};
 			this.config['dev-tokens'] = {
 				...this.config['dev-tokens'],
 				...devViews
 			};
-			this.config['prod-tokens'] = {
-				...this.config['prod-tokens'],
-				...prodViews
+			this.config['live-preview-tokens'] = {
+				...this.config['live-preview-tokens'],
+				...livePreviewTokens
 			};
 		}
 		this.saveConfigFile();
@@ -449,6 +463,7 @@ module.exports = class Config extends Preferences {
 
 	migrateToV0_7_0() {
 		// move live preview server:
+		this.config['live-preview-tokens'] = this.config['dev-tokens'] || { 'IS_PROD': 'false' };
 		this.config['live-preview'] = {
 			"port": this.config['proxy-any-file']?.['port'] || 4000,
 			"dev-folder-path": this.config['dev-folder-path'] || './',

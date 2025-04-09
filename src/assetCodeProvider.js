@@ -159,7 +159,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		// get metadata:
 		let meta = Metafile.load(filePath);
 		// get templated file:
-		let scriptText = template.runScriptFile(filePath, this.config, true);
+		let scriptText = template.runScriptFile(filePath, this.config, 'dev');
 		return await this.snippets.updateSfmcSnippet(meta.id, scriptText, false, filePath);
 	}
 

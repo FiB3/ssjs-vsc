@@ -4,6 +4,9 @@
 	"sfmc-mid": "<< optional: only if MID is needed >>",
 	"sfmc-user-id": -1,
 
+	"live-preview-tokens": {
+		"IS_PROD": "false"
+	},
 	"dev-tokens": {
 		"IS_PROD": "false"
 	},

@@ -96,7 +96,7 @@ class LivePreview {
 				telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
 				res.status(200).send(imageBuffer);
 			} else {
-				let html = template.runScriptFile(pth, this.config, true);
+				let html = template.runScriptFile(pth, this.config, 'live-preview');
 				res.setHeader('Content-Type', contentType);
 				telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
 				res.status(200).send(html);
