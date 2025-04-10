@@ -46,17 +46,21 @@ class Metafile {
   static upsert(filePath, data) {
     // if data is from request, convert:
     let dt = data.body ? data.body : data;
+		dt = this.fitMetadata(dt);
 
     // Get the metadata file path
     const metaPath = this.getFileName(filePath);
+		logger.debug(`Metafile.upsert:`, metaPath);
 
     if (Metafile.exists(filePath)) {
       // load, merge, save
       let meta = json.load(metaPath);
+			logger.debug(`Metafile.upsert:`, meta);
       dt = {
         ...meta,
         ...dt
       };
+			logger.debug(`Metafile.upsert:`, dt);
     }
     json.save(metaPath, dt);
   }
@@ -170,6 +174,36 @@ class Metafile {
 	 */
 	static getDevAssetFileName(devPathContext = 'page') {
 		return `./.vscode/devAsset.${devPathContext}.ssjs`;
+	}
+
+	/**
+	 * Fit metadata to the expected format.
+	 * @param {object} metadata 
+	 * @returns {object} fixed metadata
+	 */
+	static fitMetadata(metadata) {
+		logger.debug(`Metafile.fitMetadata:`, metadata);
+		if (!metadata) {
+			return {};
+		}
+		if (metadata.linkedPath) {
+			return {
+				linkedPath: metadata.linkedPath
+			};
+		}
+
+		// Define allowed keys
+		const allowedKeys = [
+				'id', 'name', 'assetType', 'category', 'enterpriseId',
+				'devContext', 'provideAs',
+				'error'
+		];
+		
+		// Filter entries to only include defined values from allowed keys
+		return Object.fromEntries(
+			Object.entries(metadata)
+				.filter(([key, value]) => allowedKeys.includes(key) && value !== undefined)
+		);
 	}
 }
 

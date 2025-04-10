@@ -135,23 +135,9 @@ document.addEventListener('DOMContentLoaded', resizeScrollbar);
 function resizeScrollbar() {
 	console.log('Window resized');
 	let container = document.querySelector('.tags');
-	let content = document.querySelector('.tags-header');
+	let content = document.querySelector('.tabs-container');
 	let scrollbar = document.querySelector('.scrollbar-container');
 	let thumb = document.querySelector('.scrollbar-thumb');
-
-
-	// let wholeWidth = content?.offsetWidth;
-	// let scrollbarWidth = scrollbar?.offsetWidth;
-
-	// let thumbWidth = (scrollbarWidth / wholeWidth) * 100;
-
-	// const scrollLeft = container.scrollLeft;
-	// let thumbLeft = scrollLeft / wholeWidth;
-	// 	if (thumbLeft * 100 + thumbWidth > 100) {
-	// 		thumbLeft = 1 - (thumbWidth / 100);
-	// 	}
-
-	// thumb.style.left = `${thumbLeft * 100}%`;
 
 	let containerWidth = container.offsetWidth;
 	let contentWidth = content.offsetWidth;
@@ -201,55 +187,57 @@ onMounted(() => {
 
 		<div class="form-group" v-if="configurable">
 			<div class="tags">
-				<div class="tags-header">
-					<div class="tag-header-key">Key</div>
-					<div class="tag-header-type">Type</div>
-					<div class="tag-header-prod">Prod</div>
-					<div class="tag-header-dev">Dev</div>
-					<div class="tag-header-preview">Live Preview</div>
-				</div>
-				<div v-for="(key, index) in tags" :key="tags[index]" class="tag">
-					<!-- Needs to use $index instead of tag.key to allow for proper key naming/renaming -->
-					<InlineInput
-							class="tag-input"
-							:id="index + '-key-input'"
-							type="text"
-							v-model="tags[index].key"
-							placeholder="Tag name"
-						/>
-					<InlineSelect
-							class="tag-input"
-							:id="index + '-type-selet'"
-							v-model="tags[index].type"
-							:options="valueType"
-						/>
-					<InlineInput
-							class="tag-input tag-input-value"
-							:id="index + '-prod-input'"
-							type="text"
-							v-model="tags[index].prod"
-							placeholder="Prod value"
-						/>
-					<InlineInput
-							class="tag-input tag-input-value"
-							:id="index + '-dev-input'"		
-							type="text"
-							v-model="tags[index].dev"
-							placeholder="Dev value"
-						/>
+				<div class="tabs-container">
+					<div class="tags-header">
+						<div class="tag-header-key">Key</div>
+						<div class="tag-header-type">Type</div>
+						<div class="tag-header-prod">Prod</div>
+						<div class="tag-header-dev">Dev</div>
+						<div class="tag-header-preview">Live Preview</div>
+					</div>
+					<div v-for="(key, index) in tags" :key="tags[index]" class="tag">
+						<!-- Needs to use $index instead of tag.key to allow for proper key naming/renaming -->
+						<InlineInput
+								class="tag-input"
+								:id="index + '-key-input'"
+								type="text"
+								v-model="tags[index].key"
+								placeholder="Tag name"
+							/>
+						<InlineSelect
+								class="tag-input"
+								:id="index + '-type-selet'"
+								v-model="tags[index].type"
+								:options="valueType"
+							/>
 						<InlineInput
 								class="tag-input tag-input-value"
-								:id="index + '-preview-input'"		
+								:id="index + '-prod-input'"
 								type="text"
-								v-model="tags[index].preview"
-								placeholder="Live Preview value"
+								v-model="tags[index].prod"
+								placeholder="Prod value"
 							/>
-					<InlineButton
-							class="remove-tag"
-							id="index + '-remove'"
-							@click="removeTag(index)"
-							text="Remove"
-						/>
+						<InlineInput
+								class="tag-input tag-input-value"
+								:id="index + '-dev-input'"		
+								type="text"
+								v-model="tags[index].dev"
+								placeholder="Dev value"
+							/>
+							<InlineInput
+									class="tag-input tag-input-value"
+									:id="index + '-preview-input'"		
+									type="text"
+									v-model="tags[index].preview"
+									placeholder="Live Preview value"
+								/>
+						<InlineButton
+								class="remove-tag"
+								id="index + '-remove'"
+								@click="removeTag(index)"
+								text="Remove"
+							/>
+					</div>
 				</div>
 			</div>
 			<div class="scrollbar-container">
@@ -276,6 +264,11 @@ onMounted(() => {
 		overflow-x: scroll; /* Force scrollbar to always show */
 		padding-bottom: 12px;
 		scrollbar-width: none;
+	}
+
+	.tabs-container {
+		display: inline-block;
+		min-width: 100%;
 	}
 
 	.scrollbar-container {
@@ -321,7 +314,6 @@ onMounted(() => {
 		border-bottom: 1px solid var(--vscode-panel-border);
 		padding-bottom: 8px;
 		margin-bottom: 8px;
-		width: fit-content;
 	}
 
 	.tag {
@@ -353,7 +345,6 @@ onMounted(() => {
 		margin-top: 12px;
 		width: 250px;
 		max-width: none;
-		position: 
 	}
 
 	/* Container responsiveness */
