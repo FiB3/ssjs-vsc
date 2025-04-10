@@ -129,12 +129,58 @@ window.addEventListener('message', event => {
 	}
 });
 
+window.addEventListener('resize', resizeScrollbar);
+document.addEventListener('DOMContentLoaded', resizeScrollbar);
+
+function resizeScrollbar() {
+	console.log('Window resized');
+	let container = document.querySelector('.tags');
+	let content = document.querySelector('.tags-header');
+	let scrollbar = document.querySelector('.scrollbar-container');
+	let thumb = document.querySelector('.scrollbar-thumb');
+
+
+	// let wholeWidth = content?.offsetWidth;
+	// let scrollbarWidth = scrollbar?.offsetWidth;
+
+	// let thumbWidth = (scrollbarWidth / wholeWidth) * 100;
+
+	// const scrollLeft = container.scrollLeft;
+	// let thumbLeft = scrollLeft / wholeWidth;
+	// 	if (thumbLeft * 100 + thumbWidth > 100) {
+	// 		thumbLeft = 1 - (thumbWidth / 100);
+	// 	}
+
+	// thumb.style.left = `${thumbLeft * 100}%`;
+
+	let containerWidth = container.offsetWidth;
+	let contentWidth = content.offsetWidth;
+	let thumbWidth = (containerWidth / contentWidth) * 100;
+	let thumbWidthPx = Math.floor(containerWidth * thumbWidth / 100);
+
+	const scrollLeft = container.scrollLeft;
+
+	let scrollRatio = scrollLeft / contentWidth;
+	if (scrollRatio * 100 + thumbWidth > 100) {
+		scrollRatio = 1 - (thumbWidth / 100);
+	}
+
+	thumb.style.width = `${thumbWidth > 0 && thumbWidth < 100 ? thumbWidth : 0}%`;
+	thumb.style.left = `${scrollRatio * 100}%`;
+
+	console.log('Thumb width:', Math.round(thumbWidth), '%, from:', thumbWidthPx, 'of:', containerWidth, 'left:', scrollRatio, 'scrollLeft:', scrollLeft);
+}
+
 function emptyfy(value) {
 	return !value || (typeof(value) === 'string' && value.trim() === '') ? false : value;
 }
 
 onMounted(() => {
 	vscode.postMessage({ command: 'templatingInit' });
+	document.querySelector('.tags').addEventListener('scroll', () => {
+		console.log('Scroll event');
+		resizeScrollbar();
+	});
 });
 </script>
 
@@ -205,10 +251,14 @@ onMounted(() => {
 							text="Remove"
 						/>
 				</div>
-				<Button id="addTag" @click="addTag()" text="Add Row" />
 			</div>
+			<div class="scrollbar-container">
+					<div class="scrollbar-track"></div>
+					<div class="scrollbar-thumb"></div>
+				</div>
 
 			<div>
+				<Button id="addTag" @click="addTag()" text="Add Row" />
 				<br/>
 				<Button id="Save" @click="saveTags()" text="Save" />
 				<Status	:id="'templatingStatus'" :ok="templatingStatus.ok" :statusText="templatingStatus.value" />
@@ -221,97 +271,102 @@ onMounted(() => {
 </template>
 
 <style scoped>
-    .tags {
-        min-width: 300px;
-        overflow-x: scroll; /* Force scrollbar to always show */
-        padding-bottom: 12px;
-        scrollbar-width: thin; /* For Firefox */
-        scrollbar-gutter: stable; /* Prevent layout shift */
-    }
+	.tags {
+		min-width: 500px;
+		overflow-x: scroll; /* Force scrollbar to always show */
+		padding-bottom: 12px;
+		scrollbar-width: none;
+	}
 
-    /* Webkit (Chrome, Safari, Edge) scrollbar styling */
-    .tags::-webkit-scrollbar {
-        height: 8px; /* Horizontal scrollbar height */
-        width: 8px; /* Vertical scrollbar width */
-    }
+	.scrollbar-container {
+		position: relative;
+		width: 100%;
+		height: 4px;
+	}
 
-    .tags::-webkit-scrollbar-track {
-        background: var(--vscode-scrollbarSlider-background);
-        border-radius: 4px;
-    }
+	.scrollbar-track {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: fit-content;
+	}
 
-    .tags::-webkit-scrollbar-thumb {
-        background: var(--vscode-scrollbarSlider-hoverBackground);
-        border-radius: 4px;
-    }
+	.scrollbar-thumb {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 0%;
+		height: 4px;
+		background-color: var(--vscode-scrollbarSlider-background, lightgray);
+		border-radius: 4px;
+	}
 
-    .tags::-webkit-scrollbar-thumb:hover {
-        background: var(--vscode-scrollbarSlider-activeBackground);
-    }
+	.tags-header, .tag {
+		display: grid;
+		grid-template-columns: 
+				minmax(120px, 1fr)    /* Key */
+				minmax(100px, 0.75fr) /* Type */
+				minmax(150px, 1.3fr)  /* Prod */
+				minmax(150px, 1.3fr)  /* Dev */
+				minmax(150px, 1.3fr)  /* Preview */
+				minmax(80px, 0.5fr);  /* Remove button */
+		gap: 8px;
+		align-items: center;
+		padding: 4px 0;
+	}
 
-    .tags-header, .tag {
-        display: grid;
-        grid-template-columns: 
-            minmax(120px, 1fr)    /* Key */
-            minmax(100px, 0.75fr) /* Type */
-            minmax(150px, 1.3fr)  /* Prod */
-            minmax(150px, 1.3fr)  /* Dev */
-            minmax(150px, 1.3fr)  /* Preview */
-            minmax(80px, 0.5fr);  /* Remove button */
-        gap: 8px;
-        align-items: center;
-        padding: 4px 0;
-    }
+	.tags-header {
+		font-weight: bold;
+		border-bottom: 1px solid var(--vscode-panel-border);
+		padding-bottom: 8px;
+		margin-bottom: 8px;
+		width: fit-content;
+	}
 
-    .tags-header {
-        font-weight: bold;
-        border-bottom: 1px solid var(--vscode-panel-border);
-        padding-bottom: 8px;
-        margin-bottom: 8px;
-    }
+	.tag {
+		/* Subtle visual separation between rows */
+		padding: 4px 0;
+	}
 
-    .tag {
-        /* Subtle visual separation between rows */
-        padding: 4px 0;
-    }
+	.tag:hover {
+		background-color: var(--vscode-list-hoverBackground);
+	}
 
-    .tag:hover {
-        background-color: var(--vscode-list-hoverBackground);
-    }
+	/* Remove the now redundant width classes */
+	.tag-input, 
+	.tag-header-key, 
+	.tag-header-prod, 
+	.tag-header-dev, 
+	.tag-header-preview,
+	.tag-input-value,
+	.remove-tag,
+	select.tag-input, 
+	.tag-header-type {
+		width: 100%; /* Let grid handle the widths */
+		max-width: none;
+		margin-right: 0;
+	}
 
-    /* Remove the now redundant width classes */
-    .tag-input, 
-    .tag-header-key, 
-    .tag-header-prod, 
-    .tag-header-dev, 
-    .tag-header-preview,
-    .tag-input-value,
-    .remove-tag,
-    select.tag-input, 
-    .tag-header-type {
-        width: 100%; /* Let grid handle the widths */
-        max-width: none;
-        margin-right: 0;
-    }
+	/* Add button styling */
+	a#addTag {
+		margin-top: 12px;
+		width: 250px;
+		max-width: none;
+		position: 
+	}
 
-    /* Add button styling */
-    a#addTag {
-        margin-top: 12px;
-        width: 250px;
-        max-width: none;
-    }
+	/* Container responsiveness */
+	.templating-form {
+		max-width: 100%;
+		overflow-x: auto;
+	}
 
-    /* Container responsiveness */
-    .templating-form {
-        max-width: 100%;
-        overflow-x: auto;
-    }
-
-    /* Optional: Sticky header */
-    .tags-header {
-        position: sticky;
-        top: 0;
-        background-color: var(--vscode-editor-background);
-        z-index: 1;
-    }
+	/* Optional: Sticky header */
+	.tags-header {
+		position: sticky;
+		top: 0;
+		background-color: var(--vscode-editor-background);
+		z-index: 1;
+	}
 </style>
