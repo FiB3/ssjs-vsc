@@ -52,43 +52,6 @@ module.exports = {
 			return { subdomain, clientId, clientSecret, mid };
 		}
 	},
-	/**
-	 * Ask user to confirm, that pre-install setup is done.
-	 */
-	async confirmPreInstallSetup() {
-		let items = [
-			`...run and finished 'SSJS: Create Config' command successfully.`,
-			`...either a valid Cloud Page URL for Dev.`,
-			`...or a valid Text Resource URL for my Dev (or both).`,
-			`...a folder in Content Builder.`
-		];
-		const selected = await vscode.window.showQuickPick(items, {
-			title: `Pre-Install Checklist`,
-			prompt: `Confirm all that you have setup.`,
-			placeHolder: 'I have...',
-			canPickMany: true,
-			ignoreFocusOut: true
-		});
-
-		if (!Array.isArray(selected) || selected.length < 3) {
-			vscode.window.showWarningMessage(`Finish steps to be able to continue. You can see all of them by running "SSJS: Show Setup Walkthrough" command (CTRL/CMD + SHIFT + P).`);
-			return false;
-		} else if (selected.length < items.length) {
-			if (
-				selected.includes(items[0])
-					&& (selected.includes(items[1]) || selected.includes(items[2]))
-					&& selected.includes(items[3])
-			) {
-				return true;
-			}
-			else {
-				vscode.window.showWarningMessage(`You need to finish at least steps 1, 2 and/or 3 & 4. See walkthrough by running command: "SSJS: Show Setup Walkthrough".`);
-				return false;
-			}
-		} else {
-			return true;
-		}
-	},
 
 	/**
 	 * Ask user to pick a folder name for the Dev Folder.
@@ -249,5 +212,24 @@ module.exports = {
 
 	getFriendlyDevContext(devPageContext = 'page') {
 		return devPageContext == 'page' ? 'Cloud Page' : 'Text Resource';
+	},
+
+	async pickCopyCodeEnvironment() {
+		const environments = ['Prod', 'Dev', 'Live Preview'];
+		const selected = await vscode.window.showQuickPick(environments, {
+			title: `Code Environment to build from`,
+			prompt: `Select the environment to build the code from.`,
+			ignoreFocusOut: true
+		});
+		console.log(`Selected:`, selected);
+		if (!selected) { return false; }
+
+		let s = {
+			'Prod': 'prod',
+			'Dev': 'dev',
+			'Live Preview': 'live-preview'
+		}[selected] || 'dev';
+
+		return s;
 	}
 }

@@ -33,6 +33,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.change-script-options', callback: async () => await ext.provider.changeScriptMetadata() },
 		{ name: 'ssjs-vsc.update-any-path', callback: async () => await ext.provider.updateAnyScript() },
 		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl(true) },
+		{ name: 'ssjs-vsc.copy-code', callback: async () => await ext.provider.copyCode() },
 		{ name: 'ssjs-vsc.run', callback: async () => await ext.provider.getDevUrl() },
 		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) },
 		{ name: 'ssjs-vsc.check-any-path', callback: async () => await checkDeployedDevAssets()	},

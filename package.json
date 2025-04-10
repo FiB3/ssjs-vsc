@@ -72,6 +72,11 @@
         "category": "SSJS"
       },
       {
+        "command": "ssjs-vsc.copy-code",
+        "title": "Copy Templated Code",
+        "category": "SSJS"
+      },
+      {
         "command": "ssjs-vsc.run",
         "title": "Run",
         "category": "SSJS",
@@ -144,6 +149,9 @@
         {
           "command": "ssjs-vsc.get-url",
           "when": "ssjs-vsc.codeProvider != 'None'"
+        },
+        {
+          "command": "ssjs-vsc.copy-code"
         },
         {
           "command": "ssjs-vsc.run",

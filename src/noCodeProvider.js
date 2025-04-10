@@ -30,6 +30,10 @@ module.exports = class NoCodeProvider {
 		this._checkCommand();
 	}
 
+	async copyCode() {
+		this._checkCommand();
+	}
+
 	/**
 	 * Upload to dev.
 	 * @param {*} autoUpload true if this was triggered automatically by a file save, false when triggered by a command.

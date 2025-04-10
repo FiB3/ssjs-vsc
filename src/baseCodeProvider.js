@@ -62,12 +62,28 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 	async uploadToProduction() {
 		// base provider will only be able to build to clipboard
 		// other providers will need to have more checks.
-		let scriptText = this.buildScriptText(false);
+		let scriptText = this.buildScriptText('prod');
 		if (scriptText) {
 			vscode.env.clipboard.writeText(scriptText);
 		} else {
 			// script was not uploaded:
 			vscode.window.showWarningMessage(`Script cannot be built for Production! Maybe it's the file format?`);
+		}
+	}
+
+	async copyCode() {
+		let env = await dialogs.pickCopyCodeEnvironment();
+		logger.log(`Copy Code:`, env);
+		if (!env) {
+			vscode.window.showWarningMessage(`No environment selected - code was not copied.`);
+			return;
+		}
+		let scriptText = this.buildScriptText(env);
+		if (scriptText) {
+			vscode.env.clipboard.writeText(scriptText);
+			vscode.window.showInformationMessage(`Code for ${env} environment was copied to clipboard.`);
+		} else {
+			vscode.window.showWarningMessage(`Code was not copied - script was not built.`);
 		}
 	}
 
@@ -162,26 +178,17 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 		return res;
 	}
 
-	buildScriptText(isDev) {
-		const activeTextEditor = vscode.window.activeTextEditor;
+	buildScriptText(env = 'dev') {
+		const filePath = vsc.getActiveEditor();
 
-		if (activeTextEditor) {
-			// Get the URI (Uniform Resource Identifier) of the currently open file
-			const fileUri = activeTextEditor.document.uri;
-			// Convert the URI to a file path
-			const filePath = fileUri.fsPath;
-			
+		if (filePath) {
 			if (!Config.isFileTypeAllowed(filePath, false)) {
 				return false;
 			}
-			let fileText = template.runScriptFile(filePath, this.config, isDev ? 'dev' : 'prod');
+			let fileText = template.runScriptFile(filePath, this.config, env);
 			return fileText;
-
-		} else {
-			logger.log('No file is currently open.');
-			// vscode.window.showErrorMessage('No file is currently open.');
-			return false;
 		}
+		return false;
 	}
 
 	/**
