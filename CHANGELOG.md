@@ -10,6 +10,7 @@ All notable changes to the "ssjs-vsc" extension will be documented here:
 - New templating column for Live Preview.
 - `Copy Templated Code` command. It fills the Mustached content with your tags (of your env) and copies content to clipboard.
 - `Refresh Config` button in Config panel.
+- Automate version in your scripts by simply using `{{VERSION}}`` mustache tag. Date time is used, as biggest use for version in SFMC is to know the time of last deployment.
 
 ### Changed:
 - Visual Improvements to Templating panel.

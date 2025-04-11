@@ -3,6 +3,8 @@ const Pathy = require('./auxi/pathy');
 const textFile = require('./auxi/file');
 const Config = require('./config');
 
+const { format } = require('date-fns');
+
 // no HTML escaping:
 Mustache.escape = function(text) {return text;};
 
@@ -48,19 +50,15 @@ exports.template = {
 		}
 
 		const view = {
+			VERSION: this.getScriptVersion(),
 			...tokens
-			// , VERSION: this.getSsjsVersion(config.devTokens.VERSION)
 		};
 			
 		var html = Mustache.render(htmlTemplate, view, {}, customTags);
 		return html;
 	},
 
-	// getSsjsVersion: function() {
-	// 	// TODO: needs to be improved
-	// 	// when deploying - set date, when previewing set timestamp??
-	// 	return config.automateVersion
-	// 			? 'V.' + moment().format('DD:MM:YYYY-HH:m:s')
-	// 			: '';
-	// }
+	getScriptVersion: function() {
+		return 'V.' + format(new Date(), 'yyyy-MM-dd.HH:mm:ss');
+	}
 }
