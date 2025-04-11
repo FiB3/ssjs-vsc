@@ -202,15 +202,16 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			return;
 		}
 
-		try {
-			this.server = new LivePreview(this.config);
-			await this.server.start();
-			telemetry.log('livePreviewStart');
-		} catch (error) {
-			logger.error('Failed to start Live Preview server:', error);
-			telemetry.error('livePreviewError', { on: 'start', error: error.message });
-			throw error;
-		}
+		this.server = new LivePreview(this.config);
+
+		await this.server.start()
+				.then(() => {
+					telemetry.log('livePreviewStart');
+				})
+				.catch((error) => {
+					telemetry.error('livePreviewError', { on: 'start', error: error.message });
+					vscode.window.showWarningMessage('Live Preview server is not running: ' + error.message);
+				});
 	}
 
 	async stopServer() {

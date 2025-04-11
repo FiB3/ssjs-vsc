@@ -12,6 +12,8 @@ From syntax highlight through rapid testing and preview in VS Code and Cursor.
 - Syntax highlight.
 - SSJS Snippets.
 - Mustache templating of scripts and pages to ensure your env security when using repositories.
+- Live Previvew feature for pure HTML files that includes templating.
+- Configuration Wizard UI.
 
 ### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
@@ -28,11 +30,11 @@ It is managed via `SSJS: Show Config` command and stored in the `.vscode/ssjs-se
 
 You can start using this extension for basic features right away. However in order to use support for rapid Cloud-page development, you must install connection to SFMC. This connection consists of Installed Package, Cloud Page & Text Resource.
 
-You can see a guide using the new `SSJS: Show Config` command for interactive config.
+You can see a guide using the new `SSJS: Show Config` command for interactive wizard. It is really easy!
 
 ## Development
 
-Once your SSJS is Active and Cloud Page published, all you need to do is to create script and upload it to Marketing Cloud:
+Once your SSJS Manager is Active and Cloud Page published, all you need to do is to create script and upload it to Marketing Cloud:
 - First time upload is done via `SSJS: Upload Script to Dev` or cloud icon in top right corner of editor tab.
 - `SSJS: Run` lets your preview your script or opens the script in the browser (depending on your Prefereces).
 - `SSJS: Get Dev Path` command will give you the deployed URL.
@@ -43,6 +45,13 @@ Once your SSJS is Active and Cloud Page published, all you need to do is to crea
 
 To be run using `Ctrl` + `Shift` + `P` (Win) / `CMD` + `Shift` + `P` (Mac) / F1.
 The list of all commands can be seen in the `Extensions > SSJS Manager > Features > Comnands`. 
+
+### Live Preview
+
+Sometimes you might want to develop your page locally, without SFMC Engagement and might need templating.
+Enter Live Preview.
+
+![SSJS Manager Live Preview](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/live-preview-demo.gif)
 
 ### Hooks
 
@@ -64,6 +73,10 @@ This option allows setting `on-save` hooks for files so you can run specific com
 }
 ```
 
+## Telemetry
+
+This extension is collecting some telemetry in order to allow for future improvements and bugfixes.  
+
 ## Sponsors
 
 I would like to thank my sponsors:
@@ -71,11 +84,8 @@ I would like to thank my sponsors:
 [![FLO](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/flo.png "FLO Logo")](https://www.weareflo.com/)  
 (former bluez.io)
 
-Sponsoring coming soon! For now please enjoy and share!
+Let me know, if you would like to sponsor me.
 
-## Telemetry
-
-This extension is collecting some telemetry in order to allow for future improvements and bugfixes.  
 No personal information, API Keys nor script content is collected and VSCode overall telemetry opt-out is honored.
 
 ## Known Issues

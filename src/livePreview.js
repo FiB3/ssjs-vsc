@@ -57,8 +57,18 @@ class LivePreview {
 					this.running = true;
 					serverStatus.show(this.port);
 					resolve();
+				})
+				.on('error', (error) => {
+					logger.error('Failed to start Live Preview server:', error);
+					if (error.code === 'EADDRINUSE') {
+						reject({ message: 'Port ' + this.port + ' is already in use. Please, try another one.' });
+					} else {
+						reject(error);
+					}
 				});
+
 			} catch (error) {
+				logger.error('Failed to start Live Preview server:', error);
 				reject(error);
 			}
 		});
