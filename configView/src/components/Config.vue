@@ -318,20 +318,20 @@ function emptyfy(value) {
 						<div class="hint">
 							<p>
 								We require your Salesforce Marketing Cloud API keys for account connection.
-								<p>
-									To obtain your API keys, create a new installed package in your SFMC account.
-								</p>
+								<br/>
+								To obtain your API keys, create a new installed package in your SFMC account.
+								<br/>
 								We suggest creating a new package for each developer.
 								<br/>
 								The Installed Package should be of Server-to-Server type.
 								<br/>
 								The minimum required scopes (currently) are:
-								<ul>
-									<li>Email: write</li>
-									<li>Saved Content: write</li>
-									<li>Documents and Images: read & write</li>
-								</ul>
 							</p>
+							<ul>
+								<li>Email: write</li>
+								<li>Saved Content: write</li>
+								<li>Documents and Images: read & write</li>
+							</ul>
 
 							<!-- <div class="lock"></div> -->
 							<p>
@@ -522,11 +522,11 @@ function emptyfy(value) {
 							You can access the content in the following files or via buttons below.
 							<br/>
 							Once the content is filled, publish both. Your task is almost done!
-							<ul>
-								<li>./vscode/deploy.me.page.ssjs</li>
-								<li>./vscode/deploy.me.text.ssjs</li>
-							</ul>
 						</p>
+						<ul>
+							<li>./vscode/deploy.me.page.ssjs</li>
+							<li>./vscode/deploy.me.text.ssjs</li>
+						</ul>
 					</div>
 					<div>
 						<Button id="getCloudPageCode" @click="copyResourceCode('page')" text="Get Cloud Page Code" />
