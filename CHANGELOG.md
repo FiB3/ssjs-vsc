@@ -1,6 +1,6 @@
 # Change Log
 
-All notable changes to the "ssjs-vsc" extension will be documented in this file.
+All notable changes to the "ssjs-vsc" extension will be documented here:
 
 ## [0.6.9] - 2025-03-19
 

@@ -1,4 +1,5 @@
 const vscode = require('vscode');
+const { marked } = require('marked');
 
 const Config = require('../config');
 let file = require('../auxi/file');
@@ -64,6 +65,9 @@ async function showConfigPanel(context) {
 					return;
 				case 'getStats':
 					handleGetStats(panel);
+					return;
+				case 'loadChangelog':
+					loadChangelog(panel);
 					return;
 			}
 		},
@@ -376,6 +380,18 @@ function handleTemplatingTags(panel, message) {
 	telemetry.log(`templatingTagsSet`, {}, { count: message.tags?.length || -1 });
 	// trigger templating tags update: (via init)
 	getTemplatingTags(panel, message, true);
+}
+
+function loadChangelog(panel) {
+	let changelog = file.load(Pathy.joinToSource(`./CHANGELOG.md`));
+	let html = marked.parse(changelog);
+
+	panel.webview.postMessage({
+		command: 'changelogLoaded',
+		changelog: html
+	});
+
+	telemetry.log(`changelogLoaded`, {});
 }
 
 module.exports = {

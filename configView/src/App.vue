@@ -77,6 +77,13 @@ onMounted(() => {
 		}
 	});
 })
+
+function goToChangelog() {
+	currentTab.value = 'changelog';
+	vscode.postMessage({
+		command: 'loadChangelog'
+	});
+}
 </script>
 
 <template>
@@ -108,7 +115,7 @@ onMounted(() => {
 				<button
 					class="tab"
 					:class="{ 'tab-selected': currentTab === 'changelog' }"
-					@click="currentTab = 'changelog'"
+					@click="goToChangelog()"
 				>
 					Latest Changes
 				</button>
