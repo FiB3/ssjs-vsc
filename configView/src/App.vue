@@ -4,7 +4,8 @@ import Config from './components/Config.vue'
 import Templating from './components/Templating.vue'
 import Changelog from './components/Changelog.vue'
 
-let currentTab = ref('config')
+let currentTab = ref('config');
+let reloadActive = ref(false);
 let autoOpenEnabled = ref(false)
 let vscode;
 setVsCodeReference();
@@ -40,6 +41,17 @@ function autoShowSwitch() {
 	});
 }
 
+function reloadConfig() {
+	vscode.postMessage({
+		command: 'reloadConfig'
+	});
+
+	reloadActive.value = true;
+	setTimeout(() => {
+		reloadActive.value = false;
+	}, 1000);
+}
+
 onMounted(() => {
 	vscode.postMessage({
 		command: 'initialized'
@@ -73,6 +85,9 @@ onMounted(() => {
 			<div class="header-content">
 				<img src="https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/logo.v1.2.png" class="header-icon" />
 				<h1 class="header-title">SSJS Manager</h1>
+				<button :class="{ 'refresh-button': true, 'active': reloadActive }" @click="reloadConfig">
+					<span class="gg-sync" title="Refresh Config"></span>
+				</button>
 			</div>
 
 			<nav class="tab-nav">
@@ -146,6 +161,7 @@ onMounted(() => {
 	.header-content {
 		display: flex;
 		align-items: center;
+		justify-content: space-between;
 	}
 
 	.header-icon {
@@ -155,6 +171,19 @@ onMounted(() => {
 
 	.header-title {
 		margin-left: 10px;
+		flex-grow: 1;
+	}
+
+	.refresh-button {
+		background: transparent;
+		border: none;
+		cursor: pointer;
+		padding: 5px;
+		margin-right: 10px;
+	}
+
+	.refresh-button:hover {
+		opacity: 0.8;
 	}
 
 	.tab-nav {
@@ -267,5 +296,60 @@ onMounted(() => {
 		6px -2px 0,
 		6px 2px 0,
 		6px 6px 0
+	}
+
+	.gg-sync {
+		box-sizing: border-box;
+		position: relative;
+		display: block;
+		transform: scale(var(--ggs, 1));
+		border-radius: 40px;
+		border: 2px solid;
+		margin: 1px;
+		border-left-color: transparent;
+		border-right-color: transparent;
+		width: 18px;
+		height: 18px;
+	}
+	.gg-sync::after,
+	.gg-sync::before {
+		content: "";
+		display: block;
+		box-sizing: border-box;
+		position: absolute;
+		width: 0;
+		height: 0;
+		border-top: 4px solid transparent;
+		border-bottom: 4px solid transparent;
+		transform: rotate(-45deg);
+	}
+	.gg-sync::before {
+		border-left: 6px solid;
+		bottom: -1px;
+		right: -3px;
+	}
+	.gg-sync::after {
+		border-right: 6px solid;
+		top: -1px;
+		left: -3px;
+	}
+
+	.gg-sync:hover {
+		opacity: 0.8;
+		cursor: pointer;
+		transition: opacity 0.3s ease;
+		transform: scale(1.1);
+	}
+
+	.refresh-button.active .gg-sync {
+		transform: rotate(-180deg);
+		transition: transform 0.6s ease;
+		animation: rotate 1s linear infinite;
+	}
+
+	@keyframes rotate {
+		0% {
+			transform: rotate(0deg);
+		}
 	}
 </style>

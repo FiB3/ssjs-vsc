@@ -28,6 +28,10 @@ async function showConfigPanel(context) {
 				case 'initialized':
 					await handleInit(panel, getView);
 					return;
+				case 'reloadConfig':
+					await reloadConfig(panel, message, getView);
+					logger.log(`BE: reloadConfig`);
+					return;
 				case 'testConfigufation':
 					testConfigurations(panel);
 					return;
@@ -88,6 +92,16 @@ async function handleInit(panel, getViewFunc) {
 		anyScriptsDeployed: conf.anyScriptsDeployed,
 		devRead: conf.anyScriptsDeployed
 	});
+}
+
+async function reloadConfig(panel, message, getViewFunc) {
+	ext.config.loadConfig();
+	let conf = await getViewFunc();
+	panel.webview.postMessage({
+		command: 'init',
+		...conf
+	});
+	getTemplatingTags(panel, message, true);
 }
 
 async function testConfigurations(panel) {
