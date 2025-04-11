@@ -2,6 +2,25 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.7.0] - 2025-04-11
+
+### Added:
+- __Live Preview__: this handy feature allows you to test frontend directly on your laptop, without upload to SFMC - Templating included. Handy for pages that use APIs to access SFMC functionality.
+- Commands: `Live Preview Start`, `Stop` & `Get Live Preview URL`.
+- New templating column for Live Preview.
+- `Copy Templated Code` command. It fills the Mustached content with your tags (of your env) and copies content to clipboard.
+- `Refresh Config` button in Config panel.
+
+### Changed:
+- Visual Improvements to Templating panel.
+- Latest Changes (in Config panel) are now showing `Changelog`.
+- Internal refactors, some unit tests.
+
+### Removed:
+- Poor Server Provider. But who used it anyway?
+- `Start` and `Stop` commands.
+- Create config commands: Create Config, Update Config, Deploy Any Path. _Config_ Panel is the way to go.
+
 ## [0.6.9] - 2025-03-19
 
 ### Added:
