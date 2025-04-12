@@ -3,19 +3,55 @@ const path = require('path');
 // Create the mock VSCode API
 const vscode = {
 	workspace: {
-		workspaceFolders: [{
-			uri: {
-				fsPath: path.join(__dirname, '../unitTests/test-workspace')
+			workspaceFolders: [{
+					uri: {
+							fsPath: path.join(__dirname, '../unitTests/test-workspace')
+					}
+			}]
+	},
+	window: {
+			createOutputChannel: (channel) => {
+					const outputLog = {
+							messages: [],
+							visible: false
+					};
+					
+					return {
+							show: () => {
+									outputLog.visible = true;
+							},
+							hide: () => {
+									outputLog.visible = false;
+							},
+							clear: () => {
+									outputLog.messages = [];
+							},
+							appendLine: (message) => {
+									outputLog.messages.push({
+											channel,
+											message,
+											timestamp: new Date()
+									});
+							},
+							dispose: () => {
+									outputLog.messages = [];
+									outputLog.visible = false;
+							},
+							// Test helper methods
+							getOutput: () => outputLog.messages,
+							isVisible: () => outputLog.visible,
+							getLastMessage: () => outputLog.messages[outputLog.messages.length - 1],
+							getMessageCount: () => outputLog.messages.length
+					};
 			}
-		}]
 	},
 	Uri: {
-		file: (path) => ({ fsPath: path })
+			file: (path) => ({ fsPath: path })
 	},
 	ExtensionMode: {
-		Production: 1,
-		Development: 2,
-		Workspace: 3
+			Production: 1,
+			Development: 2,
+			Workspace: 3
 	}
 };
 

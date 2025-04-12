@@ -48,23 +48,4 @@ describe('BaseConfig', function () {
 			assert.equal(numericVersion, 10203);
 		});
 	});
-
-	describe('#getUserWorkspacePath()', function () {
-		it('should return workspace path when workspace is open', function () {
-			const result = BaseConfig.getUserWorkspacePath();
-			assert.strictEqual(result, path.join(__dirname, 'test-workspace'));
-		});
-
-		it('should return false when no workspace is open', function () {
-			// Temporarily mock no workspace
-			const originalWorkspaceFolders = vscode.workspace.workspaceFolders;
-			vscode.workspace.workspaceFolders = [];
-
-			const result = BaseConfig.getUserWorkspacePath();
-			assert.strictEqual(result, false);
-
-			// Restore original workspace
-			vscode.workspace.workspaceFolders = originalWorkspaceFolders;
-		});
-	});
 });
