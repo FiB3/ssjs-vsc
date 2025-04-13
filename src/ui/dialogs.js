@@ -221,7 +221,6 @@ module.exports = {
 			prompt: `Select the environment to build the code from.`,
 			ignoreFocusOut: true
 		});
-		console.log(`Selected:`, selected);
 		if (!selected) { return false; }
 
 		let s = {

@@ -13,7 +13,7 @@ const SourceCode = require('../../src/code/sourceCode');
 describe('SourceCode', function () {
     const testWorkspacePath = path.join(__dirname, 'test-workspace');
     const testFilePath = 'test.js';
-    const testContent = 'console.log("test");';
+    const testContent = 'console.test("test");';
 
     before(() => {
         // Create test workspace directory

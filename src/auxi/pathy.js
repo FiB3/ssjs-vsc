@@ -15,7 +15,6 @@ class Pathy {
     if (!workspaceFolder) {
         return false;
     }
-    // console.log('Pathy.getWorkspacePath():', workspaceFolder);
     return workspaceFolder.uri.fsPath;
   }
 
@@ -26,7 +25,6 @@ class Pathy {
    * @returns {string} joined path.
    */
   static join(...args) {
-    // console.log('pathy.join:', args, '=>', args[0]);
     let firstArg = args[0];
     if (typeof firstArg !== 'string' && !firstArg?.fsPath) {
       throw new Error(`First argument must be a string or a VSCode URI, not: ${typeof firstArg} /`, firstArg);
