@@ -105,6 +105,11 @@ async function registerFileActions() {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		let filePath = textDocument.uri.fsPath;
 
+		// Trigger reload for live preview if server is running
+		if (ext.provider.server?.running) {
+			ext.provider.server.notifyClientsToReload();
+		}
+
 		if (!Config.isWorkspaceSet()) {
 			vscode.window.showWarningMessage(`It seems you are not using workspaces! To use full potential of this extension, please, open a folder and run command: "SSJS: Show Setup Walkthrough".`);
 			ext.deactivateProviders({});

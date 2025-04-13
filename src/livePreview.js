@@ -8,6 +8,7 @@ const fs = require('fs');
 const Config = require('./config');
 const serverStatus = require('./ui/serverStatusBar');
 const telemetry = require('./telemetry');
+const WebSocket = require('ws');
 
 const CONTENT_TYPES_TEMPLATABLE = {
 	// Templates:
@@ -24,7 +25,7 @@ const CONTENT_TYPES_TEMPLATABLE = {
 
 const CONTENT_TYPES_TO_SEND = {
 	// Images
-	// '.png': 'image/png',
+	'.png': 'image/png',
 	'.jpg': 'image/jpeg',
 	'.jpeg': 'image/jpeg',
 	'.gif': 'image/gif',
@@ -58,6 +59,7 @@ class LivePreview {
 		this.running = false;
 		this.server = null;
 		this.app = null;
+		this.wss = null;
 	}
 
 	async start() {
@@ -81,6 +83,11 @@ class LivePreview {
 				// Start server
 				this.port = this.config.getHostPort();
 				this.server = this.app.listen(this.port, () => {
+					// Setup WebSocket server
+					if (Config.reloadLivePreviewOnSave()) {
+						this.wss = new WebSocket.Server({ server: this.server });
+					}
+					
 					logger.log(`===== Live Preview Server listening on: localhost:${this.port} =====`);
 					this.running = true;
 					serverStatus.show(this.port);
@@ -109,6 +116,12 @@ class LivePreview {
 				return;
 			}
 
+			// Close WebSocket server if it exists
+			if (this.wss) {
+				this.wss.close();
+				this.wss = null;
+			}
+
 			this.server.close((error) => {
 				if (error) {
 					reject(error);
@@ -132,11 +145,25 @@ class LivePreview {
 				let html = template.runScriptFile(pth, this.config, 'live-preview');
 				res.setHeader('Content-Type', CONTENT_TYPES_TEMPLATABLE[ext]);
 				telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
+
+				if (ext === '.html' && Config.reloadLivePreviewOnSave()) {
+					const wsClientScript = `
+						<script>
+							const ws = new WebSocket('ws://localhost:${this.config.getHostPort()}');
+							ws.onmessage = function(event) {
+								if (event.data === 'reload') {
+									window.location.reload();
+								}
+							};
+						</script>
+					`;
+					html = html.replace('</body>', `${wsClientScript}</body>`);
+				}
+
 				res.status(200).send(html);
 			} else if (CONTENT_TYPES_TO_SEND[ext]) {
 				const imageBuffer = fs.readFileSync(pth);
 				res.setHeader('Content-Type', CONTENT_TYPES_TO_SEND[ext]);
-				telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
 				res.status(200).send(imageBuffer);
 			} else {
 				res.status(415).send({
@@ -154,6 +181,17 @@ class LivePreview {
 		const relativePath = path.relative(publicPath, filePath);
 		// relativePath = relativePath.startsWith('/') ? relativePath.substring(1) : relativePath;
 		return `${this.config.getServerInfo().serverUrl}/${relativePath}`;
+	}
+
+	// Method to notify clients to reload
+	notifyClientsToReload() {
+		if (this.wss) {
+			this.wss.clients.forEach((client) => {
+				if (client.readyState === WebSocket.OPEN) {
+					client.send('reload');
+				}
+			});
+		}
 	}
 
 	_authenticate(req, res, next) {

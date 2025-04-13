@@ -118,6 +118,10 @@ module.exports = class Preferences extends BaseConfig {
 		await vscode.workspace.getConfiguration('ssjs-vsc.editor').update('showConfigPanelAutomatically', newValue, true)
 	}
 
+	static reloadLivePreviewOnSave() {
+		return vscode.workspace.getConfiguration('ssjs-vsc.livePreview').get('reloadOnSave') ?? true;
+	}
+
 	static getTemplatingTags() {
 		let stp = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('templatingTags') ?? '{{,}}';
 		return stp.split(',');

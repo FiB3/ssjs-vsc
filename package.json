@@ -261,6 +261,11 @@
           "patternErrorMessage": "2 or 3 characters, only: `{}%<>[]` are allowed. Separate using a comma. No spaces.",
           "description": "Set Templating Tags for Mustache. Opening and closing tag separated with a single comma."
         },
+        "ssjs-vsc.livePreview.reloadOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Reload the live preview when the script is saved. Restart the Live Preview to apply this setting."
+        },
         "ssjs-vsc.language.ampscript.capitalizeKeywords": {
           "type": "boolean",
           "default": true,
@@ -417,6 +422,7 @@
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
     "marked": "^15.0.8",
-    "mocha": "^10.2.0"
+    "mocha": "^10.2.0",
+    "ws": "^8.18.1"
   }
 }
