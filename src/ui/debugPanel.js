@@ -91,7 +91,7 @@ async function showDebug(pageData, devPageContext) {
 }
 
 function loadScript(pageData) {
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'loadScript',
 		...pageData,
 		hash: md5(`${pageData.username}:${pageData.password}`)
@@ -99,7 +99,7 @@ function loadScript(pageData) {
 }
 
 function refreshDebug() {
-	panel.webview.postMessage({ command: 'refresh' });
+	postMessage(panel, { command: 'refresh' });
 }
 
 function getWebviewContent(devUrl, devPageContext) {
@@ -153,7 +153,7 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 	let t1 = new Date();
 	logger.log('loadScriptOutput:', result);
 
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'loadScript',
 		status: result.status,
 		headers: result.headers,
@@ -169,13 +169,21 @@ function ensureVisible() {
 }
 
 function triggerRefreshActions() {
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'refreshActions'
 	});
 }
 
 function isTextPageContext(devPageContext) {
 	return devPageContext === 'text';
+}
+
+function postMessage(panel, message) {
+	if (panel) {
+		panel.webview.postMessage(message);
+	} else {
+		logger.warn('postMessage: panel is undefined/disposed.');
+	}
 }
 
 module.exports = {
