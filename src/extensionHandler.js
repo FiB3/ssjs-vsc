@@ -3,6 +3,7 @@ const axios = require('axios');
 let md5 = require('md5');
 
 const Config = require('./config');
+const ContextHolder = require('./config/contextHolder');
 const Pathy = require('./auxi/pathy');
 const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
@@ -22,17 +23,15 @@ class ExtensionHandler {
 		this.hooks;
 	}
 
-	attachContext(context) {
-		this.context = context;
+	init() {
 		this.statusBar = statusBar;
-		this.statusBar.create(context, this.config);
-
-		serverStatusBar.create(context, this.config);
+		this.statusBar.create(this.config);
+		serverStatusBar.create(this.config);
 	}
 
 	async activateAssetProvider(testApiKeys) {
 		logger.log(`Activating Asset Provider...`);
-		this.provider = new AssetCodeProvider(this.config, this.statusBar, this.context);
+		this.provider = new AssetCodeProvider(this.config, this.statusBar);
 		await this.provider.init(testApiKeys);
 	}
 	
@@ -74,8 +73,8 @@ class ExtensionHandler {
 		return true;
 	}
 
-	async loadConfiguration(context) {
-		this.config = new Config(context);
+	async loadConfiguration() {
+		this.config = new Config();
 
 		if (!Config.configFileExists()) {
 			logger.log(`Setup file does not exists - creating empty.`);

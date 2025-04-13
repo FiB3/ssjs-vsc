@@ -1,4 +1,6 @@
 const vscode = require('vscode');
+
+const ContextHolder = require('../config/contextHolder');
 const logger = require('../auxi/logger');
 
 class ServerStatusBar {
@@ -6,9 +8,9 @@ class ServerStatusBar {
 		this.statusBar = null;
 	}
 
-	create(context) {
+	create() {
 		this.statusBar = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-		context.subscriptions.push(this.statusBar);
+		ContextHolder.getContext().subscriptions.push(this.statusBar);
 		this.hide(); // Initially hidden
 	}
 

@@ -5,12 +5,15 @@ const { describe, it, before, after } = require('mocha');
 
 // Set up VSCode mock before requiring any modules
 const { setupVSCodeMock, vscode } = require('../mocks/vscode');
-setupVSCodeMock();
+setupVSCodeMock({ env: 'Development' });
 
 // Now we can require the module
 const Pathy = require('../../src/auxi/pathy');
+const ContextHolder = require('../../src/config/contextHolder');
 
 describe('Pathy', () => {
+	mockContext = new vscode.ExtensionContext();
+	ContextHolder.init(mockContext);
 	const testDir = path.join(__dirname, 'test-files');
 	const testFilePath = path.join(testDir, 'test.txt');
 	const mockWorkspacePath = path.join(__dirname, 'test-workspace');

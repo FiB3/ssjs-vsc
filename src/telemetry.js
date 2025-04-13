@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const TelemetryReporter = require('@vscode/extension-telemetry').default;
+const ContextHolder = require('./config/contextHolder');
 const logger = require('./auxi/logger');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
@@ -17,14 +18,13 @@ class TelemetryHandler {
 	}
 
 	/**
-	 * One time set of context and dev mode.
-	 * @param {Object} context
+	 * One time initialization of the telemetry handler.
 	 */
-	init(context) {
+	init() {
 		if (this.reporter) {
-			context.subscriptions.push(this.reporter);
+			ContextHolder.getContext().subscriptions.push(this.reporter);
 		}
-		this.isProd = context.extensionMode === vscode.ExtensionMode.Production;
+		this.isProd = ContextHolder.isProduction();
 		logger.debug(`Telemetry logging in Prod mode: ${this.isProd}, logging OFF: ${TELEMETRY_DEV_OFF}`);
 	}
 

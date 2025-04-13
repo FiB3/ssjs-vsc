@@ -1,7 +1,7 @@
 const path = require('path');
 const fs = require('fs');
 const vscode = require('vscode');
-
+const ContextHolder = require('../config/contextHolder');
 /**
  * Pathy class to handle path operations.
  */
@@ -81,7 +81,7 @@ class Pathy {
 	 * @returns {string} Path to the main folder of the extension.
 	 */
   static getExtensionSourceFolder() {
-    return path.join(__dirname, '../..');
+    return ContextHolder.getContext().extensionUri.fsPath;
   }
 
   static getPackageJson() {

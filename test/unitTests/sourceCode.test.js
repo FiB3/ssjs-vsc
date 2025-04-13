@@ -5,7 +5,7 @@ const fs = require('fs');
 
 // Set up VSCode mock before requiring any modules
 const { setupVSCodeMock, vscode } = require('../mocks/vscode');
-setupVSCodeMock();
+setupVSCodeMock({ env: 'Development' });
 
 // Now we can require the module
 const SourceCode = require('../../src/code/sourceCode');

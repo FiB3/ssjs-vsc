@@ -1,15 +1,15 @@
 const generator = require('generate-password');
 
 const Preferences = require('./config/preferences');
+const ContextHolder = require('./config/contextHolder');
 const checks = require('./checks');
 const logger = require('./auxi/logger');
 const Pathy = require('./auxi/pathy');
 
 module.exports = class Config extends Preferences {
 
-	constructor(context) {
+	constructor() {
 		super();
-		this.context = context;
 	}
 
 	/**
@@ -130,7 +130,7 @@ module.exports = class Config extends Preferences {
 		}
 
 		let SECRET_NAME = `ssjs-vsc.${clientId}`;
-		let clientSecret = await this.context.secrets.get(SECRET_NAME);
+		let clientSecret = await ContextHolder.getContext().secrets.get(SECRET_NAME);
 		
 		SECRET_NAME = SECRET_NAME.substring(0, 13) + '...';
 		if (!clientSecret) {
@@ -226,7 +226,7 @@ module.exports = class Config extends Preferences {
 	 * Store SFMC Client Secret to VSCode key vault.
 	 */
 	async storeSfmcClientSecret(clientId, clientSecret) {
-		await this.context.secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
+		await ContextHolder.getContext().secrets.store(`ssjs-vsc.${clientId}`, clientSecret);
 		logger.log(`Credentials stored.`);
 	}
 

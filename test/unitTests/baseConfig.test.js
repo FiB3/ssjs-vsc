@@ -5,10 +5,11 @@ const fs = require('fs');
 
 // Set up VSCode mock before requiring any modules
 const { setupVSCodeMock, vscode } = require('../mocks/vscode');
-setupVSCodeMock();
+setupVSCodeMock({ env: 'Development' });
 
 // Now we can require the module
 const BaseConfig = require('../../src/config/baseConfig');
+const ContextHolder = require('../../src/config/contextHolder');
 
 describe('BaseConfig', function () {
 	before(() => {
@@ -17,6 +18,7 @@ describe('BaseConfig', function () {
 		if (!fs.existsSync(testWorkspacePath)) {
 			fs.mkdirSync(testWorkspacePath, { recursive: true });
 		}
+		ContextHolder.init(new vscode.ExtensionContext());
 	});
 
 	after(() => {

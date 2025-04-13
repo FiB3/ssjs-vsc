@@ -1,15 +1,16 @@
 const { logger } = require('./logger');
+const ContextHolder = require('../config/contextHolder');
 
 const CACHE_NAME = 'ssjs-vsc:stats';
 
 class Stats {
 	constructor() {
-		this.context;
-		this.state;
+		this.context = null;
+		this.state = null;
 	}
 
-	init(context) {
-		this.context = context;
+	init() {
+		this.context = ContextHolder.getContext();
 		this.state = this.context.workspaceState.get(CACHE_NAME, {
 				apiCalls: 0,
 				createdDate: new Date().toISOString()

@@ -2,6 +2,7 @@ const vscode = require('vscode');
 
 const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
+const ContextHolder = require('./src/config/contextHolder');
 const logger = require('./src/auxi/logger');
 const telemetry = require('./src/telemetry');
 const stats = require('./src/auxi/stats');
@@ -17,16 +18,18 @@ let ext = require('./src/extensionHandler');
  * @param {vscode.ExtensionContext} context
  */
 async function activate(context) {
-	logger.setup(context.extensionMode === vscode.ExtensionMode.Production ? 'INFO' : 'DEBUG');
-	logger.info(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
-	ext.attachContext(context);
+	ContextHolder.init(context);
 
-	telemetry.init(context);
-	stats.init(context);
+	logger.setup(ContextHolder.isProduction() ? 'INFO' : 'DEBUG');
+	logger.info(`ssjs-vsc @ ${Config.getExtensionVersion()} is starting!`);
+	
+	ext.init();
+	telemetry.init();
+	stats.init();
 
 	registerFormatters();
 
-	registerCommands(context, [
+	registerCommands([
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
 		{ name: 'ssjs-vsc.upload-script', callback: async () => await ext.uploadScript() },
 		{ name: 'ssjs-vsc.get-standalone-script', callback: async () => await ext.provider.getStandaloneScript() },
@@ -35,7 +38,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.get-url', callback: async () => await ext.provider.getDevUrl(true) },
 		{ name: 'ssjs-vsc.copy-code', callback: async () => await ext.provider.copyCode() },
 		{ name: 'ssjs-vsc.run', callback: async () => await ext.provider.getDevUrl() },
-		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel(context) },
+		{ name: 'ssjs-vsc.show-config', callback: async () => await showConfigPanel() },
 		{ name: 'ssjs-vsc.check-any-path', callback: async () => await checkDeployedDevAssets()	},
 		{ name: 'ssjs-vsc.start', callback: async () => await ext.provider.startServer() },
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
@@ -46,13 +49,13 @@ async function activate(context) {
 	let workspaceOk = await ext.workspaceOk();
 	logger.debug(`Workspace is ok: ${workspaceOk}.`);
 	if (!workspaceOk) {
-		await launchConfigPanel(context);
+		await launchConfigPanel();
 		return;
 	}
 	// IF WORKSPACE EXISTS:
-	let configOk = await ext.loadConfiguration(context);
+	let configOk = await ext.loadConfiguration();
 	if (!configOk) {
-		await launchConfigPanel(context);
+		await launchConfigPanel();
 	}
 	
 	await ext.pickCodeProvider(true, true);
@@ -62,12 +65,12 @@ async function activate(context) {
 	}
 
 	watchForConfigurationChanges();
-	registerFileActions(context);
+	registerFileActions();
 }
 
-async function launchConfigPanel(context) {
+async function launchConfigPanel() {
 	if (Config.showPanelAutomatically()) {
-		await showConfigPanel(context);
+		await showConfigPanel();
 	}
 }
 
@@ -91,14 +94,14 @@ function watchForConfigurationChanges() {
 	});
 }
 
-function registerCommands(context, commands) {
+function registerCommands(commands) {
 	commands.forEach(({ name, callback }) => {
 		const command = vscode.commands.registerCommand(name, callback);
-		context.subscriptions.push(command);
+		ContextHolder.getContext().subscriptions.push(command);
 	});
 }
 
-async function registerFileActions(context) {
+async function registerFileActions() {
 	const onSaveFile = vscode.workspace.onDidSaveTextDocument(async (textDocument) => {
 		let filePath = textDocument.uri.fsPath;
 
@@ -119,7 +122,7 @@ async function registerFileActions(context) {
 			}
 		}
 	});
-	context.subscriptions.push(onSaveFile);
+	ContextHolder.getContext().subscriptions.push(onSaveFile);
 }
 
 function registerFormatters() {

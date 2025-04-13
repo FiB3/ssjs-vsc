@@ -2,6 +2,7 @@ const vscode = require('vscode');
 const { marked } = require('marked');
 
 const Config = require('../config');
+const ContextHolder = require('../config/contextHolder');
 let file = require('../auxi/file');
 let McClient = require('../sfmc/mcClient');
 let ext = require('../extensionHandler');
@@ -10,7 +11,7 @@ let stats = require('../auxi/stats');
 let logger = require('../auxi/logger');
 const Pathy = require('../auxi/pathy');
 
-async function showConfigPanel(context) {
+async function showConfigPanel() {
 	const getView = getConfigPanelInfo;
 	const panel = vscode.window.createWebviewPanel(
 		'setup', // Identifies the type of the webview. Used internally
@@ -72,10 +73,10 @@ async function showConfigPanel(context) {
 			}
 		},
 		undefined,
-		context.subscriptions
+		ContextHolder.getContext().subscriptions
 	);
 
-	panel.webview.html = getWebviewContent(panel.webview, context.extensionUri);
+	panel.webview.html = getWebviewContent(panel.webview);
 }
 
 async function handleInit(panel, getViewFunc) {
@@ -268,9 +269,9 @@ function handleGetStats(panel) {
 	});
 }
 
-function getWebviewContent(webview, extensionUri) {
-	const scriptUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'configView', 'dist', 'main.js'));
-	const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'configView', 'dist', 'main.css'));
+function getWebviewContent(webview) {
+	const scriptUri = webview.asWebviewUri(vscode.Uri.file(Pathy.joinToSource('configView', 'dist', 'main.js')));
+	const styleUri = webview.asWebviewUri(vscode.Uri.file(Pathy.joinToSource('configView', 'dist', 'main.css')));
 	
 	let html = `
 		<!DOCTYPE html>

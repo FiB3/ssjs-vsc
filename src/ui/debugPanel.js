@@ -5,6 +5,7 @@ let axios = require('axios');
 
 let { template } = require('../template');
 const Config = require('../config');
+const ContextHolder = require('../config/contextHolder');
 const Pathy = require('../auxi/pathy');
 const logger = require('../auxi/logger');
 
@@ -26,10 +27,9 @@ const TEXT_PANEL_PATH = 'templates/debugTextPanel.html';
 
 /**
  * Run Debug panel for both text and page context.
- * @param {*} context 
  * @param {*} pageData 
  */
-async function runDebug(context, pageData, devPageContext = 'page') {
+async function runDebug(pageData, devPageContext = 'page') {
 	if (!!panelState.devPageContext && panelState.isNewDevPageContext(devPageContext)) {
 		logger.log('New devPageContext:', devPageContext, panelState.devPageContext);
 		panel.dispose();
@@ -38,7 +38,7 @@ async function runDebug(context, pageData, devPageContext = 'page') {
 
 	if (!panel) {
 		logger.log('Creating new Debug panel...');
-		showDebug(context, pageData, devPageContext);
+		showDebug(pageData, devPageContext);
 	} else {
 		logger.log(`Refreshing Debug panel... context: ${devPageContext}, isTextContext: ${isTextPageContext(devPageContext)}. Panel:`, panel);
 		ensureVisible();
@@ -52,7 +52,7 @@ async function runDebug(context, pageData, devPageContext = 'page') {
 	}
 }
 
-async function showDebug(context, pageData, devPageContext) {
+async function showDebug(pageData, devPageContext) {
 	panel = vscode.window.createWebviewPanel(
 		'debug', // Identifies the type of the webview. Used internally
 		'SFMC Preview', // Title of the panel displayed to the user
@@ -60,7 +60,7 @@ async function showDebug(context, pageData, devPageContext) {
 		{
 			enableScripts: true,
 			retainContextWhenHidden: true,
-			localResourceRoots: [vscode.Uri.file(Pathy.join(context.extensionPath, 'node_modules'))],
+			localResourceRoots: [vscode.Uri.file(Pathy.joinToSource('node_modules'))],
 		}
 	);
 	panelState.set(false, devPageContext);
@@ -80,10 +80,10 @@ async function showDebug(context, pageData, devPageContext) {
 			}
 		},
 		undefined,
-		context.subscriptions
+		ContextHolder.getContext().subscriptions
 	);
 
-	panel.webview.html = getWebviewContent(context, pageData.url, devPageContext);
+	panel.webview.html = getWebviewContent(pageData.url, devPageContext);
 	panel.onDidDispose(() => {
 		panelState.set(true, undefined);
 		panel = undefined;
@@ -102,7 +102,7 @@ function refreshDebug() {
 	panel.webview.postMessage({ command: 'refresh' });
 }
 
-function getWebviewContent(context, devUrl, devPageContext) {
+function getWebviewContent(devUrl, devPageContext) {
 	let templatePath = isTextPageContext(devPageContext) ? TEXT_PANEL_PATH : PANEL_PATH;
 
 	let p = Pathy.joinToSource(templatePath);
@@ -115,11 +115,11 @@ function getWebviewContent(context, devUrl, devPageContext) {
 	if (isTextPageContext(devPageContext)) {
 		// load from node_modules:
 		let scriptPathOnDisk = vscode.Uri.file(
-			Pathy.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs', 'loader.js')
+			Pathy.joinToSource('node_modules', 'monaco-editor', 'min', 'vs', 'loader.js')
 		);
 		monacoPath = panel.webview.asWebviewUri(scriptPathOnDisk);
 		scriptPathOnDisk = vscode.Uri.file(
-			Pathy.join(context.extensionPath, 'node_modules', 'monaco-editor', 'min', 'vs')
+			Pathy.joinToSource('node_modules', 'monaco-editor', 'min', 'vs')
 		);
 		monacoBasePath = panel.webview.asWebviewUri(scriptPathOnDisk);
 	}

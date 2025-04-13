@@ -3,6 +3,7 @@ const vscode = require('vscode');
 const NoCodeProvider = require('./noCodeProvider');
 
 const Config = require('./config');
+const ContextHolder = require('./config/contextHolder');
 const mcClient = require('./sfmc/mcClient');
 const SourceCode = require('./code/sourceCode');
 const Metafile = require('./code/metafile');
@@ -20,9 +21,8 @@ const DEPLOYMENT_TEMPLATE = './templates/deployment.ssjs';
 
 module.exports = class BaseCodeProvider extends NoCodeProvider {
 
-	constructor(config, statusBar, context) {
+	constructor(config, statusBar) {
 		super(config, statusBar);
-		this.context = context;
 		this.mc = null;
 		this.snippets = new SnippetHandler(this.config);
 	}
@@ -318,7 +318,7 @@ module.exports = class BaseCodeProvider extends NoCodeProvider {
 			vscode.window.showInformationMessage(urlInfo.msg);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Copy' });
 		} else if (Config.isPreviewUrl(pageDetails.devPageContext)) {
-			runDebug(this.context, urlInfo, pageDetails.devPageContext);
+			runDebug(urlInfo, pageDetails.devPageContext);
 			telemetry.log('getDevUrl', { codeProvider: provider, devPageContext: pageDetails.devPageContext, option: 'Preview' });
 		} else {
 			if (urlInfo.visible) {

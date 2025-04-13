@@ -3,7 +3,7 @@ const path = require('path');
 
 const logger = require('../auxi/logger');
 const BaseConfig = require('./baseConfig');
-// const { error } = require('console');
+const ContextHolder = require('./contextHolder');
 
 const USABLE_LANG_IDS = ['ssjs', 'html', 'ampscript'];
 const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
@@ -13,6 +13,10 @@ const USABLE_EXT = [ `.ssjs`, `.html`, `.amp` ];
  * Extends BaseConfig and to be extended by Config.
  */
 module.exports = class Preferences extends BaseConfig {
+
+	isProduction() {
+		return ContextHolder.isProduction();
+	}
 
 	/**
 	 * Is passed language ID allowed?

@@ -2,6 +2,21 @@ const path = require('path');
 
 // Create the mock VSCode API
 const vscode = {
+	ExtensionContext: class ExtensionContext {
+		constructor(env = 'Development') {
+				this.subscriptions = [];
+				this.extensionUri = {
+					fsPath: path.join(__dirname, '../..')
+				};
+				this.extensionMode = env;
+				this.globalState = {
+					// TODO: implement
+				};
+				this.workspaceState = {
+					// TODO: implement
+				};
+		}
+	},
 	workspace: {
 			workspaceFolders: [{
 					uri: {
@@ -88,14 +103,18 @@ const dotenvMock = {
 };
 
 // Helper function to set up the mock
-function setupVSCodeMock() {
+function setupVSCodeMock({ env = 'Development' }) {
 	// Store the original _load function
 	const originalLoad = require('module')._load;
 	
 	// Mock the vscode module before it's required
 	require('module')._load = function(request, parent, isMain) {
 		if (request === 'vscode') {
-			return vscode;
+			const mockContext = new vscode.ExtensionContext(env);
+			return {
+				...vscode,
+				ExtensionContext: mockContext
+			};
 		}
 		if (request === '@vscode/extension-telemetry') {
 			return telemetryMock;

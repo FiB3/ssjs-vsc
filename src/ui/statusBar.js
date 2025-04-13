@@ -1,12 +1,13 @@
 const vscode = require('vscode');
 
 const Config = require('../config');
+const ContextHolder = require('../config/contextHolder');
 
 module.exports = {
 
-	create(context) {
+	create() {
 		this.statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 1);
-		context.subscriptions.push(this.statusBarItem);
+		ContextHolder.getContext().subscriptions.push(this.statusBarItem);
 		this.setDeactivated();
 	},
 
