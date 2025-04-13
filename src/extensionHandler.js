@@ -281,6 +281,7 @@ class ExtensionHandler {
 						msg += ` Details: ${errors.status} - ${failedUrl}`;
 						return { ok: false, message: msg };
 					}
+					return { ok: false, message: `Error: No response from deployed Dev Assets - please validate your deployment and provide correct URLs.` };
 				});
 	}
 

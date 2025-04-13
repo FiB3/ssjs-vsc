@@ -238,7 +238,11 @@ function handleCopyResourceCode(panel, message) {
 }
 
 async function validateDevAssets(panel) {
-	let res = await ext.checkDeployedDevAssets();
+	let res = { ok: false, message: `Error: No response from your deployed Dev Assets - check if both are deployed correctly.` };
+	await ext.checkDeployedDevAssets().then(r => {
+		res = r;
+	});
+
 	panel.webview.postMessage({
 		command: 'devAssetsValidated',
 		ok: res.ok,
