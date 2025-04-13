@@ -178,11 +178,11 @@ function isTextPageContext(devPageContext) {
 	return devPageContext === 'text';
 }
 
-function postMessage(panel, message) {
-	if (panel) {
-		panel.webview.postMessage(message);
+function postMessage(targetPanel, message) {
+	if (targetPanel && targetPanel.webview) {
+		targetPanel.webview.postMessage(message);
 	} else {
-		logger.warn('postMessage: panel is undefined/disposed.');
+		logger.warn('postMessage: debug panel is undefined/disposed.');
 	}
 }
 

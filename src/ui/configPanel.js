@@ -77,11 +77,16 @@ async function showConfigPanel() {
 	);
 
 	panel.webview.html = getWebviewContent(panel.webview);
+
+	panel.onDidDispose(() => {
+		logger.warn('Config Panel disposed.');
+		panel = null;
+	});
 }
 
 async function handleInit(panel, getViewFunc) {
 	let conf = await getViewFunc();
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'init',
 		...conf
 	});
@@ -102,7 +107,7 @@ async function handleInit(panel, getViewFunc) {
 async function reloadConfig(panel, message, getViewFunc) {
 	ext.config.loadConfig();
 	let conf = await getViewFunc();
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'init',
 		...conf
 	});
@@ -111,7 +116,7 @@ async function reloadConfig(panel, message, getViewFunc) {
 
 async function testConfigurations(panel) {
 	async function updateStatus(isDone, messsage) {
-		panel.webview.postMessage({
+		postMessage(panel, {
 			command: 'updateTestingConfigurationStatus',
 			running: true,
 			status: messsage
@@ -119,7 +124,7 @@ async function testConfigurations(panel) {
 		// small delay, for better UX:
 		if (isDone) {
 			await new Promise(resolve => setTimeout(resolve, 5000));
-			panel.webview.postMessage({
+			postMessage(panel, {
 				command: 'updateTestingConfigurationStatus',
 				running: false
 			});
@@ -132,7 +137,7 @@ async function testConfigurations(panel) {
 	await updateStatus(false, `Testing...`);
 	// Validate API Credentials:
 	let credsRes = await ext.checkSfmcCredentials();
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'connectionValidated',
 		ok: credsRes.ok,
 		status: credsRes.message
@@ -154,7 +159,7 @@ async function testConfigurations(panel) {
 				return true;
 			})
 			.catch(async err => {
-				panel.webview.postMessage({
+				postMessage(panel, {
 					command: 'folderCreated',
 					ok: false,
 					status: err.statusCode === 404 ?
@@ -180,7 +185,7 @@ async function validateApiCredentials(panel, sfmc) {
 	let { subdomain, clientId, clientSecret, mid } = sfmc;
 	subdomain = McClient.extractSubdomain(subdomain);
 	if (!subdomain || !clientId || !clientSecret) {
-		panel.webview.postMessage({
+		postMessage(panel, {
 			command: 'connectionValidated',
 			ok: false,
 			status: `Please, fill all fields: Subdomain, Client ID & Secret.`
@@ -191,7 +196,7 @@ async function validateApiCredentials(panel, sfmc) {
 	let r = await ext.handleNewSfmcCreds({ subdomain, clientId, clientSecret, mid }, false, false);
 	logger.log('BE: validateApiCredentials (2):', r);
 
-	panel.webview.postMessage({
+	postMessage(panel, {
 			command: 'connectionValidated',
 			ok: r.ok,
 			status: r.message
@@ -200,7 +205,7 @@ async function validateApiCredentials(panel, sfmc) {
 
 async function handleAssetFolders(panel, message) {
 	let r = await ext.createContentBuilderFolder(message.parentName, message.newName);
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'folderCreated',
 		ok: r.ok,
 		status: r.message
@@ -209,7 +214,7 @@ async function handleAssetFolders(panel, message) {
 
 async function handleAnyScript(panel, message) {
 	if (!Array.isArray(message.pagesData) || message.pagesData?.length === 0) {
-		panel.webview.postMessage({
+		postMessage(panel, {
 			command: 'anyScriptsSet',
 			ok: false,
 			status: `No data provided.`
@@ -218,7 +223,7 @@ async function handleAnyScript(panel, message) {
 	}
 	ext.setDevPageData(message.pagesData);
 	let res = await ext.createDevAssets(message.pagesData);
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'anyScriptsSet',
 		ok: res.ok,
 		status: res.message
@@ -243,7 +248,7 @@ async function validateDevAssets(panel) {
 		res = r;
 	});
 
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'devAssetsValidated',
 		ok: res.ok,
 		status: res.message
@@ -267,7 +272,7 @@ function handleGetStats(panel) {
 		apiCalls: stats.getApiCalls(),
 		createdDate: stats.getCreatedDate()
 	};
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'stats',
 		data: statsData
 	});
@@ -361,7 +366,7 @@ function getTemplatingTags(panel, message, reloaded = false) {
 	}
 	logger.log(`getTemplatingTags():`, tags);
 
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'templatingInitialized',
 		configurable: Config.isWorkspaceSet(),
 		tags,
@@ -391,12 +396,20 @@ function loadChangelog(panel) {
 	let changelog = file.load(Pathy.joinToSource(`./CHANGELOG.md`));
 	let html = marked.parse(changelog);
 
-	panel.webview.postMessage({
+	postMessage(panel, {
 		command: 'changelogLoaded',
 		changelog: html
 	});
 
 	telemetry.log(`changelogLoaded`, {});
+}
+
+function postMessage(targetPanel, message) {
+	if (targetPanel && targetPanel.webview) {
+		targetPanel.webview.postMessage(message);
+	} else {
+		logger.warn('postMessage: config panel is undefined/disposed.');
+	}
 }
 
 module.exports = {
