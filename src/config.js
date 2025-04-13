@@ -242,15 +242,13 @@ module.exports = class Config extends Preferences {
 		this.saveConfigFile(true);
 	}
 
-	// TODO: rename
-	// This is actually not an update of the whole file, but only of the SFMC data.
-	updateConfigFile(subdomain, clientId, mid) {
+	setSfmcCredentials(subdomain, clientId, mid) {
 		// update values:
 		this.config["sfmc-domain"] = subdomain;
 		this.config["sfmc-client-id"] = clientId;
 		this.config["sfmc-mid"] = mid;
 
-		this.saveConfigFile(true);
+		this.saveConfigFile();
 	}
 
 	/**
