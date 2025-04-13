@@ -9,18 +9,46 @@ const Config = require('./config');
 const serverStatus = require('./ui/serverStatusBar');
 const telemetry = require('./telemetry');
 
-const CONTENT_TYPES = {
+const CONTENT_TYPES_TEMPLATABLE = {
+	// Templates:
 	'.html': 'text/html',
+	'.htm': 'text/html',
+	
 	'.js': 'application/javascript',
 	'.css': 'text/css',
+
+	// Text:
 	'.json': 'application/json',
-	'.txt': 'text/plain',
-	'.png': 'image/png',
+	'.txt': 'text/plain'
+};
+
+const CONTENT_TYPES_TO_SEND = {
+	// Images
+	// '.png': 'image/png',
 	'.jpg': 'image/jpeg',
 	'.jpeg': 'image/jpeg',
 	'.gif': 'image/gif',
+	'.webp': 'image/webp',
 	'.svg': 'image/svg+xml',
-	'.ico': 'image/x-icon'
+	'.ico': 'image/x-icon',
+
+	// Documents
+	'.pdf': 'application/pdf',
+	'.txt': 'text/plain',
+
+	// Videos
+	'.mp4': 'video/mp4',
+	'.webm': 'video/webm',
+	'.mp3': 'audio/mpeg',
+	'.wav': 'audio/wav',
+	'.ogg': 'audio/ogg',
+
+	// Fonts
+	'.woff': 'font/woff',
+	'.woff2': 'font/woff2',
+	'.ttf': 'font/ttf',
+	'.eot': 'application/vnd.ms-fontobject',
+	'.otf': 'font/otf'
 };
 
 
@@ -98,20 +126,24 @@ class LivePreview {
 		let pth = req.resourcePath; // Set by _checkResourcePath
 		if (pth) {
 			const ext = path.extname(pth).toLowerCase();
-			const contentType = CONTENT_TYPES[ext] || 'text/plain';
+			const contentType = CONTENT_TYPES_TEMPLATABLE[ext] || CONTENT_TYPES_TO_SEND[ext] || 'text/plain';
 
-			if (contentType.startsWith('image/')) {
+			if (CONTENT_TYPES_TEMPLATABLE[ext]) {
+				let html = template.runScriptFile(pth, this.config, 'live-preview');
+				res.setHeader('Content-Type', CONTENT_TYPES_TEMPLATABLE[ext]);
+				telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
+				res.status(200).send(html);
+			} else if (CONTENT_TYPES_TO_SEND[ext]) {
 				const imageBuffer = fs.readFileSync(pth);
-				res.setHeader('Content-Type', contentType);
+				res.setHeader('Content-Type', CONTENT_TYPES_TO_SEND[ext]);
 				telemetry.log('livePreviewRequest', { type: 'image', extension: ext });
 				res.status(200).send(imageBuffer);
 			} else {
-				let html = template.runScriptFile(pth, this.config, 'live-preview');
-				res.setHeader('Content-Type', contentType);
-				telemetry.log('livePreviewRequest', { type: 'text', extension: ext });
-				res.status(200).send(html);
+				res.status(415).send({
+					httpStatus: 415,
+					message: 'Content type not supported.'
+				});
 			}
-			
 		} else {
 			throw ("Resource path not set!");
 		}
@@ -155,7 +187,7 @@ class LivePreview {
 	_checkResourcePath(req, res, next) {
 		function checkExtname(p) {
 			let extname = Pathy.extname(p);
-			return CONTENT_TYPES[extname] !== undefined;
+			return CONTENT_TYPES_TEMPLATABLE[extname] !== undefined || CONTENT_TYPES_TO_SEND[extname] !== undefined;
 		}
 		let requestPath = req.originalUrl;
 		const publicPath = this.config.getPublicPath();
