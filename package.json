@@ -409,7 +409,10 @@
     "moment": "^2.29.4",
     "monaco-editor": "^0.52.2",
     "morgan": "^1.10.0",
-    "mustache": "^4.2.0"
+    "mustache": "^4.2.0",
+    "marked": "^15.0.8",
+    "date-fns": "^4.1.0",
+    "ws": "^8.18.1"
   },
   "devDependencies": {
     "@types/glob": "^8.1.0",
@@ -418,11 +421,8 @@
     "@types/vscode": "1.77.0",
     "@vscode/test-electron": "^2.3.0",
     "chai": "^5.1.0",
-    "date-fns": "^4.1.0",
     "eslint": "^8.36.0",
     "glob": "^8.1.0",
-    "marked": "^15.0.8",
-    "mocha": "^10.2.0",
-    "ws": "^8.18.1"
+    "mocha": "^10.2.0"
   }
 }
