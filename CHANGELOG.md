@@ -9,6 +9,7 @@ All notable changes to the "ssjs-vsc" extension will be documented here:
 - Commands: `Live Preview Start`, `Stop` & `Get Live Preview URL`.
 - New templating column for Live Preview.
 - Automatic reload for Live Preview (on file save), with option in Preferences to enable this feature.
+- New Status Bar (right bottom corner) that shows when Live Preview is active (SSJS: <PORT>). Default is still port 4000. You can change this in `.vscode/ssjs-config.json`
 - `Copy Templated Code` command. It fills the Mustached content with your tags (of your env) and copies content to clipboard.
 - `Refresh Config` button in Config panel.
 - Automate version in your scripts by simply using `{{VERSION}}`` mustache tag. Date time is used, as biggest use for version in SFMC is to know the time of last deployment.

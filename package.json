@@ -37,7 +37,9 @@
     "cloud pages",
     "landing pages",
     "code resources",
-    "text resource"
+    "text resource",
+    "live preview",
+    "templating"
   ],
   "repository": {
     "type": "git",
