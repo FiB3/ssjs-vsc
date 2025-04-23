@@ -13,7 +13,7 @@ const Pathy = require('../auxi/pathy');
 
 async function showConfigPanel() {
 	const getView = getConfigPanelInfo;
-	const panel = vscode.window.createWebviewPanel(
+	let panel = vscode.window.createWebviewPanel(
 		'setup', // Identifies the type of the webview. Used internally
 		'SSJS Manager', // Title of the panel displayed to the user
 		vscode.ViewColumn.One, // Editor column to show the new webview panel in.
