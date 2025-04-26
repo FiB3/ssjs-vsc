@@ -1,0 +1,102 @@
+{
+	"name": "SSJS",
+	"scopeName": "source.ssjs",
+	"version": "0.2",
+	"patterns": [
+		{
+			"include": "text.html.basic"
+		},
+		{
+			"include": "#ampscript"
+		}
+	],
+	"repository": {
+		"ampscript": {
+			"begin": "(%%[=\\[])",
+			"end": "([\\]=]%%)",
+			"patterns": [
+				{
+					"name": "source.ssjs.embedded.ampscript",
+					"begin": "%%[=\\[]",
+					"beginCaptures": {
+						"1": {
+							"name": "keyword.other.namespace.ampscript"
+						}
+					},
+					"end": "[=\\]]%%",
+					"endCaptures": {
+						"1": {
+							"name": "keyword.other.namespace.ampscript"
+						}
+					},
+					"patterns": [
+						{
+							"include": "source.ampscript"
+						}
+					]
+				},
+				{
+					"begin": "/\\*",
+					"end": "\\*/",
+					"name": "comment.block.ampscript"
+				},
+				{
+					"match": "\".*?\"",
+					"name": "string.quoted.double.ampscript"
+				},
+				{
+					"match": "'.*?'",
+					"name": "string.quoted.single.ampscript"
+				},
+				{
+					"match": "\\b([a-zA-Z_][a-zA-Z0-9_]*)\\s*\\(",
+					"name": "entity.name.function.ampscript"
+				},
+				{
+					"match": "\\@([a-zA-Z][a-zA-Z0-9_\\-]*)",
+					"name": "variable.parameter.ampscript"
+				},
+				{
+					"match": "(?i:var)",
+					"name": "variable.declaration.ampscript"
+				},
+				{
+					"match": "(?i:set)",
+					"name": "variable.assignment.ampscript"
+				},
+				{
+					"match": "=",
+					"name": "keyword.operator.assignment.ampscript"
+				},
+				{
+					"match": "(?i:elseif|endif|if|else|then|for|next|downto|do|to)",
+					"name": "keyword.control.ampscript"
+				},
+				{
+					"match": "==|!=|<=|>=|<|>",
+					"name": "variable.operator.ampscript"
+				},
+				{
+					"match": "(?i:and|or|not)",
+					"name": "keyword.operator.ampscript"
+				},
+				{
+					"match": "\\b-?\\d+(\\.\\d+)?\\b",
+					"name": "constant.numeric.ampscript"
+				},
+				{
+					"match": "(?i:true|false)",
+					"name": "constant.language.boolean.ampscript"
+				},
+				{
+					"match": "\\b((?i:linkname|linkname|emailname_|_messagecontext|_messagetypepreference|_replycontent|_istestsend|jobid|_preheader|double_opt_in_url|emailaddr|fullname_|fullname|firstname_|firstname|lastname_|lastname|comment_|comment|subscriberid|_subscriberkey|listid|list_|listsubid|_messagetypepreference|mobile_number|short_code|_listname|_emailid|_jobsubscriberbatchid|_datasourcename|_impressionregionid|_impressionregionname|replyname|replyemailaddress|memberid|member_busname|member_addr|member_city|member_state|member_postalcode|member_country|view_email_url|ftaf_url|subscription_center_url|profile_center_url|unsub_center_url|mobile_number|short_code|line_address_id|line_job_id|line_subscriber_id|additionalinfo_|__additionalemailattribute1|__additionalemailattribute2|__additionalemailattribute3|__additionalemailattribute4|__additionalemailattribute5|xtmonth|xtmonthnumeric|xtday|xtdayofweek|xtyear|xtshortdate|xtlongdate))\\b",
+					"name": "variable.other.ampscript"
+				},
+				{
+					"match": "\\[[a-zA-Z0-9 _-]+\\]",
+					"name": "entity.name.type.ampscript"
+				}
+			]
+		}
+	}
+}

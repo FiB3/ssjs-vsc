@@ -358,7 +358,7 @@
         "extensions": [
           ".ssjs"
         ],
-        "configuration": "./syntaxes/language-configuration.json"
+        "configuration": "./syntaxes/languageConfiguration.ssjs.json"
       },
       {
         "id": "AMPscript",
@@ -370,25 +370,29 @@
           ".amp",
           ".ampscript"
         ],
-        "configuration": "./syntaxes/language-configuration.json"
+        "configuration": "./syntaxes/languageConfiguration.amp.json"
       }
     ],
     "grammars": [
       {
         "language": "ssjs",
         "scopeName": "source.ssjs",
-        "path": "./syntaxes/ssjs.tmLanguage.json"
+        "path": "./syntaxes/tmLanguage.ssjs.json"
       },
       {
         "language": "AMPscript",
-        "scopeName": "source.ssjs",
-        "path": "./syntaxes/ssjs.tmLanguage.json"
+        "scopeName": "source.AMPscript",
+        "path": "./syntaxes/tmLanguage.amp.json"
       }
     ],
     "snippets": [
       {
         "language": "ssjs",
-        "path": "./syntaxes/snippets.json"
+        "path": "./syntaxes/snippets.ssjs.json"
+      },
+      {
+        "language": "AMPscript",
+        "path": "./syntaxes/snippets.amp.json"
       }
     ]
   },

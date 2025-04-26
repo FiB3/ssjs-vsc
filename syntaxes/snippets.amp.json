@@ -1,0 +1,74 @@
+{
+	"try-catch-ampscript": {
+		"prefix": "try",
+		"body": [
+			"<script runat=\"server\" language=\"JavaScript\">",
+			"\tPlatform.Load(\"core\", \"1.1.1\");",
+			"\ttry {",
+			"</script>",
+			"",
+			"%%[ ]%%",
+			"",
+			"<script runat=\"server\" language=\"JavaScript\">",
+			"\t} catch (err) {",
+			"\t\tWrite(Stringify(err));",
+			"\t}",
+			"</script>"
+		],
+		"description": "Simplest SSJS Try Catch for AMPscript."
+	},
+	"IF Statement": {
+		"prefix": "if",
+		"body": [
+			"%%[",
+			"IF ${1:condition} THEN",
+			"\t${2:content}",
+			"ENDIF",
+			"]%%"
+		],
+		"description": "AMPscript IF statement"
+	},
+	"IF-ELSE Statement": {
+		"prefix": "ifelse",
+		"body": [
+			"%%[",
+			"IF ${1:condition} THEN",
+			"\t${2:content}",
+			"ELSE",
+			"\t${3:content}",
+			"ENDIF",
+			"]%%"
+		],
+		"description": "AMPscript IF-ELSE statement"
+	},
+	"FOR Loop": {
+		"prefix": "for",
+		"body": [
+			"%%[",
+			"FOR ${1:counter} = ${2:start} TO ${3:end} DO",
+			"\t${4:content}",
+			"NEXT ${1:counter}",
+			"]%%"
+		],
+		"description": "AMPscript FOR loop"
+	},
+	"SET Variable": {
+		"prefix": "set",
+		"body": [
+			"%%[",
+			"SET @${1:varName} = ${2:value}",
+			"]%%"
+		],
+		"description": "Set an AMPscript variable"
+	},
+	"VAR Declaration": {
+		"prefix": "var",
+		"body": [
+			"%%[",
+			"VAR @${1:varName}",
+			"SET @${1:varName} = ${2:value}",
+			"]%%"
+		],
+		"description": "Declare and set an AMPscript variable"
+	}
+} 
