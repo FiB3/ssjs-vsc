@@ -130,7 +130,7 @@
         "category": "SSJS"
       },
       {
-        "command": "ssjs-vsc.lintCurrentFile",
+        "command": "ssjs-vsc.lint-current-file",
         "title": "Lint Current SSJS File",
         "category": "SSJS"
       }

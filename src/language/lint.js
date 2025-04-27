@@ -1,86 +1,119 @@
+const vscode = require("vscode");
 const { ESLint } = require("eslint");
 const ssjs = require("eslint-config-ssjs");
 
+const ContextHolder = require("../config/contextHolder");
 const logger = require("../auxi/logger");
+const vsc = require("../vsc");
 
-/**
- * Lint a single file and return the results as a formatted string.
- * @param {string} filePath
- * @returns {Promise<string>} Lint results formatted as a string.
- */
-async function lintFile(filePath) {
-	const eslint = createESLintInstance();
+class Linter {
+	/**
+	 * Initialize a new linter for a specific language.
+	 * @param {string} languageName Name of the language (e.g. "ssjs")
+	 * @param {Array} fileExtensions Array of file extensions (e.g. [".ssjs"])
+	 * @param {Object} overrideConfig Override configuration for the linter
+	 */
+	constructor(languageName, fileExtensions, overrideConfig) {
+		this.languageName = languageName;
+		this.fileExtensions = fileExtensions;
+		this.eslint = this.createESLintInstance(overrideConfig);
 
-	const results = await eslint.lintFiles([filePath]);
-	// const formatter = await eslint.loadFormatter("stylish");
-	// return formatter.format(results);
-	return outputLintingResults(results);
-}
+		this.diagnostics;
+		this.activeDiagnostics = [];
 
-/**
- * Output linting results to ...
- * @param {*} results 
- * @returns {boolean} true if there are problems, false otherwise
- */
-function outputLintingResults(results) {
-  // Identify the number of problems found
-  const problems = results.reduce((acc, result) => acc + result.errorCount + result.warningCount, 0);
-
-  if (problems > 0) {
-    console.log("Linting errors found!");
-    console.log(results);
-  } else {
-    console.log("No linting errors found.");
-  }
-  return problems > 0;
-}
-
-function createESLintInstance(overrideConfig) {
-	const override = {
-		// ...ssjs.configs.recommended,
-		// ...overrideConfig,
-		// files: ['**/*.ssjs']
-		env: {
-			es6: false,
-			node: false
-		},
-		parserOptions: {
-			ecmaVersion: 3,
-			sourceType: "script",
-			globals: {
-				
-			},
-		},
-		rules: {
-			"comma-dangle": [
-				"error",
-				"never"
-			],
-			"new-cap": "off",
-			"no-console": "off",
-			"no-extend-native": "off",
-			"no-new": "error",
-			"no-prototype-builtins": "off",
-			"no-throw-literal": "off",
-			"no-use-before-define": [
-				"error",
-				{
-					"variables": true,
-					"functions": false,
-					"classes": false
-				}
-			],
-			"no-var": "off"
-		}
+		// register closing files:
+		vscode.workspace.onDidCloseTextDocument((document) => {
+			this.clearFileDiagnostics(document.uri.fsPath);
+		});
 	}
 
-	console.log(override);
+	/**
+	 * Check if currently active file is lintable by this linter.
+	 * @returns {boolean} true if the file is lintable, false otherwise
+	 */
+	isLintable() {
+		const filePath = vsc.getActiveEditor();
+		return this.fileExtensions.some(ext => filePath.endsWith(ext));
+	}
 
-	return new ESLint({
-		useEslintrc: false,
-		overrideConfig: override,
-		fix: true,
-	});
+	/**
+	 * Lint the currently active file.
+	 * @returns {boolean} true if there are problems, false otherwise
+	 */
+	async lintFile() {
+		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			return false;
+		}
+		if (!this.activeDiagnostics.includes(filePath)) {
+			this.activeDiagnostics.push(filePath);
+		}
+
+		const results = await this.eslint.lintFiles([filePath]);
+		return this.outputLintingResults(filePath, results);
+	}
+
+	outputLintingResults(filePath, results) {
+		if (!this.diagnostics) {
+			this.initDiagnostics();
+			logger.info(`Initialized diagnostics for ${this.languageName}.`, this.diagnostics);
+		}
+
+		if (results.length === 0) {
+			this.diagnostics.clear();
+			return false;
+		}
+
+		this.outputResults(filePath, results);
+		return true;
+	}
+
+	outputResults(filePath, results) {
+		let diagnosticResults = [];
+
+		for (const result of results) {
+			for (const msg of result.messages) {
+				const range = new vscode.Range(
+					Math.max(0, msg.line - 1),
+					Math.max(0, (msg.column || 1) - 1),
+					Math.max(0, (msg.endLine ? msg.endLine - 1 : msg.line - 1)),
+					Math.max(0, (msg.endColumn ? msg.endColumn - 1 : (msg.column || 1)))
+				);
+				logger.info(`Creating diagnostic for ${filePath}: ${msg.message}`, this.diagnostics);
+				diagnosticResults.push(
+					new vscode.Diagnostic(
+						range,
+						msg.message,
+						msg.severity === 2
+						? vscode.DiagnosticSeverity.Error
+						: vscode.DiagnosticSeverity.Warning
+					)
+				);
+			}
+		}
+		this.diagnostics.set(vscode.Uri.file(filePath), diagnosticResults);
+	}
+
+	createESLintInstance(overrideConfig) {
+
+		return new ESLint({
+			useEslintrc: false,
+			overrideConfig: overrideConfig,
+			fix: true,
+		});
+	}
+
+	initDiagnostics() {
+		this.diagnostics = vscode.languages.createDiagnosticCollection(this.languageName);
+		ContextHolder.context.subscriptions.push(this.diagnostics);
+	}
+
+	clearFileDiagnostics(filePath) {
+		if (this.activeDiagnostics.includes(filePath)) {
+			this.diagnostics.delete(vscode.Uri.file(filePath));
+			this.activeDiagnostics.splice(this.activeDiagnostics.indexOf(filePath), 1);
+		}
+	}
 }
 
-module.exports = { lintFile };
+module.exports = Linter;

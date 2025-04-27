@@ -44,7 +44,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.get-live-preview-url', callback: async () => await ext.provider.getLivePreviewUrl() },
 		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
-		{ name: 'ssjs-vsc.lintCurrentFile', callback: async () => await ext.lintCurrentFile() }
+		{ name: 'ssjs-vsc.lint-current-file', callback: async () => await ext.lintCurrentFile() }
 	]);
 
 	let workspaceOk = await ext.workspaceOk();
