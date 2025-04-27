@@ -1,18 +1,16 @@
 const Linter = require("./lint");
+const ssjs = require("./ssjsPlugin");
 
-// TODO: make it work in `<script>` tags
+
 const ssjsConfig = {
-	// ...ssjs.configs.recommended,
-	// ...overrideConfig,
-	// files: ['**/*.ssjs']
-	env: {
-		es6: false,
-		node: false,
-		browser: true
+	plugins: {
+		ssjs
 	},
-	parserOptions: {
+	languageOptions: {
 		ecmaVersion: 3,
 		sourceType: "script",
+		parserOptions: {
+		},
 		globals: {
 			"Account": "readonly",
 			"AccountUser": "readonly",
@@ -53,28 +51,28 @@ const ssjsConfig = {
 			"TriggeredSend": "readonly",
 			"Variable": "readonly",
 			"Write": "readonly"
-		},
+		}
 	},
 	rules: {
-		"comma-dangle": [
-			"error",
-			"never"
-		],
-		"new-cap": "off",
-		"no-console": "off",
-		"no-extend-native": "off",
-		"no-new": "error",
-		"no-prototype-builtins": "off",
-		"no-throw-literal": "off",
-		"no-use-before-define": [
-			"error",
-			{
-				"variables": true,
-				"functions": false,
-				"classes": false
-			}
-		],
-		"no-var": "off"
+		"semi": "warn",
+		"no-useless-assignment": "error",
+		"no-unused-vars": "error",
+		"no-undef": "warn",
+		// "new-cap": "off",
+		// "no-console": "off",
+		// "no-extend-native": "off",
+		// "no-new": "error",
+		// "no-prototype-builtins": "off",
+		// "no-throw-literal": "off",
+		// "no-use-before-define": [
+		// 	"error",
+		// 	{
+		// 		"variables": true,
+		// 		"functions": false,
+		// 		"classes": false
+		// 	}
+		// ],
+		// "ssjs/only-var-assign": "error"
 	}
 };
 

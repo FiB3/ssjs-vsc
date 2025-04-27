@@ -51,7 +51,7 @@ class Linter {
 	 * Lint the currently active file.
 	 * @returns {boolean} true if there are problems, false otherwise
 	 */
-	async lintFile() {
+	async lintFile(silent = false) {
 		const filePath = vsc.getActiveEditor();
 		if (!filePath) {
 			return false;
@@ -68,11 +68,10 @@ class Linter {
 
 		let results = await this.eslint.lintText(lintableText);
 		results = [...customValidationResults, ...results];
-
-		return this.outputLintingResults(filePath, results);
+		return this.outputLintingResults(filePath, results, silent);
 	}
 
-	outputLintingResults(filePath, results) {
+	outputLintingResults(filePath, results, silent = false) {
 		if (!this.diagnostics) {
 			this.initDiagnostics();
 			logger.info(`Initialized diagnostics for ${this.languageName}.`);
@@ -80,14 +79,21 @@ class Linter {
 
 		if (results.length === 0) {
 			this.diagnostics.clear();
+			if (!silent) {
+				vscode.window.showInformationMessage(`No problems found in ${filePath}.`);
+			}
 			return false;
 		}
 
+		if (!silent) {
+			vscode.window.showWarningMessage(`Found ${results.length} problems in ${filePath}.`);
+		}
 		this.outputResults(filePath, results);
 		return true;
 	}
 
 	outputResults(filePath, results) {
+		logger.debug(`outputResults() ${filePath} ${results.length}:`, results);
 		let diagnosticResults = [];
 
 		for (const result of results) {
@@ -115,9 +121,9 @@ class Linter {
 	createESLintInstance(overrideConfig) {
 
 		return new ESLint({
-			useEslintrc: false,
+			overrideConfigFile: true,
 			overrideConfig: overrideConfig,
-			fix: true,
+			fix: false
 		});
 	}
 
