@@ -58,20 +58,23 @@ const ssjsConfig = {
 		"no-useless-assignment": "warn",
 		"no-unused-vars": "warn",
 		"no-undef": "warn",
-		// "new-cap": "off",
-		// "no-console": "off",
-		// "no-extend-native": "off",
-		// "no-new": "error",
-		// "no-prototype-builtins": "off",
-		// "no-throw-literal": "off",
-		// "no-use-before-define": [
-		// 	"error",
-		// 	{
-		// 		"variables": true,
-		// 		"functions": false,
-		// 		"classes": false
-		// 	}
-		// ],
+		"no-use-before-define": [
+			"warn",
+			{
+				"variables": true,
+				"functions": false,
+				"classes": false
+			}
+		],
+		"no-duplicate-case": "warn",
+
+		// rules to disable:
+		"new-cap": "off",
+		"no-console": "off",
+		"no-extend-native": "off",
+		"no-new": "off",
+		"no-throw-literal": "off",
+		
 		// "ssjs/only-var-assign": "error"
 	}
 };
@@ -138,7 +141,7 @@ const scriptTagValidator = (scriptText) => {
 			const attributes = matches[1];
 			// warn, if this seems to be frontend javascript - no runat="server"
 			if (!attributes.match(/runat=["']*server["']*/)) {
-				pushError("Attribute `runat=server` is required for SSJS code. Use AMPscript's `concat` hack for frontend javascript.", 1);
+				pushError("Attribute 'runat=server' is required for SSJS code. Use AMPscript's 'concat' hack for frontend javascript.", 1);
 			} else {
 				// for SSJS code, check the attributes:
 				let languageMatches = /language=["']*(\w+)["']*/gi.exec(attributes);
@@ -146,9 +149,9 @@ const scriptTagValidator = (scriptText) => {
 					let language = languageMatches[1];
 					language = language.toLowerCase();
 					if (language == "ampscript") {
-						pushError("`language=AMPscript` is not supported by this linter. Use `language=JavaScript` instead.", 1);
+						pushError("'language=AMPscript' is not supported by this linter. Use 'language=JavaScript' instead.", 1);
 					} else if (language !== "javascript") {
-						pushError("Use `JavaScript` for `language` attribute (SSJS).", 2);
+						pushError("Use 'JavaScript' for 'language' attribute (SSJS).", 2);
 					}
 				}
 
@@ -157,7 +160,7 @@ const scriptTagValidator = (scriptText) => {
 					let executionContextType = executionContextTypeMatches[1];
 					executionContextType = executionContextType.toLowerCase();
 					if (executionContextType !== "post" && executionContextType !== "get") {
-						pushError("Use `POST` or `GET` for `executioncontexttype` attribute (SSJS) or omit it.", 2);
+						pushError("Use 'POST' or 'GET' for 'executionContextType' attribute (SSJS) or omit it.", 2);
 					}
 				}
 			}
@@ -175,7 +178,7 @@ const parsingErrorRules = [
 		const regex = /(const|let)\s+(\w+)\s*=/;
 		if (line.match(regex)) {
 			return {
-				message: "Parsing error: `const` and `let` are not allowed in SSJS. Use var instead.",
+				message: "Parsing error: 'const' and 'let' are not allowed in SSJS. Use 'var' instead.",
 				severity: 2
 			}
 		}
@@ -187,6 +190,17 @@ const parsingErrorRules = [
 		if (line.match(regex)) {
 			return {
 				message: "Parsing error: Arrow functions are not allowed in SSJS.",
+				severity: 2
+			}
+		}
+		return false;
+	},
+	// await is not allowed in SSJS
+	(message, line) => {
+		const regex = /\W+(await|async)\s/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: 'await' and 'async' are not allowed in SSJS.",
 				severity: 2
 			}
 		}
