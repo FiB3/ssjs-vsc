@@ -74,8 +74,8 @@ const ssjsConfig = {
 		"no-extend-native": "off",
 		"no-new": "off",
 		"no-throw-literal": "off",
-		
-		// "ssjs/only-var-assign": "error"
+		// custom rules:
+		"ssjs/no-trailing-commas": "error"
 	}
 };
 
@@ -204,6 +204,46 @@ const parsingErrorRules = [
 				severity: 2
 			}
 		}
+		return false;
+	},
+	// no trailing object commas:
+	(message, line) => {
+		const regex = /,\s*\}/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: No trailing object commas are allowed in SSJS.",
+				severity: 2
+			}
+		}
+
+		const regexEndOnly = /^\s*\}/;
+		if (line.match(regexEndOnly)) {
+			return {
+				message: message + " - maybe there is a trailing comma?",
+				severity: 2
+			}
+		}
+
+		return false;
+	},
+	// no trailing function commas:
+	(message, line) => {
+		const regex = /,\s*\)/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: No trailing function commas are allowed in SSJS.",
+				severity: 2
+			}
+		}
+
+		const regexEndOnly = /^\s*\)/;
+		if (line.match(regexEndOnly)) {
+			return {
+				message: message + " - maybe there is a trailing comma?",
+				severity: 2
+			}
+		}
+
 		return false;
 	}
 ];

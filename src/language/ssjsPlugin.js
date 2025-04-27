@@ -5,26 +5,36 @@ const plugin = {
 	},
 	configs: {},
 	rules: {
-		"only-var-assign": {
+		"no-trailing-commas": {
 			meta: {
 				type: "problem",
-				messages: {
-					onlyVarAssign: "Only `var` is allowed in SSJS."
+				docs: {
+					description: "Disallow trailing commas in arrays",
+					category: "Possible Errors",
+					recommended: true
+				},
+				messages: {	
+					trailingComma: "Trailing commas are not supported in SSJS arrays"
 				}
 			},
 			create(context) {
-				let sourceCode = context.sourceCode;
-
-				console.log(`create() - only-var-assign:`, sourceCode);
-
+				const sourceCode = context.getSourceCode();
+				const regex = /,\s*\]/;
+				
 				return {
-					VariableDeclaration(node) {
-						if (node.kind !== "var") {
-							context.report({ node, messageId: "onlyVarAssign" });
+					ArrayExpression(node) {
+						// const elements = node.elements;
+						const text = sourceCode.getText(node);
+						console.log(`ArrayExpression:`, node.type, text);
+						if (text.match(regex)) {
+							context.report({
+								node: node,
+								messageId: "trailingComma"
+							});
 						}
 					}
 				};
-			},
+			}
 		},
 	},
 };

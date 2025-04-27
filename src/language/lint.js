@@ -133,7 +133,7 @@ class Linter {
 		for (const result of results) {
 			for (const msg of result.messages) {
 				if (!msg.message.startsWith("Parsing error:")) {
-					logger.debug(`applyParsingErrorRules() - skipping: ${msg}`);
+					logger.debug(`applyParsingErrorRules() - skipping:`, msg);
 					continue;
 				}
 
