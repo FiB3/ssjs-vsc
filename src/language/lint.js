@@ -15,19 +15,23 @@ class Linter {
 	 * @param {Object} overrideConfig Override configuration for the linter
 	 * @param {Function} preFlight(scriptText) pre-linter function to modify the file content if needed
 	 * @param {Function} customValidator(scriptText) Custom validator function - works on entire file
+	 * @param {Array<Function>} parsingErrorRules Additional rules to apply to parsing errors:
+	 * 		function(message, line) => { return { message: string, severity: number }; } / false
 	 */
 	constructor( {
 		languageName,
 		fileExtensions,
 		overrideConfig,
 		preFlight = (scriptText) => { return scriptText; },
-		customValidator = (scriptText) => { return []; }
+		customValidator = (scriptText) => { return []; },
+		parsingErrorRules = []
 	}) {
 		this.languageName = languageName;
 		this.fileExtensions = fileExtensions;
 		this.eslint = this.createESLintInstance(overrideConfig);
 		this.preFlight = preFlight;
 		this.customValidator = customValidator;
+		this.parsingErrorRules = parsingErrorRules;
 
 		this.diagnostics;
 		this.activeDiagnostics = [];
@@ -67,6 +71,8 @@ class Linter {
 		lintableText = this.preFlight(lintableText);
 
 		let results = await this.eslint.lintText(lintableText);
+		results = this.applyParsingErrorRules(results, lintableText);
+
 		results = [...customValidationResults, ...results];
 		return this.outputLintingResults(filePath, results, silent);
 	}
@@ -116,6 +122,37 @@ class Linter {
 			}
 		}
 		this.diagnostics.set(vscode.Uri.file(filePath), diagnosticResults);
+	}
+
+	applyParsingErrorRules(results, scriptText) {
+		if (this.parsingErrorRules.length === 0) {
+			return results;
+		}
+
+		const lines = scriptText.split("\n");
+		for (const result of results) {
+			for (const msg of result.messages) {
+				if (!msg.message.startsWith("Parsing error:")) {
+					logger.debug(`applyParsingErrorRules() - skipping: ${msg}`);
+					continue;
+				}
+
+				let ruleResult = false;
+				for (let rule of this.parsingErrorRules) {
+					const rr = rule(msg.message, lines[msg.line - 1]);
+					if (rr?.message) {
+						ruleResult = rr;
+						break;
+					}
+				}
+				logger.debug(`applyParsingErrorRules() - ruleResult:`, ruleResult);
+				if (ruleResult) {
+					msg.message = ruleResult.message;
+					msg.severity = ruleResult.severity;
+				}
+			}
+		}
+		return results;
 	}
 
 	createESLintInstance(overrideConfig) {

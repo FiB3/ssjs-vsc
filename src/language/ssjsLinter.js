@@ -55,8 +55,8 @@ const ssjsConfig = {
 	},
 	rules: {
 		"semi": "warn",
-		"no-useless-assignment": "error",
-		"no-unused-vars": "error",
+		"no-useless-assignment": "warn",
+		"no-unused-vars": "warn",
 		"no-undef": "warn",
 		// "new-cap": "off",
 		// "no-console": "off",
@@ -169,10 +169,36 @@ const scriptTagValidator = (scriptText) => {
 	return errors;
 };
 
+const parsingErrorRules = [
+	// const and let are not allowed in SSJS
+	(message, line) => {
+		const regex = /(const|let)\s+(\w+)\s*=/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: `const` and `let` are not allowed in SSJS. Use var instead.",
+				severity: 2
+			}
+		}
+		return false;
+	},
+	// arrow functions are not allowed in SSJS
+	(message, line) => {
+		const regex = /=>/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: Arrow functions are not allowed in SSJS.",
+				severity: 2
+			}
+		}
+		return false;
+	}
+];
+
 module.exports = new Linter({
 	languageName: "ssjs",
 	fileExtensions: [".ssjs"],
 	overrideConfig: ssjsConfig,
 	preFlight: removeScriptTags,
-	customValidator: scriptTagValidator
+	customValidator: scriptTagValidator,
+	parsingErrorRules: parsingErrorRules
 });
