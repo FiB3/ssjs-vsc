@@ -9,7 +9,7 @@ const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const vsc = require('./vsc');
 const Hooks = require('./hooks');
-
+const { lintFile } = require('./language/lint');
 const statusBar = require('./ui/statusBar');
 const serverStatusBar = require('./ui/serverStatusBar');
 const McClient = require('./sfmc/mcClient');
@@ -133,6 +133,33 @@ class ExtensionHandler {
 		} else {
 			logger.warn(`Hook result unknown: ${hookResult}.`);
 			telemetry.error('upload-script', { 'location': 'extensionHandler.uploadScript', 'hookResult': hookResult });
+		}
+	}
+
+	async lintCurrentFile() {
+		// load file:
+		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			vscode.window.showErrorMessage("No active editor.");
+			return;
+		}
+		// TODO: check if file is SSJS:
+		if (!filePath.endsWith('.ssjs')) {
+			vscode.window.showErrorMessage("File is not a SSJS file.");
+			return;
+		}
+		// lint file:
+		try {
+			logger.info(`Linting file: ${filePath}`);
+			const resultOk = await lintFile(filePath);
+			if (resultOk) {
+				vscode.window.showInformationMessage("Linting failed.");
+			} else {
+				vscode.window.showInformationMessage("Linting passed.");
+			}
+		} catch (err) {
+			vscode.window.showErrorMessage("Linting failed: " + err.message);
+			logger.error(`Linting failed: ${err.message}`);
 		}
 	}
 
