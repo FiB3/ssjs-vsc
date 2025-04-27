@@ -2,6 +2,7 @@ const vscode = require("vscode");
 const { ESLint } = require("eslint");
 const ssjs = require("eslint-config-ssjs");
 
+const SourceCode = require("../code/sourceCode");
 const ContextHolder = require("../config/contextHolder");
 const logger = require("../auxi/logger");
 const vsc = require("../vsc");
@@ -12,11 +13,21 @@ class Linter {
 	 * @param {string} languageName Name of the language (e.g. "ssjs")
 	 * @param {Array} fileExtensions Array of file extensions (e.g. [".ssjs"])
 	 * @param {Object} overrideConfig Override configuration for the linter
+	 * @param {Function} preFlight(scriptText) pre-linter function to modify the file content if needed
+	 * @param {Function} customValidator(scriptText) Custom validator function - works on entire file
 	 */
-	constructor(languageName, fileExtensions, overrideConfig) {
+	constructor( {
+		languageName,
+		fileExtensions,
+		overrideConfig,
+		preFlight = (scriptText) => { return scriptText; },
+		customValidator = (scriptText) => { return []; }
+	}) {
 		this.languageName = languageName;
 		this.fileExtensions = fileExtensions;
 		this.eslint = this.createESLintInstance(overrideConfig);
+		this.preFlight = preFlight;
+		this.customValidator = customValidator;
 
 		this.diagnostics;
 		this.activeDiagnostics = [];
@@ -49,14 +60,22 @@ class Linter {
 			this.activeDiagnostics.push(filePath);
 		}
 
-		const results = await this.eslint.lintFiles([filePath]);
+		let lintableText = SourceCode.load(filePath);
+
+		const customValidationResults = this.customValidator(lintableText);
+
+		lintableText = this.preFlight(lintableText);
+
+		let results = await this.eslint.lintText(lintableText);
+		results = [...customValidationResults, ...results];
+
 		return this.outputLintingResults(filePath, results);
 	}
 
 	outputLintingResults(filePath, results) {
 		if (!this.diagnostics) {
 			this.initDiagnostics();
-			logger.info(`Initialized diagnostics for ${this.languageName}.`, this.diagnostics);
+			logger.info(`Initialized diagnostics for ${this.languageName}.`);
 		}
 
 		if (results.length === 0) {
@@ -79,7 +98,6 @@ class Linter {
 					Math.max(0, (msg.endLine ? msg.endLine - 1 : msg.line - 1)),
 					Math.max(0, (msg.endColumn ? msg.endColumn - 1 : (msg.column || 1)))
 				);
-				logger.info(`Creating diagnostic for ${filePath}: ${msg.message}`, this.diagnostics);
 				diagnosticResults.push(
 					new vscode.Diagnostic(
 						range,
