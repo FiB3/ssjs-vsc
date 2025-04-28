@@ -126,7 +126,7 @@ async function registerFileActions() {
 				lintResult = await ext.lintCurrentFile();
 			}
 
-			if (Config.isAutoSaveEnabled() && lintResult < 1) {
+			if (Config.isAutoSaveEnabled() && (lintResult < 1 || !Config.isLintOnSaveStrict())) {
 				await ext.uploadScript(true);
 			} else if (Config.isAutoSaveEnabled()) {
 				logger.info(`registerFileActions() called for: ${filePath}, lintResult: ${lintResult}.`);

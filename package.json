@@ -293,9 +293,19 @@
           "description": "How many method parameters can be located on one line (creates new lines if overflown)."
         },
         "ssjs-vsc.language.ssjs.lintOnSave": {
-          "type": "boolean",
-          "default": true,
-          "description": "Lint the current file on save."
+          "type": "string",
+          "default": "on-strict",
+          "enum": [
+            "off",
+            "on-warning",
+            "on-strict"
+          ],
+          "enumDescriptions": [
+            "off - do not lint on save.",
+            "on-warning - lint on save, but allow Auto Save even with errors.",
+            "on-strict - lint on save, but block Auto Save if errors found - Deploy manually or fix the errors."
+          ],
+          "description": "Lint the current file on save. If errors are found, the auto-save may be stopped."
         }
       }
     },

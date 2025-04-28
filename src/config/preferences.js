@@ -141,6 +141,12 @@ module.exports = class Preferences extends BaseConfig {
 	}
 
 	static isLintOnSaveEnabled() {
-		return vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? false;
+		let lintOnSave = vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? 'on-strict';
+		return lintOnSave !== 'off';
+	}
+
+	static isLintOnSaveStrict() {
+		let lintOnSave = vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? 'on-strict';
+		return lintOnSave === 'on-strict';
 	}
 }
