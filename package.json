@@ -180,6 +180,10 @@
         },
         {
           "command": "ssjs-vsc.get-live-preview-url"
+        },
+        {
+          "command": "ssjs-vsc.lint-current-file",
+          "when": "editorLangId == ssjs"
         }
       ],
       "editor/title": [
@@ -287,6 +291,11 @@
           "type": "number",
           "default": 4,
           "description": "How many method parameters can be located on one line (creates new lines if overflown)."
+        },
+        "ssjs-vsc.language.ssjs.lintOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Lint the current file on save."
         }
       }
     },

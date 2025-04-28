@@ -6,6 +6,7 @@ const SourceCode = require("../code/sourceCode");
 const ContextHolder = require("../config/contextHolder");
 const logger = require("../auxi/logger");
 const vsc = require("../vsc");
+const file = require("../auxi/file");
 
 class Linter {
 	/**
@@ -56,11 +57,34 @@ class Linter {
 	 * @param {boolean} silent - Whether to suppress messages.
 	 * @returns {boolean} true if there are problems, false otherwise
 	 */
-	async lintFile(silent = false) {
+	async lintCurrentFile(silent = false) {
 		const filePath = vsc.getActiveEditor();
 		if (!filePath) {
-			return false;
+			return -1;
 		}
+
+		return this.lintFile(filePath, silent);
+	}
+
+	/**
+	 * Lint the currently active file & output the results to the editor - 'Problems' view.
+	 * @param {string} filePath - The file path to lint.
+	 * @param {boolean} silent - Whether to suppress messages.
+	 * @returns {boolean} true if there are problems, false otherwise
+	 */
+	async lintFile(filePath, silent = false) {
+		if (!filePath) {
+			logger.error(`lintFile() - no file path provided:`, filePath);
+			vscode.window.showErrorMessage("No file path provided, can't lint.");
+			return -1;
+		}
+
+		if (!file.exists(filePath)) {
+			logger.error(`lintFile() - file does not exist:`, filePath);
+			vscode.window.showErrorMessage("File does not exist, can't lint.");
+			return -1;
+		}
+
 		if (!this.activeDiagnostics.includes(filePath)) {
 			this.activeDiagnostics.push(filePath);
 		}
@@ -75,7 +99,21 @@ class Linter {
 		results = this.applyParsingErrorRules(results, lintableText);
 		results = this.validateErrorMessages(results);
 		results = [...customValidationResults, ...results];
+
 		return this.outputLintingResults(filePath, results, silent);
+	}
+
+	/**
+	 * Count the number of errors in the results.
+	 * @private
+	 * @param {Array} results - The results to count the errors in.
+	 * @returns {number} The number of errors.
+	 */
+	countErrors(results) {
+		const errorCount = results.reduce((acc, result) => {
+			return acc + result.errorCount || 0;
+		}, 0);
+		return errorCount;
 	}
 
 	/**
@@ -84,7 +122,7 @@ class Linter {
 	 * @param {string} filePath - The file path to output the results to.
 	 * @param {Array} results - The results to output.
 	 * @param {boolean} silent - Whether to suppress messages.
-	 * @returns {boolean} true if there are problems, false otherwise.
+	 * @returns {number} The number of errors.
 	 */
 	outputLintingResults(filePath, results, silent = false) {
 		if (!this.diagnostics) {
@@ -97,14 +135,19 @@ class Linter {
 			if (!silent) {
 				vscode.window.showInformationMessage(`No problems found in ${filePath}.`);
 			}
-			return false;
+			return 0;
 		}
 
+		const errorCount = this.countErrors(results);
 		if (!silent) {
-			vscode.window.showWarningMessage(`Found ${results.length} problems in ${filePath}.`);
+			if (errorCount > 0) {
+				vscode.window.showWarningMessage(`Found ${errorCount} fatal problems in ${filePath}.`);
+			} else {
+				vscode.window.showInformationMessage(`No fatal problems found in ${filePath}.`);
+			}
 		}
 		this.outputResults(filePath, results);
-		return true;
+		return errorCount;
 	}
 
 	/**

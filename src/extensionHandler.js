@@ -139,11 +139,14 @@ class ExtensionHandler {
 	}
 
 	async lintCurrentFile() {
+		let lintErrors = 0;
 		if (ssjsLinter.isLintable()) {
-			await ssjsLinter.lintFile(false);
+			lintErrors = await ssjsLinter.lintCurrentFile(false);
+			logger.log(`Lint errors: ${lintErrors}`);
 		} else {
 			vscode.window.showErrorMessage("Not lintable.");
 		}
+		return lintErrors;
 	}
 
 	/**

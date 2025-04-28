@@ -120,8 +120,18 @@ async function registerFileActions() {
 		
 		if (Config.isConfigFile(filePath)) {
 			ext.config.loadConfig();
-		} else if (Config.isAutoSaveEnabled() && Config.isFileInWorkspace(filePath)) {
-			await ext.uploadScript(true);
+		} else if (Config.isFileInWorkspace(filePath)) {
+			let lintResult = 0; // 0 means no problems or not linted
+			if (Config.isLintOnSaveEnabled()) {
+				lintResult = await ext.lintCurrentFile();
+			}
+
+			if (Config.isAutoSaveEnabled() && lintResult < 1) {
+				await ext.uploadScript(true);
+			} else if (Config.isAutoSaveEnabled()) {
+				logger.info(`registerFileActions() called for: ${filePath}, lintResult: ${lintResult}.`);
+				vscode.window.showWarningMessage(`Cannot auto-save file with linting errors. Please, fix the errors first.`);
+			}
 		} else {
 			if (!filePath.endsWith('settings.json')) {
 				logger.info(`registerFileActions() called for: ${filePath}, autosave: ${Config.isAutoSaveEnabled()} && within Workspace: ${Config.isFileInWorkspace(filePath)}.`);

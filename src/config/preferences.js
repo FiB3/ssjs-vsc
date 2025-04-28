@@ -128,7 +128,7 @@ module.exports = class Preferences extends BaseConfig {
 	}
 
 	static getBeautyfierSetup() {
-		const settings = vscode.workspace.getConfiguration("ssjs-vsc.language.ampscript");
+		const settings = vscode.workspace.getConfiguration('ssjs-vsc.language.ampscript');
 		logger.log(`Settings`, settings);
 		const s = {
 			capitalizeSet: settings.get('capitalizeKeywords'),
@@ -138,5 +138,9 @@ module.exports = class Preferences extends BaseConfig {
 			maxParametersPerLine: settings.get('maxParametersPerLine')
 		};
 		return s;
+	}
+
+	static isLintOnSaveEnabled() {
+		return vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? false;
 	}
 }

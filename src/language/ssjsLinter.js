@@ -126,7 +126,9 @@ const scriptTagValidator = (scriptText) => {
 				line: lineNumber,
 				column: 0,
 				severity: severity
-			}]
+			}],
+			errorCount: severity == 2 ? 1 : 0,
+			warningCount: severity < 2 ? 1 : 0
 		});
 	}
 	const regex = /<script([^>]*)>/gi;
@@ -163,9 +165,10 @@ const scriptTagValidator = (scriptText) => {
 						pushError("Use 'POST' or 'GET' for 'executionContextType' attribute (SSJS) or omit it.", 2);
 					}
 				}
+				// TODO: check the executionContextName (if exists, must have a value)
+				// TODO: shouldn't have other attributes
 			}
 		}
-
 		lineNumber++;
 	}
 
