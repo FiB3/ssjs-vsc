@@ -7,6 +7,7 @@ const ContextHolder = require("../config/contextHolder");
 const logger = require("../auxi/logger");
 const vsc = require("../vsc");
 const file = require("../auxi/file");
+const telemetry = require("../telemetry");
 
 class Linter {
 	/**
@@ -73,34 +74,41 @@ class Linter {
 	 * @returns {boolean} true if there are problems, false otherwise
 	 */
 	async lintFile(filePath, silent = false) {
-		if (!filePath) {
-			logger.error(`lintFile() - no file path provided:`, filePath);
-			vscode.window.showErrorMessage("No file path provided, can't lint.");
+		try {
+			if (!filePath) {
+				logger.error(`lintFile() - no file path provided:`, filePath);
+				vscode.window.showErrorMessage("No file path provided, can't lint.");
+				return -1;
+			}
+
+			if (!file.exists(filePath)) {
+				logger.error(`lintFile() - file does not exist:`, filePath);
+				vscode.window.showErrorMessage("File does not exist, can't lint.");
+				return -1;
+			}
+
+			if (!this.activeDiagnostics.includes(filePath)) {
+				this.activeDiagnostics.push(filePath);
+			}
+
+			let lintableText = SourceCode.load(filePath);
+
+			const customValidationResults = this.customValidator(lintableText);
+
+			lintableText = this.preFlight(lintableText);
+
+			let results = await this.eslint.lintText(lintableText);
+			results = this.applyParsingErrorRules(results, lintableText);
+			results = this.validateErrorMessages(results);
+			results = [...customValidationResults, ...results];
+
+			return this.outputLintingResults(filePath, results, silent);
+		} catch (e) {
+			logger.error(`lintFile() - error:`, e);
+			vscode.window.showErrorMessage("Error linting file, please try again. If the problem persists, please contact via GitHub.");
+			telemetry.error("lint-error", { error: e.message, language: this.languageName });
 			return -1;
 		}
-
-		if (!file.exists(filePath)) {
-			logger.error(`lintFile() - file does not exist:`, filePath);
-			vscode.window.showErrorMessage("File does not exist, can't lint.");
-			return -1;
-		}
-
-		if (!this.activeDiagnostics.includes(filePath)) {
-			this.activeDiagnostics.push(filePath);
-		}
-
-		let lintableText = SourceCode.load(filePath);
-
-		const customValidationResults = this.customValidator(lintableText);
-
-		lintableText = this.preFlight(lintableText);
-
-		let results = await this.eslint.lintText(lintableText);
-		results = this.applyParsingErrorRules(results, lintableText);
-		results = this.validateErrorMessages(results);
-		results = [...customValidationResults, ...results];
-
-		return this.outputLintingResults(filePath, results, silent);
 	}
 
 	/**

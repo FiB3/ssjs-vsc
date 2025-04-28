@@ -138,11 +138,15 @@ class ExtensionHandler {
 		}
 	}
 
-	async lintCurrentFile() {
+	async lintCurrentFile(trigger = 'command') {
 		let lintErrors = 0;
 		if (ssjsLinter.isLintable()) {
 			lintErrors = await ssjsLinter.lintCurrentFile(false);
 			logger.log(`Lint errors: ${lintErrors}`);
+			telemetry.log(`lint`,
+				{ trigger: trigger, lintMode: Config.getLintMode() },
+				{ lintResult: lintErrors }
+			);
 		} else {
 			vscode.window.showErrorMessage("Not lintable.");
 		}

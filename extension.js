@@ -44,7 +44,7 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.get-live-preview-url', callback: async () => await ext.provider.getLivePreviewUrl() },
 		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
-		{ name: 'ssjs-vsc.lint-current-file', callback: async () => await ext.lintCurrentFile() }
+		{ name: 'ssjs-vsc.lint-current-file', callback: async () => await ext.lintCurrentFile('command') }
 	]);
 
 	let workspaceOk = await ext.workspaceOk();
@@ -123,7 +123,7 @@ async function registerFileActions() {
 		} else if (Config.isFileInWorkspace(filePath)) {
 			let lintResult = 0; // 0 means no problems or not linted
 			if (Config.isLintOnSaveEnabled()) {
-				lintResult = await ext.lintCurrentFile();
+				lintResult = await ext.lintCurrentFile('auto-save');
 			}
 
 			if (Config.isAutoSaveEnabled() && (lintResult < 1 || !Config.isLintOnSaveStrict())) {
