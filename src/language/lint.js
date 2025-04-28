@@ -52,7 +52,8 @@ class Linter {
 	}
 
 	/**
-	 * Lint the currently active file.
+	 * Lint the currently active file & output the results to the editor - 'Problems' view.
+	 * @param {boolean} silent - Whether to suppress messages.
 	 * @returns {boolean} true if there are problems, false otherwise
 	 */
 	async lintFile(silent = false) {
@@ -72,11 +73,19 @@ class Linter {
 
 		let results = await this.eslint.lintText(lintableText);
 		results = this.applyParsingErrorRules(results, lintableText);
-
+		results = this.validateErrorMessages(results);
 		results = [...customValidationResults, ...results];
 		return this.outputLintingResults(filePath, results, silent);
 	}
 
+	/**
+	 * Output the linting results to the editor - 'Problems' view (wrapper).
+	 * @private
+	 * @param {string} filePath - The file path to output the results to.
+	 * @param {Array} results - The results to output.
+	 * @param {boolean} silent - Whether to suppress messages.
+	 * @returns {boolean} true if there are problems, false otherwise.
+	 */
 	outputLintingResults(filePath, results, silent = false) {
 		if (!this.diagnostics) {
 			this.initDiagnostics();
@@ -98,6 +107,12 @@ class Linter {
 		return true;
 	}
 
+	/**
+	 * Output the linting results to the editor - 'Problems' view.
+	 * @private
+	 * @param {string} filePath - The file path to output the results to.
+	 * @param {Array} results - The results to output.
+	 */
 	outputResults(filePath, results) {
 		logger.debug(`outputResults() ${filePath} ${results.length}:`, results);
 		let diagnosticResults = [];
@@ -124,6 +139,14 @@ class Linter {
 		this.diagnostics.set(vscode.Uri.file(filePath), diagnosticResults);
 	}
 
+	/**
+	 * Apply parsing error rules to the results.
+	 * These rules are applied on Parsing Errors to improve the error messages.
+	 * @private
+	 * @param {Array} results - The results to apply the rules to.
+	 * @param {string} scriptText - The script text to apply the rules to.
+	 * @returns {Array} The results array with the rules applied.
+	 */
 	applyParsingErrorRules(results, scriptText) {
 		if (this.parsingErrorRules.length === 0) {
 			return results;
@@ -155,8 +178,24 @@ class Linter {
 		return results;
 	}
 
-	createESLintInstance(overrideConfig) {
+	/**
+	 * Validate the error messages so that we don't output empty results.
+	 * @private
+	 * @param {Array} results - The results to validate.
+	 * @returns {Array} The results array with the error messages validated.
+	 */
+	validateErrorMessages(results) {
+		var errorResults = [];
+		for (const result of results) {
+			logger.debug(`validateErrorMessages() - result:`, result);
+			if (result.messages.length > 0) {
+				errorResults.push(result);
+			}
+		}
+		return errorResults;
+	}
 
+	createESLintInstance(overrideConfig) {
 		return new ESLint({
 			overrideConfigFile: true,
 			overrideConfig: overrideConfig,
