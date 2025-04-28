@@ -150,6 +150,12 @@ class Linter {
 		if (!silent) {
 			if (errorCount > 0) {
 				vscode.window.showWarningMessage(`Found ${errorCount} fatal problems in ${filePath}.`);
+				// open the "Problems" view
+				try {
+					vscode.commands.executeCommand('workbench.actions.view.problems');
+				} catch (e) {
+					logger.error(`outputLintingResults() - error opening problems view:`, e);
+				}
 			} else {
 				vscode.window.showInformationMessage(`No fatal problems found in ${filePath}.`);
 			}
