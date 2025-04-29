@@ -138,10 +138,10 @@ class ExtensionHandler {
 		}
 	}
 
-	async lintCurrentFile(trigger = 'command') {
+	async lintCurrentFile(trigger = 'command', silent = false) {
 		let lintErrors = 0;
 		if (ssjsLinter.isLintable()) {
-			lintErrors = await ssjsLinter.lintCurrentFile(false);
+			lintErrors = await ssjsLinter.lintCurrentFile(silent);
 			logger.log(`Lint errors: ${lintErrors}`);
 			telemetry.log(`lint`,
 				{ trigger: trigger, lintMode: Config.getLintMode() },

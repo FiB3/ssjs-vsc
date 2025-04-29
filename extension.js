@@ -123,7 +123,7 @@ async function registerFileActions() {
 		} else if (Config.isFileInWorkspace(filePath)) {
 			let lintResult = 0; // 0 means no problems or not linted
 			if (Config.isLintOnSaveEnabled()) {
-				lintResult = await ext.lintCurrentFile('auto-save');
+				lintResult = await ext.lintCurrentFile('auto-save', true);
 			}
 
 			if (Config.isAutoSaveEnabled() && (lintResult < 1 || !Config.isLintOnSaveStrict())) {
