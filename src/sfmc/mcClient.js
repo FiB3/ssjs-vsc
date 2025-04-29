@@ -4,8 +4,8 @@ const stats = require('../auxi/stats');
 
 /*
 	list of required scopes per endpoint:
-  GET /platform/v1/configcontext, GET /platform/v1/tokenContext - no scopes
-  POST: /asset/v1/content/assets; POST, PATCH: /asset/v1/assets/
+	GET /platform/v1/configcontext, GET /platform/v1/tokenContext - no scopes
+	POST: /asset/v1/content/assets; POST, PATCH: /asset/v1/assets/
 			- saved_content_write, email_write, documents_and_images_read, documents_and_images_write
 		POST: /asset/v1/content/categories
 			- documents_and_images_write, documents_and_images_read
@@ -108,9 +108,9 @@ module.exports = class McClient {
 
 	async getAssetFolders() {
 		const allItems = [];
-    let page = 1;
+		let page = 1;
 
-    while (true && page < 100) {
+		while (true && page < 100) {
 			try {
 				const r = await this._get(`/asset/v1/content/categories`, {
 					'$page': page,
@@ -140,8 +140,8 @@ module.exports = class McClient {
 				logger.error('Error retrieving items:', error);
 				break; // Exit the loop on error
 			}
-    }
-    return allItems;
+		}
+		return allItems;
 	}
 
 	async getAssetFolderById(folderId) {
@@ -149,38 +149,44 @@ module.exports = class McClient {
 	}
 
 	async validateApi() {
-    let r = {
-      ok: true,
+		let r = {
+			ok: true,
 			message: `API Connection OK.`
-    };
+		};
 
-    try {
-        await this.validateScopes();
-        logger.log(`API Scopes OK.`);
-    } catch (err) {
-        r.ok = false;
-				logger.error('validateApiKeys error:', err);
-        if (Array.isArray(err)) {
-            r.message = `Installed Package is missing required scopes: \n${err.join(', ')}. Please update the package in SFMC and reopen VSCode.`;
-        } else {
-            let m = this.parseRestError(err);
-            r.message = `SFMC API Scopes issue: \n${m}`;
-        }
-        return r;
-    }
+		try {
+			const tokenResponse = await this.validateScopes();
+			if (Array.isArray(tokenResponse) && tokenResponse.length > 0 && 'statusCode' in tokenResponse[0]) {	// This means it's an error response
+				r.ok = false;
+				r.message = `SFMC API Scopes issue: \n${this.parseRestError(tokenResponse)}`;
+				return r;
+			}
+			logger.log(`API Scopes OK.`);
+		} catch (err) {
+			r.ok = false;
+			logger.error('validateApiKeys error:', err);
 
-    try {
-        const data = await this.validateApiKeys();
-        logger.log(`API Keys OK. user: ${data.body?.user?.id}, mid: ${data.body?.organization?.id}.`);
-        r.userId = data.body?.user?.id;
+			if (Array.isArray(err)) {
+				r.message = `Installed Package is missing required scopes: \n"${err.join(', ')}". Please update the package in SFMC and try again.`;
+			} else {
+				let m = this.parseRestError(err);
+				r.message = `SFMC API Scopes issue: \n${m}`;
+			}
+			return r;
+		}
+
+		try {
+				const data = await this.validateApiKeys();
+				logger.log(`API Keys OK. user: ${data.body?.user?.id}, mid: ${data.body?.organization?.id}.`);
+				r.userId = data.body?.user?.id;
 				r.mid = data.body?.organization?.id;
-    } catch (err) {
+		} catch (err) {
 			logger.error('validateApiKeys error:', err);
 			r.ok = false;
 			let m = this.parseRestError(err);
 			r.message = `SFMC API Credentials issue: \n${m}`;
-    }
-    return r;
+		}
+		return r;
 	}
 
 	async validateApiKeys() {

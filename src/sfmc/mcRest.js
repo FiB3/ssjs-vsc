@@ -34,20 +34,26 @@ class McRest {
 	async getAccessToken() {
 		this.onApiCall('POST', `/v2/token`);
 
-		return axios.post(this.authUrl, {
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
-      account_id: this.accountId,
-      grant_type: 'client_credentials'
-    })
+    return new Promise((resolve, reject) => {
+      axios.post(this.authUrl, {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        account_id: this.accountId,
+        grant_type: 'client_credentials'
+      })
 				.then(response => {
 					this.accessToken = response.data.access_token;
 					this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
-					return response.data;
+					resolve(response.data);
 				})
 				.catch(error => {
-					throw new Error(`Failed to get access token: ${error.message}`);
+          reject({
+            statusCode: error.response?.status || 500,
+            statusMessage: error.response?.statusText || error.message,
+            body: error.response?.data || error.message
+          });
 				});
+    });
 	}
 
   async get(endpoint, query ) {

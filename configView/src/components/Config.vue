@@ -231,6 +231,7 @@ window.addEventListener('message', event => {
 			// validateAnyScriptConfig(message);
 			devPagesStatus.value.ok = message.ok;
 			devPagesStatus.value.status = message.status;
+			break;
 		case 'devAssetsValidated':
 			console.log(`Dev Assets Validated Response:`, message);
 			anyScriptsDeployedStatus.value.ok = message.ok;
