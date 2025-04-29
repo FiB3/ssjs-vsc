@@ -1,6 +1,5 @@
 const vscode = require("vscode");
 const { ESLint } = require("eslint");
-const ssjs = require("eslint-config-ssjs");
 
 const SourceCode = require("../code/sourceCode");
 const ContextHolder = require("../config/contextHolder");
