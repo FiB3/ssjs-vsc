@@ -73,8 +73,6 @@ exports.template = {
 
 		var deTemplated = codeTemplate.replace(removalRegEx, `'<de-templated>';`);
 
-		console.log(deTemplated);
-
 		return deTemplated;
 	},
 

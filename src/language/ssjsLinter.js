@@ -10,6 +10,9 @@ const ssjsConfig = {
 		ecmaVersion: 3,
 		sourceType: "script",
 		parserOptions: {
+			"ecmaFeatures": {
+				"globalReturn": true
+			}
 		},
 		globals: {
 			"Account": "readonly",
@@ -251,6 +254,17 @@ const parsingErrorRules = [
 			}
 		}
 
+		return false;
+	},
+	// import is not allowed in SSJS
+	(message, line) => {
+		const regex = /\W*import\s+/;
+		if (line.match(regex)) {
+			return {
+				message: "Parsing error: 'import' is not allowed in SSJS.",
+				severity: 2
+			}
+		}
 		return false;
 	}
 ];
