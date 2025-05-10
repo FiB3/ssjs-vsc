@@ -147,8 +147,6 @@ class ExtensionHandler {
 				{ trigger: trigger, lintMode: Config.getLintMode() },
 				{ lintResult: lintErrors }
 			);
-		} else {
-			vscode.window.showErrorMessage("Not lintable.");
 		}
 		return lintErrors;
 	}
