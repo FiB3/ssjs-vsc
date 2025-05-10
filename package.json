@@ -191,7 +191,7 @@
         },
         {
           "command": "ssjs-vsc.lint-current-file",
-          "when": "editorLangId == ssjs"
+          "when": "editorLangId == ssjs || resourceExtname in ssjs-vsc.allowedFileTypes"
         }
       ],
       "editor/title": [

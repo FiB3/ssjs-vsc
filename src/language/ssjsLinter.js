@@ -77,6 +77,7 @@ const ssjsConfig = {
 		"no-extend-native": "off",
 		"no-new": "off",
 		"no-throw-literal": "off",
+		"no-param-reassign": "warn",
 		// custom rules:
 		"ssjs/no-trailing-commas": "error"
 	}
