@@ -2,6 +2,8 @@ const Linter = require("./lint");
 const ssjs = require("./ssjsPlugin");
 const { template } = require("../template");
 
+const JS_LANGUAGE_NAME = "javascript";
+
 const ssjsConfig = {
 	plugins: {
 		ssjs
@@ -83,7 +85,15 @@ const ssjsConfig = {
 	}
 };
 
-const removeScriptTags = (scriptText) => {
+/**
+ * Remove the script tags from the script text, unless it's a JS file.
+ * Used as a pre-flight function for the linter.
+ */
+const removeScriptTags = (scriptText, languageName) => {
+	if (languageName === JS_LANGUAGE_NAME) {
+		return scriptText;
+	}
+
 	// keep only the script content - remove everything outside of `<script runat="server">` tags
 	// keep the lines, but remove anything else
 	let openingTagRegex = /<script[^>]*?runat=["']*server["']*[^>]*?>/gi;
@@ -123,10 +133,12 @@ const removeScriptTags = (scriptText) => {
  * - executioncontextname - optional
  * return in the Array, that can be processed by the linter
  * 
+ * Not used for JS files.
  * @param {string} scriptText - The script text to validate
+ * @param {string} languageName - The language name of the file
  * @returns {Array} - The array of errors
  */
-const scriptTagValidator = (scriptText) => {
+const scriptTagValidator = (scriptText, languageName) => {
 	function pushError(message, severity = 2) {
 		errors.push({
 			messages: [{
@@ -139,6 +151,11 @@ const scriptTagValidator = (scriptText) => {
 			warningCount: severity < 2 ? 1 : 0
 		});
 	}
+
+	if (languageName === JS_LANGUAGE_NAME) {
+		return [];
+	}
+
 	const regex = /<script([^>]*)>/gi;
 
 	let errors = [];

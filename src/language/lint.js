@@ -14,8 +14,8 @@ class Linter {
 	 * @param {string} languageName Name of the language (e.g. "ssjs")
 	 * @param {Array} fileExtensions Array of file extensions (e.g. [".ssjs"])
 	 * @param {Object} overrideConfig Override configuration for the linter
-	 * @param {Function} preFlight(scriptText) pre-linter function to modify the file content if needed
-	 * @param {Function} customValidator(scriptText) Custom validator function - works on entire file
+	 * @param {Function} preFlight(scriptText, languageName) pre-linter function to modify the file content if needed
+	 * @param {Function} customValidator(scriptText, languageName) Custom validator function - works on entire file
 	 * @param {Array<Function>} parsingErrorRules Additional rules to apply to parsing errors:
 	 * 		function(message, line) => { return { message: string, severity: number }; } / false
 	 */
@@ -23,8 +23,8 @@ class Linter {
 		languageName,
 		fileExtensions,
 		overrideConfig,
-		preFlight = (scriptText) => { return scriptText; },
-		customValidator = (scriptText) => { return []; },
+		preFlight = (scriptText, languageName) => { return scriptText; },
+		customValidator = (scriptText, languageName) => { return []; },
 		parsingErrorRules = []
 	}) {
 		this.languageName = languageName;
@@ -91,10 +91,11 @@ class Linter {
 			}
 
 			let lintableText = SourceCode.load(filePath);
+			let fileLanguage = vsc.getFileLanguage();
 
-			const customValidationResults = this.customValidator(lintableText);
+			const customValidationResults = this.customValidator(lintableText, fileLanguage);
 
-			lintableText = this.preFlight(lintableText);
+			lintableText = this.preFlight(lintableText, fileLanguage);
 
 			let results = await this.eslint.lintText(lintableText);
 			results = this.applyParsingErrorRules(results, lintableText);

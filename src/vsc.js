@@ -23,6 +23,18 @@ function getActiveEditor(relativePath = false) {
 }
 
 /**
+ * Get the language name of the active editor.
+ * @returns {string} language name
+ */
+function getFileLanguage() {
+	const activeTextEditor = vscode.window.activeTextEditor;
+	if (activeTextEditor) {
+		return activeTextEditor.document.languageId;
+	}
+	return false;
+}
+
+/**
  * Open the given file path.
  * @param {string} filePath
  * @param {boolean} [doOpen=true] open the file (just to simplify the code elsewhere)
@@ -47,6 +59,7 @@ function copyToClipboard(text) {
 
 module.exports = {
 	getActiveEditor,
+	getFileLanguage,
 	openTextDocument,
 	openInBrowser,
 	copyToClipboard,
