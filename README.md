@@ -9,14 +9,16 @@ From syntax highlight through rapid testing and preview in VS Code and Cursor.
 
 - Support rapid code development of SSJS scripts via SFMC's Cloud Pages.
 - Preview within VSCode / Cursor - with a WYSIWYG for Cloud Pages and more information rich preview for scripts.
-- Syntax highlight.
+- Syntax highlight & formatting.
 - SSJS Linting - finding syntax issues.
 - SSJS Snippets.
 - Mustache templating of scripts and pages to ensure your env security when using repositories.
 - Live Previvew feature for pure HTML files that includes templating.
 - Configuration Wizard UI.
 
-All baked in for your convenience! No additional installs needed! Configure and save time!
+All baked in for your convenience - no additional installs needed!
+
+Start saving time now...
 
 ### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
@@ -47,7 +49,17 @@ Once your SSJS Manager is Active and Cloud Page published, all you need to do is
 ### Commands
 
 To be run using `Ctrl` + `Shift` + `P` (Win) / `CMD` + `Shift` + `P` (Mac) / F1.
-The list of all commands can be seen in the `Extensions > SSJS Manager > Features > Comnands`. 
+The list of all commands can be seen in the `Extensions > SSJS Manager > Features > Comnands`.
+
+### Linting
+
+Finding mistakes and typos in your SSJS code has never been easier!  
+
+SSJS files are auto-checked automatically on save, if you wish so.  
+Control this via VSCode Preference: `SSJS: Lint on save`.
+
+Use `SSJS: Lint Current SSJS File` to lint SSJS within `AMPscript` and `HTML` files.  
+The linter also supports `JavaScript` files (without ssjs script tags). To enable this, add `.js` to `Additional file types ` in SSJS Manager Preferences. Then lint via command.
 
 ### Live Preview
 

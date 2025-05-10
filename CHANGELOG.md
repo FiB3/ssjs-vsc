@@ -2,6 +2,20 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.8.1] - 2025-05-11
+
+### Added:
+- SSJS Linter! Fully inbuilt!
+- Automatically lint `ssjs` files on save, with VSCode Preference to manage.
+- Command to lint AMPscript and HTML files manually, or `.js` files (without script tags) if needed.
+- Custom linting rules for ssjs script tags.
+- Included rule to highlight the pesky commas at the end of arrays.
+- Improved out of the box `Parsing error` messages, so it is more clear what to look for (like when using `async` or `import` keywords).
+
+### Fixed:
+- Bug: Store SFMC API Creds in Config Panel showed no error on `unauthenticated`.
+- Bug: `TypeError: Assignment to constant variable` on closing config panel.
+
 ## [0.7.0] - 2025-04-13
 
 ### Added:
