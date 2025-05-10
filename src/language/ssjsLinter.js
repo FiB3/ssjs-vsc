@@ -1,6 +1,6 @@
 const Linter = require("./lint");
 const ssjs = require("./ssjsPlugin");
-
+const { template } = require("../template");
 
 const ssjsConfig = {
 	plugins: {
@@ -99,7 +99,11 @@ const removeScriptTags = (scriptText) => {
 		}
 	}
 
-	return scriptLines.join("\n");
+	// template the script to remove Mustache tags
+	scriptLines = scriptLines.join("\n");
+	scriptLines = template.runScriptForLinting(scriptLines);
+
+	return scriptLines;
 };
 
 /**

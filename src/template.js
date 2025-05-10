@@ -32,7 +32,7 @@ exports.template = {
 	 * @param {string} pth path to the file
 	 * @param {object} config - config object
 	 * @param {string} env - `dev`, `prod` or `live-preview` (dev is default)
-	 * @returns 
+	 * @returns {string} - the templated code
 	 */
 	runScriptFile: function(pth, config, env = 'dev') {
 		const htmlTemplate = textFile.load(pth);
@@ -56,6 +56,26 @@ exports.template = {
 			
 		var html = Mustache.render(htmlTemplate, view, {}, customTags);
 		return html;
+	},
+
+	/**
+	 * Templates the code for linting (dev environment).
+	 * @param {string} codeTemplate - the code template to be templated
+	 * @returns {string} - the de-templated code
+	 */
+	runScriptForLinting: function(codeTemplate) {
+		const customTags = Config.getTemplatingTags();
+
+		var removalRegEx = new RegExp(
+			`${customTags[0]}[^{}]*${customTags[1]}`,
+			'gmi'
+		);
+
+		var deTemplated = codeTemplate.replace(removalRegEx, `'<de-templated>';`);
+
+		console.log(deTemplated);
+
+		return deTemplated;
 	},
 
 	getScriptVersion: function() {
