@@ -104,7 +104,7 @@ window.addEventListener('message', event => {
 		case 'templatingInitialized':
 			console.log(`Templating Initialized:`, message);
 			message.tags.forEach(t => {
-				console.log(`Tag:`, t);
+				// console.log(`Tag:`, t);
 
 				if (
 					(typeof(t.prod) === 'string' && t.prod.startsWith('file://'))
@@ -112,7 +112,7 @@ window.addEventListener('message', event => {
 					|| (typeof(t.preview) === 'string' && t.preview.startsWith('file://'))
 				) {
 					t.type = 'lib';
-					console.log(`Tag is a library:`, t);
+					// console.log(`Tag is a library:`, t);
 					t.prod = typeof(t.prod) === 'string' ? t.prod.replace('file://', '') : '';
 					t.dev = typeof(t.dev) === 'string' ? t.dev.replace('file://', '') : '';
 					t.preview = typeof(t.preview) === 'string' ? t.preview.replace('file://', '') : '';
@@ -133,7 +133,7 @@ window.addEventListener('resize', resizeScrollbar);
 document.addEventListener('DOMContentLoaded', resizeScrollbar);
 
 function resizeScrollbar() {
-	console.log('Window resized');
+	// console.log('Window resized');
 	let container = document.querySelector('.tags');
 	let content = document.querySelector('.tabs-container');
 	let scrollbar = document.querySelector('.scrollbar-container');
@@ -154,7 +154,7 @@ function resizeScrollbar() {
 	thumb.style.width = `${thumbWidth > 0 && thumbWidth < 100 ? thumbWidth : 0}%`;
 	thumb.style.left = `${scrollRatio * 100}%`;
 
-	console.log('Thumb width:', Math.round(thumbWidth), '%, from:', thumbWidthPx, 'of:', containerWidth, 'left:', scrollRatio, 'scrollLeft:', scrollLeft);
+	// console.log('Thumb width:', Math.round(thumbWidth), '%, from:', thumbWidthPx, 'of:', containerWidth, 'left:', scrollRatio, 'scrollLeft:', scrollLeft);
 }
 
 function emptyfy(value) {
@@ -164,7 +164,7 @@ function emptyfy(value) {
 onMounted(() => {
 	vscode.postMessage({ command: 'templatingInit' });
 	document.querySelector('.tags').addEventListener('scroll', () => {
-		console.log('Scroll event');
+		// console.log('Scroll event');
 		resizeScrollbar();
 	});
 });

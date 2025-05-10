@@ -10,10 +10,13 @@ From syntax highlight through rapid testing and preview in VS Code and Cursor.
 - Support rapid code development of SSJS scripts via SFMC's Cloud Pages.
 - Preview within VSCode / Cursor - with a WYSIWYG for Cloud Pages and more information rich preview for scripts.
 - Syntax highlight.
+- SSJS Linting - finding syntax issues.
 - SSJS Snippets.
 - Mustache templating of scripts and pages to ensure your env security when using repositories.
 - Live Previvew feature for pure HTML files that includes templating.
 - Configuration Wizard UI.
+
+All baked in for your convenience! No additional installs needed! Configure and save time!
 
 ### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
