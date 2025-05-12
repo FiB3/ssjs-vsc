@@ -58,6 +58,8 @@ Finding mistakes and typos in your SSJS code has never been easier!
 SSJS files are auto-checked automatically on save, if you wish so.  
 Control this via VSCode Preference: `SSJS: Lint on save`.
 
+![Linting](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/linting2.gif)
+
 Use `SSJS: Lint Current SSJS File` to lint SSJS within `AMPscript` and `HTML` files.  
 The linter also supports `JavaScript` files (without ssjs script tags). To enable this, add `.js` to `Additional file types ` in SSJS Manager Preferences. Then lint via command.
 
