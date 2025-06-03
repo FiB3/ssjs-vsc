@@ -336,7 +336,9 @@
 			let contentType = message.headers['content-type'];
 			delete message.headers['content-type'];
 
-			if (contentType.includes('application/json')) {
+			if (!contentType) {
+				e.updateEditorContent(message.data, 'text');
+			} else if (contentType.includes('application/json')) {
 				console.log('JSON content');
 				e.updateEditorContent(message.data, 'json');
 			} else if (contentType.includes('text/html')) {

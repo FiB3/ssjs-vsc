@@ -148,10 +148,16 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 		});
 	} catch (e) {
 		logger.warn('loadScriptOutput:', e);
-		result = e.response;
+		vscode.window.showErrorMessage('Error on loading script output.');
+		// Ensure result has a valid structure even if e.response is undefined
+		result = {
+			status: e.response?.status || 500,
+			headers: e.response?.headers || {},
+			data: e.response?.data || e.message || 'Unknown error occurred'
+		};
 	}
 	let t1 = new Date();
-	logger.log('loadScriptOutput:', result);
+	logger.log('loadScriptOutput - postMessage:', result);
 
 	postMessage(panel, {
 		command: 'loadScript',
