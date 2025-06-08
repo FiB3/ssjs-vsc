@@ -49,6 +49,10 @@ class Linter {
 	 */
 	isLintable() {
 		const filePath = vsc.getActiveEditor();
+		if (!filePath) {
+			logger.error(`isLintable() - no file path provided:`, filePath);
+			return false;
+		}
 		return this.fileExtensions.some(ext => filePath.endsWith(ext));
 	}
 

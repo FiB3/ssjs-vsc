@@ -105,6 +105,11 @@ async function handleInit(panel, getViewFunc) {
 }
 
 async function reloadConfig(panel, message, getViewFunc) {
+	if (!ext.config) {
+		logger.error('Extension configuration not initialized - reloading config.');
+		vscode.window.showErrorMessage('Extension configuration not initialized. Is the extension configured?');
+		return;
+	}
 	ext.config.loadConfig();
 	let conf = await getViewFunc();
 	postMessage(panel, {

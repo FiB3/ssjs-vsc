@@ -19,6 +19,7 @@ function getActiveEditor(relativePath = false) {
 	} else {
 		logger.error('No file is currently open: vsc.getActiveEditor().');
 		vscode.window.showErrorMessage('No file is currently open.');
+		return false;
 	}
 }
 
