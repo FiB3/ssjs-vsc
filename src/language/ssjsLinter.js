@@ -89,36 +89,119 @@ const ssjsConfig = {
  * Remove the script tags from the script text, unless it's a JS file.
  * Used as a pre-flight function for the linter.
  */
-const removeScriptTags = (scriptText, languageName) => {
+function removeScriptTags(scriptText, languageName) {
 	if (languageName === JS_LANGUAGE_NAME) {
 		return scriptText;
 	}
 
-	// keep only the script content - remove everything outside of `<script runat="server">` tags
-	// keep the lines, but remove anything else
+	function replaceWithSpace(str, from, to) {
+		let output = str.split('');
+
+		for (let i = from; i < to; i++) {
+			output[i] = output[i] === '\n' ? '\n' : ' ';
+		}
+
+		return output.join('');
+	}
+
+	function findMatchingClosingTag(scriptText, startIndex = 0) {
+		const length = scriptText.length;
+		let inQuote = null; // ' or " or `
+		let escaped = false;
+		let inLineComment = false;
+		let inBlockComment = false;
+	
+		for (let i = startIndex; i < length - 8; i++) {
+			const char = scriptText[i];
+			const next2 = scriptText.slice(i, i + 2);
+			const next9 = scriptText.slice(i, i + 9).toLowerCase();
+	
+			if (inQuote) {
+				if (escaped) {
+					escaped = false;
+					continue;
+				}
+				if (char === '\\') {
+					escaped = true;
+				} else if (char === inQuote) {
+					inQuote = null;
+				}
+				continue;
+			}
+	
+			if (inLineComment) {
+				if (char === '\n') {
+					inLineComment = false;
+				}
+				continue;
+			}
+	
+			if (inBlockComment) {
+				if (next2 === '*/') {
+					inBlockComment = false;
+					i++; // skip over */
+				}
+				continue;
+			}
+	
+			// Detect start of comment
+			if (next2 === '//') {
+				inLineComment = true;
+				i++; // skip over //
+				continue;
+			}
+			if (next2 === '/*') {
+				inBlockComment = true;
+				i++; // skip over /*
+				continue;
+			}
+	
+			// Detect start of string
+			if (char === '"' || char === "'" || char === '`') {
+				inQuote = char;
+				continue;
+			}
+	
+			// Check for </script> only if not in comment or quote
+			if (next9 === '</script>') {
+				return i;
+			}
+		}
+	
+		return -1; // Not found
+	}
+
 	let openingTagRegex = /<script[^>]*?runat=["']*server["']*[^>]*?>/gi;
 	let closingTagRegex = /<\/script>/gi;
 
-	let lines = scriptText.split("\n");
-	let scriptLines = [];
-	let inScript = false;
-	for (let line of lines) {
-		if (line.match(closingTagRegex)) {
-			inScript = false;
-		}
-		scriptLines.push(inScript ? line : '');
+	let inSsjs = false;
+	let output = scriptText;
+	let startReplaceIndex = 0;
+	let endReplaceIndex = output.search(openingTagRegex);
 
-		if (line.match(openingTagRegex)) {
-			inScript = true;
-		}
+	while (startReplaceIndex > -1 && endReplaceIndex > -1) {
+		console.log('RANGE:', startReplaceIndex, endReplaceIndex);
+		// replace opening SSJS tag:
+		endReplaceIndex = output.indexOf('>', endReplaceIndex) + 1;
+		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
+
+		
+		// replace closing SSJS tag:
+		startReplaceIndex = findMatchingClosingTag(output, 0);
+		// startReplaceIndex = output.search(closingTagRegex, startReplaceIndex);
+		endReplaceIndex = output.indexOf('>', startReplaceIndex) + 1;
+	
+		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
+
+		// find next opening SSJS tag:
+		startReplaceIndex = endReplaceIndex;
+		endReplaceIndex = output.search(openingTagRegex);
+
+		console.log('=>', startReplaceIndex, endReplaceIndex);
 	}
 
-	// template the script to remove Mustache tags
-	scriptLines = scriptLines.join("\n");
-	scriptLines = template.runScriptForLinting(scriptLines);
-
-	return scriptLines;
-};
+	return output;
+}
 
 /**
  * Validate the script tags:
