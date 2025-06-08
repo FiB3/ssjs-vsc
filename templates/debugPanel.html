@@ -98,6 +98,7 @@
 	</style>
 	<script type="text/javascript">
 		const vscode = acquireVsCodeApi();
+		let TIMEOUT = 60000;
 
 		function refresh() {
 			var iframe = document.getElementById('previewFrame');
@@ -135,13 +136,50 @@
 		}
 
 		function loadScript(message) {
+			if (message.timeout) {
+				console.log(`loadScript - timeout: ${message.timeout} ms.`);
+				TIMEOUT = message.timeout;
+			}
 			var iframe = document.getElementById('previewFrame');
+			
+			// Set up timeout:
+			console.log('Setting up timeout...');
+			let isLoading = true;
+			const timeoutId = setTimeout(() => {
+				if (isLoading) {
+					isLoading = false;
+					console.log('Iframe loading timed out');
+					iframe.src = `data:text/html,
+						<!DOCTYPE html>
+						<html>
+							<head>
+								<style>
+									body { color: black; background-color: white; }
+								</style>
+							</head>
+							<body>
+								<h1>Timeout</h1>
+								<p>The preview panel timed out.</p>
+							</body>
+						</html>
+					`;
+				}
+			}, TIMEOUT);
+
+			// Clear timeout when iframe loads
+			iframe.onload = () => {
+				console.log('Iframe loaded:', timeoutId);
+				clearTimeout(timeoutId);
+				isLoading = false;
+			};
+
 			iframe.src = message.url;
 			console.log(`loadScript: `, message);
 			if (message.username && message.password) {
 				loginBasicAuth(message);
 			}
 		}
+
 		function showUserAndPassword() {
 			const credentialsHint = document.getElementById('credentials-hint');
 			credentialsHint.style.visibility = credentialsHint.style.visibility == 'hidden' ? 'visible' : 'hidden';
@@ -182,7 +220,7 @@
 			<a class="panel-button" onclick="showUserAndPassword()">Info</a>
 		</div>
 		<div id="credentials-hint">
-			<span>The preview has limited functionality, links, clipboard, forms will not work correctly.</span>
+			<span>The preview has limited functionality: links, clipboard, forms will not work correctly.</span>
 			<br/>
 			<span id="creds-hint">No credentials provided.</span>
 		</div>

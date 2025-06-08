@@ -152,4 +152,12 @@ module.exports = class Preferences extends BaseConfig {
 		let lintMode = vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? 'on-strict';
 		return lintMode;
 	}
+
+	static getPreviewPanelTimeout() {
+		let timeout = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('previewPanelTimeout') ?? 60;
+		if (timeout < 0 || timeout > 120) {
+			timeout = 60;
+		}
+		return timeout * 1000;
+	}
 }

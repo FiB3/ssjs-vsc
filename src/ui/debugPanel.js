@@ -94,7 +94,8 @@ function loadScript(pageData) {
 	postMessage(panel, {
 		command: 'loadScript',
 		...pageData,
-		hash: md5(`${pageData.username}:${pageData.password}`)
+		hash: md5(`${pageData.username}:${pageData.password}`),
+		timeout: Config.getPreviewPanelTimeout()
 	});
 }
 
@@ -144,17 +145,27 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 			url,
 			responseType: 'text',
 			headers: headersToUse,
-			withCredentials: true
+			withCredentials: true,
+			timeout: Config.getPreviewPanelTimeout()
 		});
 	} catch (e) {
 		logger.warn('loadScriptOutput:', e);
-		vscode.window.showErrorMessage('Error on loading script output.');
-		// Ensure result has a valid structure even if e.response is undefined
-		result = {
-			status: e.response?.status || 500,
-			headers: e.response?.headers || {},
-			data: e.response?.data || e.message || 'Unknown error occurred'
-		};
+		if (e.code === 'ECONNABORTED' && e.message.includes('timeout')) {
+			vscode.window.showErrorMessage('Timeout on loading script output.');
+			result = {
+				status: 408,
+				headers: {},
+				data: 'Preview panel timeout.'
+			}
+		} else {
+			// Ensure result has a valid structure even if e.response is undefined
+			vscode.window.showErrorMessage('Error on loading script output.');
+			result = {
+				status: e.response?.status || 500,
+				headers: e.response?.headers || {},
+				data: e.response?.data || e.message || 'Unknown error occurred'
+			};
+		}
 	}
 	let t1 = new Date();
 	logger.log('loadScriptOutput - postMessage:', result);

@@ -268,6 +268,13 @@
             "Preview - opens the URL in the VSCode preview (fast but not made for CSS debugging)."
           ]
         },
+        "ssjs-vsc.editor.previewPanelTimeout": {
+          "type": "number",
+          "default": 60,
+          "minimum": 0,
+          "maximum": 120,
+          "description": "Timeout for debug panel in seconds. 0 to 120 seconds. Same for both preview and text preview"
+        },
         "ssjs-vsc.editor.showConfigPanelAutomatically": {
           "type": "boolean",
           "default": "true",
