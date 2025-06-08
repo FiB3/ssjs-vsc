@@ -203,7 +203,7 @@ const scriptTagValidator = (scriptText, languageName) => {
 const parsingErrorRules = [
 	// const and let are not allowed in SSJS
 	(message, line) => {
-		const regex = /(const|let)\s+(\w+)\s*=/;
+		const regex = /(const|let)\s+(\w+)(\s*=|\s*;)/;
 		if (line.match(regex)) {
 			return {
 				message: "Parsing error: 'const' and 'let' are not allowed in SSJS. Use 'var' instead.",
