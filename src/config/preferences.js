@@ -160,4 +160,12 @@ module.exports = class Preferences extends BaseConfig {
 		}
 		return timeout * 1000;
 	}
+
+	static getTextPreviewTimeout() {
+		let timeout = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('textResourceTimeout') ?? 30;
+		if (timeout < 0 || timeout > 60) {
+			timeout = 30;
+		}
+		return timeout * 1000;
+	}
 }

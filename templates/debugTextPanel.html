@@ -188,6 +188,7 @@
 
 	<script type="text/javascript">
 		const vscode = acquireVsCodeApi();
+		let countdown = null;
 		require.config({ paths: { 'vs': '{{monacoBasePath}}' } });
 		let e = {
 			editor: null,
@@ -332,6 +333,9 @@
 			showLoading();
 		}
 
+		/**
+		 * Load script into the preview panel (Text) - when script is loaded.
+		 */
 		function loadScript(message) {
 			let contentType = message.headers['content-type'];
 			delete message.headers['content-type'];
@@ -437,8 +441,40 @@
 		function deltaTimeFormat(delta) {
 			const miliseconds = delta % 1000;
 			const seconds = Math.floor(delta / 1000);
+			const msInSeconds = miliseconds < 100 ? '000' : miliseconds;
 
-			return seconds > 0 ? `${seconds}.${miliseconds} sec` : `${miliseconds} ms`;
+			return seconds > 0 ? `${seconds}.${msInSeconds} sec` : `${miliseconds} ms`;
+		}
+
+		function Countdown(elementId, timeoutMs) {
+			this.timeoutId = null;
+			this.timeoutMs = timeoutMs;
+			this.deltaMs = 100;
+			this.remainingMs = timeoutMs;
+			this.elementId = elementId;
+
+			this.start = function() {
+				if (this.timeoutId) {
+					this.stop();
+				}
+				this.timeoutId = setInterval(() => {
+					this.remainingMs -= this.deltaMs;
+					this.updateCountdown();
+					// if (this.remainingMs <= 0) {
+					// 	this.stop();
+					// }
+				}, this.deltaMs);
+			}
+
+			this.stop = function() {
+				clearInterval(this.timeoutId);
+				this.timeoutId = null;
+			}
+
+			this.updateCountdown = function() {
+				let remaining = deltaTimeFormat(this.remainingMs);
+				document.getElementById(this.elementId).innerHTML = remaining;
+			}
 		}
 
 		window.addEventListener('message', event => {
@@ -448,7 +484,11 @@
 			} else if (message.command === 'refreshActions') {
 				runRefreshActions();
 			} else if (message.command === 'loadScript') {
+				countdown.stop();
 				loadScript(message);
+			} else if (message.command === 'startTimer') {
+				countdown = new Countdown('httpResultsTime', message.timeout);
+				countdown.start();
 			}
 		});
 

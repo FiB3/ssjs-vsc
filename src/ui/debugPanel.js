@@ -90,6 +90,10 @@ async function showDebug(pageData, devPageContext) {
 	});
 }
 
+/**
+ * Load script into the preview panel (Page)
+ * @param {*} pageData 
+ */
 function loadScript(pageData) {
 	postMessage(panel, {
 		command: 'loadScript',
@@ -129,6 +133,9 @@ function getWebviewContent(devUrl, devPageContext) {
 	return html;
 }
 
+/**
+ * Load script output into the preview panel (Text)
+ */
 async function loadScriptOutput(pageData, method = 'GET', options = { params: {}, body: {}, headers: {} }) {
 	let url = `${pageData.cleanUrl || pageData.url}?${new URLSearchParams(options.params).toString()}`;
 	let headersToUse = {
@@ -136,6 +143,8 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 	}
 	if (pageData.tkn) headersToUse.Cookie = `ssjs-token=${md5(pageData.tkn)}`;
 	if (pageData.username && pageData.password) headersToUse.Cookie = `ssjs-basic-auth=${md5(`${pageData.username}:${pageData.password}`)}`;
+
+	postMessage(panel, { command: 'startTimer', timeout: Config.getTextPreviewTimeout() });
 
 	let t0 = new Date();
 	let result;
@@ -146,7 +155,7 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 			responseType: 'text',
 			headers: headersToUse,
 			withCredentials: true,
-			timeout: Config.getPreviewPanelTimeout()
+			timeout: Config.getTextPreviewTimeout()
 		});
 	} catch (e) {
 		logger.warn('loadScriptOutput:', e);

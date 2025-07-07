@@ -273,7 +273,14 @@
           "default": 60,
           "minimum": 0,
           "maximum": 120,
-          "description": "Timeout for debug panel in seconds. 0 to 120 seconds. Same for both preview and text preview"
+          "description": "Timeout for debug panel in seconds. 0 to 120 seconds (default 60s)."
+        },
+        "ssjs-vsc.editor.textResourceTimeout": {
+          "type": "number",
+          "default": 30,
+          "minimum": 0,
+          "maximum": 60,
+          "description": "Timeout for text resource preview in seconds. 0 to 60 seconds (default 30s)."
         },
         "ssjs-vsc.editor.showConfigPanelAutomatically": {
           "type": "boolean",
