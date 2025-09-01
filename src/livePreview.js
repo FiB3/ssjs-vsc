@@ -20,7 +20,12 @@ const CONTENT_TYPES_TEMPLATABLE = {
 
 	// Text:
 	'.json': 'application/json',
-	'.txt': 'text/plain'
+	'.txt': 'text/plain',
+
+	// SSJS:
+	'.ssjs': 'text/plain',
+	'.ampscript': 'text/plain',
+	'.amp': 'text/plain'
 };
 
 const CONTENT_TYPES_TO_SEND = {
