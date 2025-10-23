@@ -2,6 +2,16 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.8.3] - 2025-10-23
+
+### Added:
+- Text Preview timeout and countdown timer.
+- Option to automatically replace the frontend script tags with CONCAT-script hack - just add `runat=client` to opening frontend script tags.
+
+### Fixed:
+- Omit "accidental" script tags in strings when linting (e.g. when using console log in backend debugging).
+- Various bugs (in linter, debug panel and config), including the `SFMC API Credentials issue: {}` on configuration.
+
 ## [0.8.1] - 2025-05-11
 
 ### Added:
