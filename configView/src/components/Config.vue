@@ -85,7 +85,12 @@ const overall = computed(() => {
 });
 
 function validateConnection() {
-	console.log('validateConnection', JSON.stringify(sfmc.value));
+	let redactedSfmc = { ...sfmc.value };
+	if (typeof redactedSfmc.clientSecret === 'string' && redactedSfmc.clientSecret.length > 4) {
+		redactedSfmc.clientSecret = redactedSfmc.clientSecret.substring(0, 2) + '*******' + redactedSfmc.clientSecret.substring(redactedSfmc.clientSecret.length - 2);
+	}
+	console.log('validateConnection', JSON.stringify(redactedSfmc));
+
 	vscode.postMessage({
 		command: 'validateConnection',
 		...sfmc.value
