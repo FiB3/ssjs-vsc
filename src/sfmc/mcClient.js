@@ -218,7 +218,7 @@ module.exports = class McClient {
 					})
 					.catch((err) => {
 						logger.error('validateApiKeys.getAccessToken error:', err);
-						resolve(err);
+						reject(err);
 					});
 		});
 	}
@@ -236,6 +236,8 @@ module.exports = class McClient {
 	}
 
 	parseRestError(err) {
+		logger.log('parseRestError:', JSON.stringify(err));
+		
 		if (err.body?.validationErrors?.length) {
 			const ve = err.body.validationErrors[0];
 			return ve?.message ? ve.message : JSON.stringify(ve);
