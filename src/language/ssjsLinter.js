@@ -173,8 +173,6 @@ function removeScriptTags(scriptText, languageName) {
 		return -1; // Not found
 	}
 
-	logger.info('REMOVING SCRIPT TAGS');
-
 	let openingTagRegex = /<script[^>]*?runat=["']*server["']*[^>]*?>/gi;
 	let closingTagRegex = /<\/script>/gi;
 
@@ -205,7 +203,13 @@ function removeScriptTags(scriptText, languageName) {
 		endReplaceIndex = output.length;
 		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
 	}
+	return output;
+}
 
+function ssjsPreFlight(scriptText, languageName) {
+	let output = removeScriptTags(scriptText, languageName);
+	// apply templating:
+	output = template.runScriptForLinting(output);
 	return output;
 }
 
@@ -380,7 +384,7 @@ module.exports = new Linter({
 	languageName: "ssjs",
 	fileExtensions: [".ssjs"],
 	overrideConfig: ssjsConfig,
-	preFlight: removeScriptTags,
+	preFlight: ssjsPreFlight,
 	customValidator: scriptTagValidator,
 	parsingErrorRules: parsingErrorRules
 });

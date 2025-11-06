@@ -75,7 +75,7 @@ exports.template = {
 			'gmi'
 		);
 
-		var deTemplated = codeTemplate.replace(removalRegEx, `'<de-templated>';`);
+		var deTemplated = codeTemplate.replace(removalRegEx, `'<de-templated>'`);
 
 		return deTemplated;
 	},
