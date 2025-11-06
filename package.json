@@ -294,6 +294,11 @@
           "patternErrorMessage": "2 or 3 characters, only: `{}%<>[]` are allowed. Separate using a comma. No spaces.",
           "description": "Set Templating Tags for Mustache. Opening and closing tag separated with a single comma."
         },
+        "ssjs-vsc.editor.flashEditorEnabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable editor flashing on certain operations? (upload file to SFMC)"
+        },
         "ssjs-vsc.livePreview.reloadOnSave": {
           "type": "boolean",
           "default": true,

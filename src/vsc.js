@@ -36,6 +36,73 @@ function getFileLanguage() {
 }
 
 /**
+ * Flash the current editor tab based on the status.
+ * @param {string} status - 'ok', 'warn' or 'error'
+ */
+function flashEditorTab(status = 'ok') {
+	const editor = vscode.window.activeTextEditor;
+	if (!editor) {
+		logger.warn('No active editor found for flashing');
+		return;
+	}
+
+	// Define colors with proper alpha channel
+	const colors = {
+		ok: 'rgba(0, 255, 0, 0.3)',    // Light green
+		warn: 'rgba(255, 255, 0, 0.3)', // Light yellow
+		error: 'rgba(255, 0, 0, 0.3)'   // Light red
+	};
+
+	const backgroundColor = colors[status] || colors.ok;
+	let decorationType = null;
+	let lastDecorationType = null; 
+	let currentOpacity = 0.15;
+	let maxOpacity = 0.2;
+	const fadeStep = 0.0125;
+	const intervalMs = 50;
+
+	// Create the full document range
+	const firstLine = editor.document.lineAt(0);
+	const lastLine = editor.document.lineAt(editor.document.lineCount - 1);
+	const fullRange = new vscode.Range(firstLine.range.start, lastLine.range.end);
+
+	function updateDecoration(opacity) {
+		if (decorationType) {
+			lastDecorationType = decorationType;
+		}
+
+		// Create new decoration with current opacity
+		const color = backgroundColor.replace(/[\d.]+\)$/, `${opacity})`);
+		decorationType = vscode.window.createTextEditorDecorationType({
+			isWholeLine: true,
+			backgroundColor: color
+		});
+
+		editor.setDecorations(decorationType, [fullRange]);
+		lastDecorationType?.dispose();
+	}
+
+	// Initial flash
+	updateDecoration(currentOpacity);
+	// Fade out animation
+	const fadeInterval = setInterval(() => {
+		currentOpacity = currentOpacity >= maxOpacity ? currentOpacity + fadeStep : currentOpacity - fadeStep;
+		
+		if (currentOpacity <= 0) {
+			// Animation complete - cleanup
+			clearInterval(fadeInterval);
+			if (decorationType) {
+				decorationType.dispose();
+				decorationType = null;
+			}
+			logger.log('Editor tab flash animation completed');
+		} else {
+			updateDecoration(currentOpacity);
+		}
+	}, intervalMs);
+}
+
+/**
  * Open the given file path.
  * @param {string} filePath
  * @param {boolean} [doOpen=true] open the file (just to simplify the code elsewhere)
@@ -61,6 +128,7 @@ function copyToClipboard(text) {
 module.exports = {
 	getActiveEditor,
 	getFileLanguage,
+	flashEditorTab,
 	openTextDocument,
 	openInBrowser,
 	copyToClipboard,

@@ -4,9 +4,10 @@ const Metafile = require('./code/metafile');
 const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
 
+const vsc = require('./vsc');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
-// const Config = require('./config');
+const Config = require('./config');
 
 /**
  * Helper class to handle SFMC Code Snippets - creation in SFMC & storage within VSCode.
@@ -37,6 +38,7 @@ class SnippetHandler {
 					Metafile.upsert(filePath, data);
 					if (!devPageContext) {
 						vscode.window.showInformationMessage(`Asset created.`);
+						vsc.flashEditorTab('ok');
 					} else {
 						vscode.window.showInformationMessage(`Deployment Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Installed.`);
 					}
@@ -48,14 +50,14 @@ class SnippetHandler {
 					assetId = false;
 					// TODO: show error message:
 					if (this.mc.isDuplicateAssetError(err)) {
-						vscode.window.showWarningMessage(`Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
+						this.confirmUpsertResult('warn', `Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
 						assetId = -2;
 					} else if (!devPageContext) {
 						let m = this.mc.parseRestError(err);
-						vscode.window.showErrorMessage(`Error on Creating Dev Asset! \n${m}`);
+						this.confirmUpsertResult('error', `Error on Creating Dev Asset! \n${m}`);
 					} else {
 						let m = this.mc.parseRestError(err);
-						vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
+						this.confirmUpsertResult('error', `Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
 				});
 		return assetId;
@@ -80,9 +82,9 @@ class SnippetHandler {
 					assetId = data.body.id;
 					Metafile.upsert(filePath, data);
 					if (!devPageContext) {
-						vscode.window.showInformationMessage(`Asset Updated.`);
+						this.confirmUpsertResult('ok', `Asset Updated.`);
 					} else {
-						vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
+						this.confirmUpsertResult('ok', `Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
 					}
 				})
 				.catch(async (err) => {
@@ -92,7 +94,7 @@ class SnippetHandler {
 					
 					let m = this.mc.parseRestError(err);
 					if (this.mc.isNotFoundError(err)) {
-						vscode.window.showWarningMessage(`Asset not found in Marketing Cloud!`);
+						this.confirmUpsertResult('warn', `Asset not found in Marketing Cloud!`);
 						let shouldRemove = await dialogs.confirmAssetMetadataRemoval(`Asset not found in Marketing Cloud - remove local metadata?`);
 						if (shouldRemove) {
 							let metaFile = Metafile.getFileName(filePath);
@@ -100,12 +102,26 @@ class SnippetHandler {
 							vscode.window.showInformationMessage(`Local metadata file removed (filename: ${metaFile}).`);
 						}
 					} else if (!devPageContext) {
-						vscode.window.showErrorMessage(`Error on Updating Dev Asset! \n${m}`);
+						this.confirmUpsertResult('error', `Error on Updating Dev Asset! \n${m}`);
 					} else {
-						vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
+						this.confirmUpsertResult('error', `Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
 				});
 		return assetId;
+	}
+
+	confirmUpsertResult(status, message) {
+		if (status === 'ok') {
+			vscode.window.showInformationMessage(message);
+		} else if (status === 'warn') {
+			vscode.window.showWarningMessage(message);
+		} else if (status === 'error') {
+			vscode.window.showErrorMessage(message);
+		}
+		// if flash enabled, flash the editor tab:
+		if (Config.isEditorFlashEnabled()) {
+			vsc.flashEditorTab(status);
+		}
 	}
 
 	saveDevContext(filePath, devContext) {

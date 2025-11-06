@@ -153,6 +153,10 @@ module.exports = class Preferences extends BaseConfig {
 		return lintMode;
 	}
 
+	static isEditorFlashEnabled() {
+		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('flashEditorEnabled') ?? true;
+	}
+
 	static getPreviewPanelTimeout() {
 		let timeout = vscode.workspace.getConfiguration('ssjs-vsc.editor').get('previewPanelTimeout') ?? 60;
 		if (timeout < 0 || timeout > 120) {
