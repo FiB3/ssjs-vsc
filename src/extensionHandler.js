@@ -9,6 +9,7 @@ const NoCodeProvider = require('./noCodeProvider');
 const AssetCodeProvider = require('./assetCodeProvider');
 const vsc = require('./vsc');
 const Hooks = require('./hooks');
+const stats = require('./auxi/stats');
 
 const ssjsLinter = require('./language/ssjsLinter');
 
@@ -344,6 +345,26 @@ class ExtensionHandler {
 		// update Dev Page:
 		this.provider.updateAnyScript(true);
 		this.config.setSetupFileVersion();
+	}
+
+	/**
+	 * Check age of the last token refresh and rotate if needed.
+	 */
+	async rotateDevPageTokens() {
+		const lastTokenRefresh = stats.getLastTokenRefresh();
+		logger.log(`Last token refresh: ${lastTokenRefresh}.`);
+		const age = Date.now() - lastTokenRefresh.getTime();
+		const ageInDays = 1000; // age / (1000 * 60 * 60 * 24);
+		if (ageInDays > 30) {
+			logger.log(`Rotating Dev Page tokens - last refresh was ${ageInDays} days ago.`);
+			// generate new tokens:
+			this.config.generateDevTokens('page');
+			this.config.generateDevTokens('text');
+			// update any script:
+			this.provider.updateAnyScript(true);
+			this.config.setSetupFileVersion();
+			stats.updateLastTokenRefresh();
+		}
 	}
 	
 	isProviderInactive() {

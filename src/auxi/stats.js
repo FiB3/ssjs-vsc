@@ -13,7 +13,8 @@ class Stats {
 		this.context = ContextHolder.getContext();
 		this.state = this.context.workspaceState.get(CACHE_NAME, {
 				apiCalls: 0,
-				createdDate: new Date().toISOString()
+				createdDate: new Date().toISOString(),
+				lastTokenRefresh: new Date().toISOString()
 		});
 		if (this.state.apiCalls === undefined || this.state.createdDate === undefined) {
 			this.state = {
@@ -39,6 +40,26 @@ class Stats {
 	getCreatedDate() {
 		logger.log(`getCreatedDate`, this.state.createdDate);
 		return new Date(this.state.createdDate);
+	}
+
+
+	/**
+	 * Get the last token refresh date.
+	 * @returns {Date} - the last token refresh date.
+	 */
+	getLastTokenRefresh() {
+		let lastTokenRefresh = this.state.lastTokenRefresh;
+		logger.log(`getLastTokenRefresh: ${lastTokenRefresh}.`);
+		return lastTokenRefresh ? new Date(lastTokenRefresh) : new Date('1970-01-01T00:00:00Z');
+	}
+
+	/**
+	 * Set the last token refresh date.
+	 * @param {Date} date - the last token refresh date.
+	 */
+	updateLastTokenRefresh(date = new Date()) {
+		this.state.lastTokenRefresh = date.toISOString();
+		this.context.workspaceState.update(CACHE_NAME, this.state);
 	}
 
 	/**
