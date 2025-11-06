@@ -16,12 +16,11 @@ class Stats {
 				createdDate: new Date().toISOString(),
 				lastTokenRefresh: new Date().toISOString()
 		});
+		// if api calls are not properly set, let's reinit them
 		if (this.state.apiCalls === undefined || this.state.createdDate === undefined) {
-			this.state = {
-				apiCalls: this.state.apiCalls || 0,
-				createdDate: new Date().toISOString()
-			};
-			this.context.workspaceState.update(CACHE_NAME, this.state);
+			this.state.apiCalls = this.state.apiCalls || 0;
+			this.state.createdDate = new Date().toISOString();
+			this.updateState('init');
 		}
 	}
 
@@ -59,7 +58,7 @@ class Stats {
 	 */
 	updateLastTokenRefresh(date = new Date()) {
 		this.state.lastTokenRefresh = date.toISOString();
-		this.context.workspaceState.update(CACHE_NAME, this.state);
+		this.updateState('updateLastTokenRefresh');
 	}
 
 	/**
@@ -67,21 +66,25 @@ class Stats {
 	 * @param {number} [incrementBy=1] - number to increment the API call count by.
 	 */
 	addApiCalls(incrementBy = 1) {
-		this.state = {
-			apiCalls: this.getApiCalls() + incrementBy,
-			createdDate: this.state.createdDate
-		};
-		this.context.workspaceState.update(CACHE_NAME, this.state);
+		this.state.apiCalls += incrementBy;
+		this.updateState('addApiCalls');
 	}
 
 	/**
 	 * Clear the stats data.
 	 */
 	clearData() {
-		this.context.workspaceState.update(CACHE_NAME, {
-				apiCalls: 0,
-				createdDate: new Date().toISOString()
-		});
+		this.state = {
+			apiCalls: 0,
+			createdDate: new Date().toISOString(),
+			lastTokenRefresh: new Date().toISOString()
+		};
+		this.updateState('clearData');
+	}
+
+	updateState(reason) {
+		logger.log(`updateState(${reason}): ${JSON.stringify(this.state)}.`);
+		this.context.workspaceState.update(CACHE_NAME, this.state);
 	}
 }
 

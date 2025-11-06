@@ -61,8 +61,12 @@ async function activate(context) {
 	
 	await ext.pickCodeProvider(true, true);
 	if (configOk) {
+		const tokensRotated = await ext.rotateDevPageTokens();
+		if (tokensRotated) {
+			vscode.window.showInformationMessage(`Dev Page tokens were rotated.`);
+			return;
+		}
 		await ext.checkDevPageVersion();
-		await ext.rotateDevPageTokens();
 		telemetry.log(`extensionActivated`, { codeProvider: Config.getCodeProvider(), allSet: true });
 	}
 

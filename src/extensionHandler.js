@@ -349,12 +349,13 @@ class ExtensionHandler {
 
 	/**
 	 * Check age of the last token refresh and rotate if needed.
+	 * @returns {Boolean} true if tokens were rotated, false otherwise.
 	 */
 	async rotateDevPageTokens() {
 		const lastTokenRefresh = stats.getLastTokenRefresh();
 		logger.log(`Last token refresh: ${lastTokenRefresh}.`);
 		const age = Date.now() - lastTokenRefresh.getTime();
-		const ageInDays = 1000; // age / (1000 * 60 * 60 * 24);
+		const ageInDays = age / (1000 * 60 * 60 * 24);
 		if (ageInDays > 30) {
 			logger.log(`Rotating Dev Page tokens - last refresh was ${ageInDays} days ago.`);
 			// generate new tokens:
@@ -364,6 +365,7 @@ class ExtensionHandler {
 			this.provider.updateAnyScript(true);
 			this.config.setSetupFileVersion();
 			stats.updateLastTokenRefresh();
+			return true;
 		}
 	}
 	
