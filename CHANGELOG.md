@@ -2,6 +2,15 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.8.5] - 2025-11-06
+
+### Added:
+- Automatic Token and Auth Password rotation on extension start. Monthly rotation.
+- Option to flash the current file's background based on success / fail of the operation. Disabled by default (Preference: `ssjs-vsc.editor.flashEditorEnabled`).
+
+### Fixed:
+- API call counter should now count up properly.
+
 ## [0.8.4] - 2025-11-06
 
 ### Added:
