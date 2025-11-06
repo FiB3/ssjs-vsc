@@ -37,8 +37,7 @@ class SnippetHandler {
 					assetId = data.body.id;
 					Metafile.upsert(filePath, data);
 					if (!devPageContext) {
-						vscode.window.showInformationMessage(`Asset created.`);
-						vsc.flashEditorTab('ok');
+						this.confirmUpsertResult('ok', `Asset created.`);
 					} else {
 						vscode.window.showInformationMessage(`Deployment Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Installed.`);
 					}
@@ -50,14 +49,14 @@ class SnippetHandler {
 					assetId = false;
 					// TODO: show error message:
 					if (this.mc.isDuplicateAssetError(err)) {
-						this.confirmUpsertResult('warn', `Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
+						vscode.window.showWarningMessage(`Code Snippet already exists - either remove it in Marketing Cloud or change name of the script.`);
 						assetId = -2;
 					} else if (!devPageContext) {
 						let m = this.mc.parseRestError(err);
-						this.confirmUpsertResult('error', `Error on Creating Dev Asset! \n${m}`);
+						vscode.window.showErrorMessage(`Error on Creating Dev Asset! \n${m}`);
 					} else {
 						let m = this.mc.parseRestError(err);
-						this.confirmUpsertResult('error', `Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
+						vscode.window.showErrorMessage(`Error on Installing Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
 				});
 		return assetId;
@@ -84,7 +83,7 @@ class SnippetHandler {
 					if (!devPageContext) {
 						this.confirmUpsertResult('ok', `Asset Updated.`);
 					} else {
-						this.confirmUpsertResult('ok', `Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
+						vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
 					}
 				})
 				.catch(async (err) => {
@@ -104,7 +103,7 @@ class SnippetHandler {
 					} else if (!devPageContext) {
 						this.confirmUpsertResult('error', `Error on Updating Dev Asset! \n${m}`);
 					} else {
-						this.confirmUpsertResult('error', `Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
+						vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
 				});
 		return assetId;
