@@ -46,10 +46,11 @@ class Stats {
 	 * @param {number} [incrementBy=1] - number to increment the API call count by.
 	 */
 	addApiCalls(incrementBy = 1) {
-		this.context.workspaceState.update(CACHE_NAME, {
+		this.state = {
 			apiCalls: this.getApiCalls() + incrementBy,
 			createdDate: this.state.createdDate
-		});
+		};
+		this.context.workspaceState.update(CACHE_NAME, this.state);
 	}
 
 	/**
