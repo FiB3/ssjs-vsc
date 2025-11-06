@@ -1,6 +1,7 @@
 const Linter = require("./lint");
 const ssjs = require("./ssjsPlugin");
 const { template } = require("../template");
+const logger = require("../auxi/logger");
 
 const JS_LANGUAGE_NAME = "javascript";
 
@@ -87,6 +88,7 @@ const ssjsConfig = {
 
 /**
  * Remove the script tags from the script text, unless it's a JS file.
+ * Return the pure SSJS code.
  * Used as a pre-flight function for the linter.
  */
 function removeScriptTags(scriptText, languageName) {
@@ -171,6 +173,8 @@ function removeScriptTags(scriptText, languageName) {
 		return -1; // Not found
 	}
 
+	logger.info('REMOVING SCRIPT TAGS');
+
 	let openingTagRegex = /<script[^>]*?runat=["']*server["']*[^>]*?>/gi;
 	let closingTagRegex = /<\/script>/gi;
 
@@ -180,7 +184,6 @@ function removeScriptTags(scriptText, languageName) {
 	let endReplaceIndex = output.search(openingTagRegex);
 
 	while (startReplaceIndex > -1 && endReplaceIndex > -1) {
-		console.log('RANGE:', startReplaceIndex, endReplaceIndex);
 		// replace opening SSJS tag:
 		endReplaceIndex = output.indexOf('>', endReplaceIndex) + 1;
 		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
@@ -190,14 +193,17 @@ function removeScriptTags(scriptText, languageName) {
 		startReplaceIndex = findMatchingClosingTag(output, 0);
 		// startReplaceIndex = output.search(closingTagRegex, startReplaceIndex);
 		endReplaceIndex = output.indexOf('>', startReplaceIndex) + 1;
-	
 		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
 
 		// find next opening SSJS tag:
 		startReplaceIndex = endReplaceIndex;
 		endReplaceIndex = output.search(openingTagRegex);
+	}
 
-		console.log('=>', startReplaceIndex, endReplaceIndex);
+	// clear the rest of the file:
+	if (startReplaceIndex > -1) {
+		endReplaceIndex = output.length;
+		output = replaceWithSpace(output, startReplaceIndex, endReplaceIndex);
 	}
 
 	return output;
@@ -250,8 +256,8 @@ const scriptTagValidator = (scriptText, languageName) => {
 		if (matches.length > 1) {
 			const attributes = matches[1];
 			// warn, if this seems to be frontend javascript - no runat="server"
-			if (!attributes.match(/runat=["']*server["']*/)) {
-				pushError("Attribute 'runat=server' is required for SSJS code. Use AMPscript's 'concat' hack for frontend javascript.", 1);
+			if (!(attributes.match(/runat=["']*server["']*/) || attributes.match(/runat=["']*client["']*/))) {
+				pushError("Use 'runat=server' for SSJS code, or our 'runat=client' for frontend javascript (uses AMPscript's 'concat' hack).", 1);
 			} else {
 				// for SSJS code, check the attributes:
 				let languageMatches = /language=["']*(\w+)["']*/gi.exec(attributes);
