@@ -2,6 +2,14 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.8.4] - 2025-11-06
+
+### Added:
+- Snippets for removing cookie via header.
+
+### Fixed:
+- Various linter bugs.
+
 ## [0.8.3] - 2025-10-23
 
 ### Added:
