@@ -629,7 +629,7 @@
 		"body": [
 			"Platform.Response.RemoveCookie(${1:cookieName})"
 		],
-		"description": "Removes a cookie from the response."
+		"description": "Removes a cookie from the response. This might not work well in every use case. Consider using the Header approach instead (see `RemoveCookieViaHeader`)."
 	},
 	"SetCookie": {
 		"prefix": "SetCookie",
@@ -637,6 +637,13 @@
 			"Platform.Response.SetCookie(${1:cookieName}, ${2:cookieValue}, ${3:expirationDate}, ${4:httpsOnly})"
 		],
 		"description": "Sets a cookie in the response. Note: follow legal requirements for setting cookies."
+	},
+	"RemoveCookieViaHeader": {
+		"prefix": "RemoveCookieViaHeader",
+		"body": [
+			"Platform.Response.SetResponseHeader('Set-Cookie', '${1:cookieName}=' '; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT');"
+		],
+		"description": "Removes a cookie from the response by setting the cookie to an expired date."
 	},
 	"SetResponseHeader": {
 		"prefix": "SetResponseHeader",
