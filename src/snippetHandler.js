@@ -294,10 +294,11 @@ class SnippetHandler {
 	 * @param {string} scriptText
 	 * @param {string} folderId
 	 * @param {number} assetTypeId
+	 * @param {string} customerKey
 	 * @returns {object} Request Body for Asset Creation.
 	 * @private
 	 */
-	_buildDevAssetBody(assetName, scriptText, folderId = this.folderId, assetTypeId = 220) {
+	_buildDevAssetBody(assetName, scriptText, folderId = this.folderId, assetTypeId = 220, customerKey = null) {
 		let asset = {
 			name: assetName,
 			category: {
@@ -308,6 +309,12 @@ class SnippetHandler {
 				id: assetTypeId
 			}
 		};
+		
+		// Add customerKey if provided
+		if (customerKey) {
+			asset.customerKey = customerKey;
+		}
+		
 		return asset;
 	}
 }

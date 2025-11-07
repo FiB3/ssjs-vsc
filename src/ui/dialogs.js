@@ -160,6 +160,37 @@ module.exports = {
 	},
 
 	/**
+	 * Ask user for asset name and customerKey for asset creation.
+	 * @param {string} defaultName - Default name to pre-fill
+	 * @returns {Promise<object|boolean>} Object with {name, customerKey} or false if cancelled
+	 */
+	async getAssetCreationDetails(defaultName = '') {
+		const name = await vscode.window.showInputBox({
+			title: 'Create New Asset',
+			prompt: 'Enter asset name:',
+			placeHolder: 'Asset name (if you want to overwrite file name)',
+			value: defaultName,
+			ignoreFocusOut: true
+		});
+		// cannot continue without some name:
+		if (!name) {
+			return false;
+		}
+
+		const customerKey = await vscode.window.showInputBox({
+			title: 'Create New Asset',
+			prompt: 'Enter customer key (optional):',
+			placeHolder: 'Customer key (leave empty to use auto-generated key)',
+			ignoreFocusOut: true
+		});
+
+		return {
+			name: name,
+			customerKey: customerKey || ''
+		};
+	},
+
+	/**
 	 * Ask user to select the type of the Dev Page - for cases where only one is required.
 	 * @returns {Promise<string|boolean>} "page"/"text", False if none selected.
 	 */

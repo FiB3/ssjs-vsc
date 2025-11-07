@@ -147,7 +147,23 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 * @param {string} filePath path of the ssjs file.
 	 */
 	async createNewBlock(filePath) {
+		
+		// Get default name from file
+		let defaultName = Metafile.getBlockName(filePath);
+		
+		// Show dialog to get name and customerKey
+		const assetDetails = await dialogs.getAssetCreationDetails(defaultName);
+		if (!assetDetails) {
+			return false; // User cancelled
+		}
+		
 		let asset = this.snippets.getReqForDevAsset(filePath);
+		// Override name and add customerKey
+		asset.name = assetDetails.name;
+		if (assetDetails.customerKey) {
+			asset.customerKey = assetDetails.customerKey;
+		}
+		
 		return await this.snippets.createSfmcSnippet(asset, false, filePath);
 	}
 

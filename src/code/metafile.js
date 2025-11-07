@@ -194,7 +194,7 @@ class Metafile {
 
 		// Define allowed keys
 		const allowedKeys = [
-				'id', 'name', 'assetType', 'category', 'enterpriseId',
+				'id', 'name', 'customerKey', 'assetType', 'category', 'enterpriseId',
 				'devContext', 'provideAs',
 				'error'
 		];
