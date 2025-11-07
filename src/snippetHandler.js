@@ -37,7 +37,7 @@ class SnippetHandler {
 					assetId = data.body.id;
 					Metafile.upsert(filePath, data);
 					if (!devPageContext) {
-						this.confirmUpsertResult('ok', `Asset created.`);
+						this.confirmActionResult('ok', `Asset created.`);
 					} else {
 						vscode.window.showInformationMessage(`Deployment Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Installed.`);
 					}
@@ -81,7 +81,7 @@ class SnippetHandler {
 					assetId = data.body.id;
 					Metafile.upsert(filePath, data);
 					if (!devPageContext) {
-						this.confirmUpsertResult('ok', `Asset Updated.`);
+						this.confirmActionResult('ok', `Asset Updated.`);
 					} else {
 						vscode.window.showInformationMessage(`Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)} Updated.`);
 					}
@@ -93,14 +93,14 @@ class SnippetHandler {
 					
 					let m = this.mc.parseRestError(err);
 					if (this.mc.isNotFoundError(err)) {
-						this.confirmUpsertResult('warn', `Asset not found in Marketing Cloud!`);
+						this.confirmActionResult('warn', `Asset not found in Marketing Cloud!`);
 						let shouldRemove = await dialogs.confirmAssetMetadataRemoval(`Asset not found in Marketing Cloud - remove local metadata?`);
 						if (shouldRemove) {
 							Metafile.delete(filePath);
 							vscode.window.showInformationMessage(`Local metadata file removed (for file: ${filePath}).`);
 						}
 					} else if (!devPageContext) {
-						this.confirmUpsertResult('error', `Error on Updating Dev Asset! \n${m}`);
+						this.confirmActionResult('error', `Error on Updating Dev Asset! \n${m}`);
 					} else {
 						vscode.window.showErrorMessage(`Error on Updating Dev Asset for ${dialogs.getFriendlyDevContext(devPageContext)}! \n${m}`);
 					}
@@ -108,7 +108,58 @@ class SnippetHandler {
 		return assetId;
 	}
 
-	confirmUpsertResult(status, message) {
+	async deleteSfmcSnippet(filePath) {
+		if (!Metafile.exists(filePath)) {
+			logger.warn(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
+			vscode.window.showWarningMessage(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
+			return;
+		}
+
+		// Load metadata to get asset ID
+		let metadata;
+		try {
+			metadata = Metafile.load(filePath);
+			if (!metadata || !metadata.id) {
+				logger.error(`Invalid or missing asset metadata. Cannot delete asset.`);
+				vscode.window.showErrorMessage(`Invalid or missing asset metadata. Cannot delete asset.`);
+				return;
+			}
+		} catch (err) {
+			logger.error('Error loading metadata:', err);
+			vscode.window.showErrorMessage(`Error loading asset metadata: ${err.message}`);
+			return;
+		}
+
+		const assetId = metadata.id;
+		const assetName = metadata.name || 'Unknown Asset';
+
+		// Confirm deletion with user
+		const confirmed = await dialogs.yesNoConfirm(
+			'Delete Asset from SFMC',
+			`Are you sure you want to delete "${assetName}" (ID: ${assetId}) from SFMC?`,
+			'This action cannot be undone.'
+		);
+
+		if (!confirmed) {
+			vscode.window.showWarningMessage(`Deletion cancelled.`);
+			return;
+		}
+
+		// Delete the asset
+		try {
+			await this.mc.deleteAsset(assetId);
+			// Delete local metadata file
+			Metafile.delete(filePath);
+			vscode.window.showInformationMessage(`Asset "${assetName}" deleted successfully from SFMC.`);
+			telemetry.log('deleteAsset', { codeProvider: 'Asset' });
+		} catch (err) {
+			logger.error('Error deleting asset:', err);
+			let errorMessage = this.mc.parseRestError(err);			
+			vscode.window.showErrorMessage(`Error deleting asset from SFMC: ${errorMessage}`);
+		}
+	}
+
+	confirmActionResult(status, message) {
 		if (status === 'ok') {
 			vscode.window.showInformationMessage(message);
 		} else if (status === 'warn') {
@@ -116,6 +167,7 @@ class SnippetHandler {
 		} else if (status === 'error') {
 			vscode.window.showErrorMessage(message);
 		}
+		// TODO: only flash, for current file name (if it's current file)
 		// if flash enabled, flash the editor tab:
 		if (Config.isEditorFlashEnabled()) {
 			vsc.flashEditorTab(status);

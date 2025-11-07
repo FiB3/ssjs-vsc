@@ -45,6 +45,16 @@ class SourceCode {
 
 		return file.load(filePath);
 	}
+
+	/**
+	 * Select file from the workspace or from the given path.
+	 * @param {string} fileOverride to target a specific file instead of the active one.
+	 * @returns {string|boolean} path to the file if exists, false otherwise.
+	 */
+	static selectFile(fileOverride = false) {
+		let filePath = fileOverride || vsc.getActiveEditor();
+		return file.exists(filePath) ? filePath : false;
+	}
 }
 
 module.exports = SourceCode;

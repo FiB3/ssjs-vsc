@@ -44,6 +44,10 @@ module.exports = class NoCodeProvider {
 		}
 	}
 
+	async deleteAsset() {
+		this._checkCommand();
+	}
+
 	async getDevUrl() {
 		this._checkCommand();
 	}

@@ -3,6 +3,7 @@ const vscode = require('vscode');
 const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
 const Metafile = require('./code/metafile');
+const SourceCode = require('./code/sourceCode');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
@@ -70,6 +71,20 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				vscode.window.showInformationMessage(`Run 'SSJS: Upload Script' command to deploy any script for the first time.`);
 			}
 		}
+	}
+
+	/**
+	 * Delete asset from SFMC and it's metadata.
+	 * @param {string} fileOverride to target a specific file instead of the active one.
+	 */
+	async deleteAsset(fileOverride = false) {
+		const filePath = SourceCode.selectFile(fileOverride);
+		if (filePath === false) {
+			logger.warn(`Delete Asset: ${filePath} - file not found!`);
+			return;
+		}
+
+		this.snippets.deleteSfmcSnippet(filePath);
 	}
 
 	async deployAnyScriptUi(contexts) {

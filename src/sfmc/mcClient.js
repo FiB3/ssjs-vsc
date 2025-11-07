@@ -85,6 +85,10 @@ module.exports = class McClient {
 		return this._patch(`/asset/v1/assets/${assetId}`, assetData);
 	}
 
+	async deleteAsset(assetId) {
+		return this._delete(`/asset/v1/assets/${assetId}`);
+	}
+
 	async createAssetFolder(name, parentId = 0) {
 		let b = {
 			name: name,
@@ -233,6 +237,10 @@ module.exports = class McClient {
 
 	async _get(uri, qs) {
 		return this.client.get(uri, qs);
+	}
+
+	async _delete(uri) {
+		return this.client.delete(uri);
 	}
 
 	parseRestError(err) {

@@ -141,6 +141,11 @@
         "command": "ssjs-vsc.lint-current-file",
         "title": "Lint Current SSJS File",
         "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.delete-asset",
+        "title": "Delete Asset from SFMC",
+        "category": "SSJS"
       }
     ],
     "menus": {
@@ -192,6 +197,10 @@
         {
           "command": "ssjs-vsc.lint-current-file",
           "when": "editorLangId == ssjs || resourceExtname in ssjs-vsc.allowedFileTypes"
+        },
+        {
+          "command": "ssjs-vsc.delete-asset",
+          "when": "ssjs-vsc.codeProvider == 'Asset'"
         }
       ],
       "editor/title": [
