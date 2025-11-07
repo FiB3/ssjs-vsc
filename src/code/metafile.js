@@ -67,9 +67,11 @@ class Metafile {
 
 	/**
 	 * Delete metadata file for the asset.
-	 * @param {*} filePath 
+	 * @param {*} filePath script file path!
 	 */
 	static delete(filePath) {
+		logger.debug(`Metafile.delete:`, filePath);
+		const metaFile = this.getFileName(filePath);
 		file.delete(metaFile);
 	}
 

@@ -96,9 +96,8 @@ class SnippetHandler {
 						this.confirmUpsertResult('warn', `Asset not found in Marketing Cloud!`);
 						let shouldRemove = await dialogs.confirmAssetMetadataRemoval(`Asset not found in Marketing Cloud - remove local metadata?`);
 						if (shouldRemove) {
-							let metaFile = Metafile.getFileName(filePath);
-							Metafile.delete(metaFile);
-							vscode.window.showInformationMessage(`Local metadata file removed (filename: ${metaFile}).`);
+							Metafile.delete(filePath);
+							vscode.window.showInformationMessage(`Local metadata file removed (for file: ${filePath}).`);
 						}
 					} else if (!devPageContext) {
 						this.confirmUpsertResult('error', `Error on Updating Dev Asset! \n${m}`);

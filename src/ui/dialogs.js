@@ -237,7 +237,7 @@ module.exports = {
 		return await this.yesNoConfirm(
 			title,
 			`Do you want to remove a local metadata file for your SFMC script/asset?`,
-			`The metadata only points to the asset in SFMC. This will not affect the script itself.`
+			`This will not affect the your local script file nor the asset in SFMC.`
 		);
 	},
 
