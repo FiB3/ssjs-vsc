@@ -89,6 +89,10 @@ module.exports = class McClient {
 		return this._delete(`/asset/v1/assets/${assetId}`);
 	}
 
+	async getAsset(assetId) {
+		return this._get(`/asset/v1/assets/${assetId}`);
+	}
+
 	async createAssetFolder(name, parentId = 0) {
 		let b = {
 			name: name,

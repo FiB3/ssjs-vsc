@@ -1,5 +1,6 @@
 const vscode = require('vscode');
 const Metafile = require('./code/metafile');
+const SourceCode = require('./code/sourceCode');
 
 const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
@@ -108,25 +109,59 @@ class SnippetHandler {
 		return assetId;
 	}
 
-	async deleteSfmcSnippet(filePath) {
-		if (!Metafile.exists(filePath)) {
-			logger.warn(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
-			vscode.window.showWarningMessage(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
+	async fetchSfmcSnippet(filePath) {
+		let metadata = Metafile.loadWithValidation(filePath);
+		if (!metadata) {
 			return;
 		}
 
-		// Load metadata to get asset ID
-		let metadata;
-		try {
-			metadata = Metafile.load(filePath);
-			if (!metadata || !metadata.id) {
-				logger.error(`Invalid or missing asset metadata. Cannot delete asset.`);
-				vscode.window.showErrorMessage(`Invalid or missing asset metadata. Cannot delete asset.`);
-				return;
+		const assetId = metadata.id;
+		const assetName = metadata.name || 'Unknown Asset';
+
+		// Show progress
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: `Fetching asset "${assetName}" from SFMC...`,
+			cancellable: false
+		}, async (progress) => {
+			try {
+				// Fetch asset from SFMC
+				const response = await this.mc.getAsset(assetId);
+				
+				if (response.statusCode !== 200) {
+					const errorMessage = this.mc.parseRestError(response);
+					logger.error('Error fetching asset:', errorMessage);
+					vscode.window.showErrorMessage(`Error fetching asset from SFMC: ${errorMessage}`);
+					return;
+				}
+
+				const assetData = response.body;
+				if (!assetData || !assetData.content) {
+					logger.error('Asset data missing content');
+					vscode.window.showErrorMessage('Asset data missing content field.');
+					return;
+				}
+
+				const newContent = assetData.content;
+				const currentContent = SourceCode.load(filePath);
+
+				Metafile.upsert(filePath, assetData);
+
+				// Compare content
+				let comparisonResult = await SourceCode.runCodeComparison(newContent, filePath, assetName);
+				telemetry.log('fetchAsset', { codeProvider: 'Asset', ...comparisonResult });
+			} catch (err) {
+				logger.error('Error fetching asset:', err);
+				const errorMessage = this.mc.parseRestError(err);
+				vscode.window.showErrorMessage(`Error fetching asset from SFMC: ${errorMessage}`);
+				telemetry.error('fetchAsset', { error: err.message, codeProvider: 'Asset' });
 			}
-		} catch (err) {
-			logger.error('Error loading metadata:', err);
-			vscode.window.showErrorMessage(`Error loading asset metadata: ${err.message}`);
+		});
+	}
+
+	async deleteSfmcSnippet(filePath) {
+		let metadata = Metafile.loadWithValidation(filePath);
+		if (!metadata) {
 			return;
 		}
 

@@ -87,6 +87,20 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		this.snippets.deleteSfmcSnippet(filePath);
 	}
 
+	/**
+	 * Fetch asset from SFMC and update the file.
+	 * @param {string} fileOverride to target a specific file instead of the active one.
+	 */
+	async fetchAsset(fileOverride = false) {
+		const filePath = SourceCode.selectFile(fileOverride);
+		if (filePath === false) {
+			logger.warn(`Fetch Asset: ${filePath} - file not found!`);
+			return;
+		}
+
+		this.snippets.fetchSfmcSnippet(filePath);
+	}
+
 	async deployAnyScriptUi(contexts) {
 		let res = { ok: true, message: '' };
 		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);

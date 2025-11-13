@@ -146,6 +146,11 @@
         "command": "ssjs-vsc.delete-asset",
         "title": "Delete Asset from SFMC",
         "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.fetch-asset",
+        "title": "Fetch Asset from SFMC",
+        "category": "SSJS"
       }
     ],
     "menus": {
@@ -200,6 +205,10 @@
         },
         {
           "command": "ssjs-vsc.delete-asset",
+          "when": "ssjs-vsc.codeProvider == 'Asset'"
+        },
+        {
+          "command": "ssjs-vsc.fetch-asset",
           "when": "ssjs-vsc.codeProvider == 'Asset'"
         }
       ],

@@ -37,9 +37,40 @@ class Metafile {
 		return metadata;
 	}
 
+	/**
+	 * Load metadata for file with validations and error handling.
+	 * Also shows warnings and errors to the user.
+	 * @param {string} filePath path of the script file (not metadata file)
+	 * @returns {object} metadata object, null if not found or invalid.
+	 */
+	static loadWithValidation(filePath) {
+		if (!Metafile.exists(filePath)) {
+			logger.warn(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
+			vscode.window.showWarningMessage(`No asset metadata found for this file. The file may not be deployed to SFMC.`);
+			return null;
+		}
+
+		// Load metadata to get asset ID
+		let metadata;
+		try {
+			metadata = Metafile.load(filePath);
+			if (!metadata || !metadata.id) {
+				logger.error(`Invalid or missing asset metadata. Cannot delete asset.`);
+				vscode.window.showErrorMessage(`Invalid or missing asset metadata. Cannot continue.`);
+				return;
+			}
+		} catch (err) {
+			logger.error('Error loading metadata:', err);
+			vscode.window.showErrorMessage(`Error loading asset metadata: ${err.message}`);
+			return;
+		}
+		return metadata;
+	}
+
   /**
    * Upsert metadata file for the asset.
    * Does not follow the linked metadata path!
+	 * Can be partial update?
    * @param {string} filePath path of the script file (not metadata file)
    * @param {object} data data from asset creation/update request.
    */
