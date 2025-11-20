@@ -92,23 +92,15 @@ This option allows setting `on-save` hooks for files so you can run specific com
 
 ## Telemetry
 
-This extension is collecting some telemetry in order to allow for future improvements and bugfixes.  
+This extension is collecting some telemetry (basic usage stats and errors) in order to allow for future improvements and bugfixes.
+
+No personal information, API Keys nor script content is collected. VSCode / Cursor telemetry opt-out is honored.
 
 ## Sponsors
 
-I would like to thank my sponsors:
-
-[![FLO](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/flo.png "FLO Logo")](https://www.weareflo.com/)  
-(former bluez.io)
-
-Let me know, if you would like to sponsor me.
-
-No personal information, API Keys nor script content is collected and VSCode overall telemetry opt-out is honored.
+Looking for sponsors: Let me know, if you would like to sponsor this extension.
 
 ## Known Issues
 
 Work in progress - some errors may appear.  
 In such case, let me know on my [GitHub here!](https://github.com/fib3/ssjs-vsc/issues)
-
-- Upcoming improvements to security of development Cloud Pages.
-- Multi-root workspaces are not supported.
