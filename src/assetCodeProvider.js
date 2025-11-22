@@ -4,6 +4,7 @@ const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
 const Metafile = require('./code/metafile');
 const SourceCode = require('./code/sourceCode');
+const CodeFolders = require('./code/codeFolders');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
@@ -99,6 +100,28 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 
 		this.snippets.fetchSfmcSnippet(filePath);
+	}
+
+	/**
+	 * Fetch all (content blocks) from SFMC and update the files.
+	 */
+	async fetchAllBlocks() {
+		// warn user about the operation:
+		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './Content Builder' will be updated to match SFMC.`);
+		if (!confirm) {
+			vscode.window.showInformationMessage('Fetch all blocks cancelled.');
+			return;
+		}
+
+		// fetch folders:
+		const codeFolders = new CodeFolders('asset', this.mc);
+		const folders = await codeFolders.upsertFolders();
+
+		// fetch assets:
+		
+
+
+		vscode.window.showInformationMessage('Fetch all blocks completed.');
 	}
 
 	async deployAnyScriptUi(contexts) {

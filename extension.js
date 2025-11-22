@@ -46,7 +46,8 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
 		{ name: 'ssjs-vsc.lint-current-file', callback: async () => await ext.lintCurrentFile('command') },
 		{ name: 'ssjs-vsc.delete-asset', callback: async () => await ext.provider.deleteAsset() },
-		{ name: 'ssjs-vsc.fetch-asset', callback: async () => await ext.provider.fetchAsset() }
+		{ name: 'ssjs-vsc.fetch-asset', callback: async () => await ext.provider.fetchAsset() },
+		{ name: 'ssjs-vsc.fetch-all-blocks', callback: async () => await ext.provider.fetchAllBlocks() }
 	]);
 
 	let workspaceOk = await ext.workspaceOk();
