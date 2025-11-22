@@ -93,6 +93,15 @@ module.exports = class McClient {
 		return this._get(`/asset/v1/assets/${assetId}`);
 	}
 
+	/**
+	 * Get all assets from SFMC - simple filter only.
+	 * @param {object} query - query parameters.
+	 * @returns {array} Array of assets.
+	 */
+	async getAssets(query = {}) {
+		return this.client.getAll(`/asset/v1/assets`, query);
+	}
+
 	async createAssetFolder(name, parentId = 0) {
 		let b = {
 			name: name,
@@ -118,38 +127,7 @@ module.exports = class McClient {
 		const allItems = [];
 		let page = 1;
 
-		while (true && page < 100) {
-			try {
-				const r = await this._get(`/asset/v1/content/categories`, {
-					'$page': page,
-					'$pageSize': 500
-				});
-
-				if (r.statusCode !== 200) {
-					logger.errpr(`Get Asset Folders: ${r.statusCode}:`, r);
-					break;
-				}
-				const result = r.body;
-				if (!result || result.items?.length === 0) {
-					logger.log('No Result!');
-					break;
-				}
-				allItems.push(...result.items);
-				// If the current page is the last page, exit the loop
-				if (result.page >= Math.ceil(result.count / result.pageSize)) {
-					logger.log(`Last Page: ${result.count} total items.`);
-					break;
-				}
-
-				// Increment the page number for the next request
-				page++;
-			} catch (error) {
-				// Handle errors, e.g., network errors or other exceptions
-				logger.error('Error retrieving items:', error);
-				break; // Exit the loop on error
-			}
-		}
-		return allItems;
+		return this.client.getAll(`/asset/v1/content/categories`);
 	}
 
 	async getAssetFolderById(folderId) {

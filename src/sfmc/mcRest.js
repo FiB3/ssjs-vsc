@@ -56,8 +56,42 @@ class McRest {
     });
 	}
 
-  async get(endpoint, query ) {
+  async get(endpoint, query = {}) {
     return this._request('GET', endpoint, query);
+  }
+
+  async getAll(endpoint, query = {}) {
+    const allItems = [];
+    let page = 1;
+    while (true && page < 100) {
+      try {
+        const r = await this.get(endpoint, { '$page': page, '$pageSize': 500, ...query });
+
+				if (r.statusCode !== 200) {
+					logger.error(`getAll ${endpoint} (${page}): ${r.statusCode}:`, r);
+					break;
+				}
+				const result = r.body;
+				if (!result || result.items?.length === 0) {
+					logger.log(`getAll ${endpoint} (${page}): No Result!`);
+					break;
+				}
+				allItems.push(...result.items);
+				// If the current page is the last page, exit the loop
+				if (result.page >= Math.ceil(result.count / result.pageSize)) {
+					logger.log(`getAll ${endpoint} (${page}): Last Page: ${result.count} total items.`);
+					break;
+				}
+
+				// Increment the page number for the next request
+				page++;
+			} catch (error) {
+				// Handle errors, e.g., network errors or other exceptions
+				logger.error(`getAll ${endpoint} (${page}): Error retrieving items:`, error);
+				break; // Exit the loop on error
+			}
+    }
+    return allItems;
   }
 
   async post(endpoint, query, body ) {

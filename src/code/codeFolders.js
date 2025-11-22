@@ -45,7 +45,7 @@ module.exports = class CodeFolders {
 
 		// builde the folder structure:
 		this.folders.forEach(folderObj => {
-			let folderPath = this.findFolderPath(this.folders, folderObj[this.ID_KEY]);
+			let folderPath = this.findFolderPath(folderObj[this.ID_KEY]);
 			let folderFullPath = Pathy.joinToRoot(folderPath);
 			logger.log(`Folder: ${folderObj[this.NAME_KEY]} => ${folderFullPath}`);
 			folder.create(folderFullPath, true);
@@ -54,15 +54,14 @@ module.exports = class CodeFolders {
 
 	/**
 	 * Create folder path for a given folder ID.
-	 * @param {array} folders Array of folders.
 	 * @param {*} folderId 
 	 */
-	findFolderPath(folders, folderId) {
+	findFolderPath(folderId) {
 		let path = [];
-		let currentFolder = folders.find(folderObj => folderObj[this.ID_KEY] === folderId);
+		let currentFolder = this.folders.find(folderObj => folderObj[this.ID_KEY] === folderId);
 		while (currentFolder) {
 			path.unshift(currentFolder[this.NAME_KEY]);
-			currentFolder = folders.find(folderObj => folderObj[this.ID_KEY] === currentFolder[this.PARENT_ID_KEY]);
+			currentFolder = this.folders.find(folderObj => folderObj[this.ID_KEY] === currentFolder[this.PARENT_ID_KEY]);
 		}
 		return path.join('/');
 	}

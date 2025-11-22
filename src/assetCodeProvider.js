@@ -107,7 +107,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 */
 	async fetchAllBlocks() {
 		// warn user about the operation:
-		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './Content Builder' will be updated to match SFMC.`);
+		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './Content Builder' will be overwritten to match SFMC.`);
 		if (!confirm) {
 			vscode.window.showInformationMessage('Fetch all blocks cancelled.');
 			return;
@@ -118,8 +118,21 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		const folders = await codeFolders.upsertFolders();
 
 		// fetch assets:
-		
+		const assets = await this.mc.getAssets({ '$filter': 'assetType.id eq 220' });
+		logger.log('assets:', assets);
+		assets.forEach(asset => {
+			// TODO: currently supports only assets with .content (not other nested types of content)
+			let content = asset.content || '<!-- Content Builder assets with content outside of .content are not yet supported. -->';
+			let suffix = this.snippets.estimateSuffix(content);
+			let folderId = asset.category.id;
 
+			let folderPath = codeFolders.findFolderPath(folderId);
+			let filePath = `${folderPath}/${asset.name}${suffix}`;
+			logger.log(`Asset: ${asset.name} => ${filePath}`);
+
+			SourceCode.save(filePath, content, false);
+			Metafile.upsert(filePath, asset);
+		});
 
 		vscode.window.showInformationMessage('Fetch all blocks completed.');
 	}

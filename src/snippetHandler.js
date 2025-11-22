@@ -364,6 +364,27 @@ class SnippetHandler {
 	}
 
 	/**
+	 * Estimate the suffix for the asset name based on the content.
+	 * Estimation is based on the number of opening tags for AMPscript or SSJS.
+	 * @param {string} content 
+	 * @returns {string} suffix - `.amp`, `.ssjs` or `.html`
+	 */
+	estimateSuffix(content) {
+		let ampCount = (content.match(/%%\[/g) || []).length;
+		let amp2Count = (content.match(/%%=/g) || []).length;
+		ampCount += amp2Count;
+		let ssjsCount = (content.match(/<script\s.*?runat=["']*server["']*/g) || []).length;
+
+		if (ampCount > 0 && ssjsCount < ampCount) {
+			return '.amp';
+		} else if (ssjsCount > 0) {
+			return '.ssjs';
+		}
+
+		return '.html';
+	}
+
+	/**
 	 * Generate unique name for the Dev Asset.
 	 * @param {string} devPageContext
 	 * @returns {string} unique name for the Dev Asset.
