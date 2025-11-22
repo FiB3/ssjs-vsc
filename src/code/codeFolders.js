@@ -54,7 +54,8 @@ module.exports = class CodeFolders {
 
 	/**
 	 * Create folder path for a given folder ID.
-	 * @param {*} folderId 
+	 * @param {number} folderId 
+	 * @returns {string|false} Folder path, or false if folder not found.
 	 */
 	findFolderPath(folderId) {
 		let path = [];
@@ -63,7 +64,7 @@ module.exports = class CodeFolders {
 			path.unshift(currentFolder[this.NAME_KEY]);
 			currentFolder = this.folders.find(folderObj => folderObj[this.ID_KEY] === currentFolder[this.PARENT_ID_KEY]);
 		}
-		return path.join('/');
+		return path.length > 0 ? path.join('/') : false;
 	}
 
 	/**
