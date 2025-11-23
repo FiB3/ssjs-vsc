@@ -9,6 +9,7 @@ const vsc = require('./vsc');
 const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
 const LivePreview = require('./livePreview');
+const Pathy = require('./auxi/pathy');
 
 const { template } = require('./template');
 const json = require('./auxi/json');
@@ -327,5 +328,15 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			vscode.window.showInformationMessage('Live Preview URL copied to clipboard: ' + url);
 		}
 		// TODO: open in vscode panel for preview panel	
+	}
+
+	/**
+	 * Check if the file is a fetched file (in a fetched folder)
+	 * @param {string} filePath - Path to the file.
+	 * @returns {boolean} true if the file is a fetched file, false otherwise.
+	 */
+	isFetchedFile(filePath) {
+		let isFetched = Pathy.hasDirectSubfolder(filePath, 'Content Builder');
+		return Pathy.hasDirectSubfolder(filePath, 'Content Builder');
 	}
 }

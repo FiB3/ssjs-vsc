@@ -109,6 +109,19 @@ class Pathy {
     }
     return filePath;
   }
+
+  /**
+   * Check if the file path has an immediate root subfolder.
+   * @param {string} filePath - Path to the file.
+   * @param {string} subfolder - Subfolder to check.
+   * @returns {boolean} True if the file path has the subfolder, false otherwise.
+   */
+  static hasDirectSubfolder(filePath, subfolder) {
+    let filePathFromRoot = path.relative(this.getWorkspacePath(), filePath);
+
+    let parts = filePathFromRoot.split(path.sep);
+    return parts[0] === subfolder;
+  }
 }
 
 module.exports = Pathy;

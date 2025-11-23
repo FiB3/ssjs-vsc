@@ -115,6 +115,14 @@ class ExtensionHandler {
 			logger.warn(`Upload Script: ${filePath} - not found!`);
 			return;
 		}
+		if (this.provider.isFetchedFile(filePath)) {
+			logger.info(`uploadScript() - skipping ${autoUpload ? 'auto-' : ''}upload of fetched file: ${filePath}.`);
+			if (!autoUpload) {
+				vscode.window.showWarningMessage(`Cannot auto-upload fetched file via 'Upload Script to Dev' command. Use 'Upload to Production' instead.`);
+			}
+			return;
+		}
+
 		this.validateHookReadiness();
 
 		let hookResult;

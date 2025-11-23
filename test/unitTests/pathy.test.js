@@ -153,4 +153,26 @@ describe('Pathy', () => {
 			assert.strictEqual(result, path.join(Pathy.getExtensionSourceFolder(), 'package.json'));
 		});
 	});
+
+	describe('hasDirectSubfolder', () => {
+		it('should return true if the file path has the subfolder', () => {
+			const result = Pathy.hasDirectSubfolder(path.join(mockWorkspacePath, 'Content Builder', 'test.txt'), 'Content Builder');
+			assert.strictEqual(result, true);
+		});
+
+		it('should return true if the file path has the subfolder (and some other parts)', () => {
+			const result = Pathy.hasDirectSubfolder(path.join(mockWorkspacePath, 'Content Builder', 'test', 'subfolder', 'test.txt'), 'Content Builder');
+			assert.strictEqual(result, true);
+		});
+
+		it('should work for relative paths - having subfolder'), () => {
+			const result = Pathy.hasDirectSubfolder(path.join('Content Builder', 'test.txt'), 'Content Builder');
+			assert.strictEqual(result, true);
+		}
+
+		it('should return false if the file path does not have the subfolder', () => {
+			const result = Pathy.hasDirectSubfolder(path.join(mockWorkspacePath, 'test.txt'), 'Content Builder');
+			assert.strictEqual(result, false);
+		});
+	});
 }); 

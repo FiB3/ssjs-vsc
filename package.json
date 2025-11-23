@@ -67,7 +67,7 @@
     "commands": [
       {
         "command": "ssjs-vsc.upload-to-prod",
-        "title": "Production deployment",
+        "title": "Upload Script to Prod",
         "category": "SSJS"
       },
       {
