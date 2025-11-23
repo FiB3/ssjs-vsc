@@ -13,6 +13,8 @@ const ContextHolder = require('../config/contextHolder');
  */
 module.exports = class CodeFolders {
 
+	static BASE_FOLDER_NAME = '_sfmc';
+
 	/**
 	 * 
 	 * @param {string} objectType `asset` for Content Builder, `script` for SSJS scripts (future)
@@ -24,6 +26,11 @@ module.exports = class CodeFolders {
 
 		this._setApiNames();
 		this.folders = json.load(this._getFoldersFilePath());
+
+		// check, that the base folder exists:
+		if (!folder.exists(Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME))) {
+			folder.create(Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME));
+		}
 	}
 
 	/**
@@ -58,8 +65,9 @@ module.exports = class CodeFolders {
 	}
 
 	/**
-	 * Create folder path for a given folder ID.
+	 * Create folder path for a given folder ID, including the base folder name - relative from workspace root.
 	 * @param {number} folderId 
+	 * @param {boolean} withBaseFolder - include the base folder name in the path
 	 * @returns {string|false} Folder path, or false if folder not found.
 	 */
 	findFolderPath(folderId) {
@@ -69,7 +77,9 @@ module.exports = class CodeFolders {
 			path.unshift(currentFolder[this.NAME_KEY]);
 			currentFolder = this.folders.find(folderObj => folderObj[this.ID_KEY] === currentFolder[this.PARENT_ID_KEY]);
 		}
-		return path.length > 0 ? path.join('/') : false;
+
+		path = path.length > 0 ? [CodeFolders.BASE_FOLDER_NAME, ...path].join('/') : false;
+		return path;
 	}
 
 	/**
@@ -99,7 +109,7 @@ module.exports = class CodeFolders {
 	snapshot(excludeSuffix = false) {
 		let baseFolder = this._getBaseFolder();
 		let folders = [baseFolder, ...folder.listAll(baseFolder)];
-		let files = file.listAll(baseFolder);			
+		let files = folder.exists(baseFolder) ? file.listAll(baseFolder) : [];
 		// remove the metadata files:
 		files = files.filter(file => !Metafile.isMetafile(file));
 		if (excludeSuffix) {
@@ -161,6 +171,6 @@ module.exports = class CodeFolders {
 
 	_getBaseFolder() {
 		let folderName = this.objectType === 'asset' ? 'Content Builder' : 'TODO:!'
-		return Pathy.joinToRoot(folderName);
+		return Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME, folderName);
 	}
 }

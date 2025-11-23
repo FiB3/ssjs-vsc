@@ -10,6 +10,7 @@ const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
 const LivePreview = require('./livePreview');
 const Pathy = require('./auxi/pathy');
+const CodeFolders = require('./code/codeFolders');
 
 const { template } = require('./template');
 const json = require('./auxi/json');
@@ -336,7 +337,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 * @returns {boolean} true if the file is a fetched file, false otherwise.
 	 */
 	isFetchedFile(filePath) {
-		let isFetched = Pathy.hasDirectSubfolder(filePath, 'Content Builder');
-		return Pathy.hasDirectSubfolder(filePath, 'Content Builder');
+		let isFetched = Pathy.hasDirectSubfolder(filePath, CodeFolders.BASE_FOLDER_NAME);
+		return isFetched;
 	}
 }
