@@ -1,4 +1,5 @@
 const fs = require('fs');
+const path = require('path');
 
 module.exports = {
 
@@ -52,5 +53,33 @@ module.exports = {
     } catch (err) {
       return false;
     }
+  },
+
+  /**
+ * Recursively list all files in the given folder.
+ * @param {string} folderPath
+ * @returns {array} list of folder paths from the initial folder path
+ */
+  listAll: function(folderPath) {
+    const stats = fs.statSync(folderPath);;
+    if (!stats.isDirectory()) {
+      return [];
+    }
+
+    const files = [];
+    const items = fs.readdirSync(folderPath);
+    
+    for (const item of items) {
+      const itemPath = path.join(folderPath, item);
+      if (fs.statSync(itemPath).isFile()) {
+        // Add the current file path
+        files.push(itemPath);
+      } else if (fs.statSync(itemPath).isDirectory()) {
+        // Recursively get subfolders
+        const subfolderfiles = this.listAll(itemPath);
+        files.push(...subfolderfiles);
+      }
+    }
+    return files;
   }
-}
+};

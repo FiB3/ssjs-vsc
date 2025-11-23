@@ -4,7 +4,6 @@ const BaseCodeProvider = require('./baseCodeProvider');
 const Config = require('./config');
 const Metafile = require('./code/metafile');
 const SourceCode = require('./code/sourceCode');
-const CodeFolders = require('./code/codeFolders');
 const dialogs = require('./ui/dialogs');
 const vsc = require('./vsc');
 const telemetry = require('./telemetry');
@@ -112,50 +111,18 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			vscode.window.showInformationMessage('Fetch all blocks cancelled.');
 			return;
 		}
-		// TODO: move to snippetHandler:
-		// fetch folders:
-		const codeFolders = new CodeFolders('asset', this.mc);
-		const folders = await codeFolders.upsertFolders();
 
-		// fetch assets:
-		const assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
-		logger.log('assets:', assets);
-		assets.forEach(asset => {
-			// TODO: currently supports only assets with .content (not other nested types of content)
-			let content = '';
-			let suffix = '';
-			let setMetadata = false;
-
-			if (asset.content) {
-				setMetadata = true;
-				content = asset.content;
-				suffix = this.snippets.estimateSuffix(content);
-			} else {
-				suffix = '.md';
-				content = '# Content Builder assets with content outside of .content are not yet supported:\n```json\n' + JSON.stringify(asset, null, 2) + '\n```';
-			}
-			let folderId = asset.category.id;
-
-			let folderPath = codeFolders.findFolderPath(folderId);
-			if (!folderPath) {
-				logger.warn(`Folder not found for asset: ${asset.name} - asset not in Content Builder`);
-				return;
-			}
-			if ([205].includes(asset.assetType.id)) {
-				logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is not valid here`);
-				return;
-			}
-			let filePath = `${folderPath}/${asset.name}${suffix}`;
-			logger.log(`Asset: ${asset.name} => ${filePath}`);
-
-			SourceCode.save(filePath, content, false);
-			if (setMetadata) {
-				Metafile.upsert(filePath, asset);
-			}
+		let details;
+		vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: `Fetching all Content Builder assets from SFMC...`,
+			cancellable: false
+		}, async (progress) => {
+			details = await this.snippets.fetchAllSfmcSnippets();
 		});
 
-		vscode.window.showInformationMessage('Fetch all blocks completed.');
-		telemetry.log('fetchAllBlocks', { codeProvider: 'Asset', count: assets.length });
+		vscode.window.showInformationMessage('Blocks are not up to date with SFMC.');
+		telemetry.log('fetchAllBlocks', { codeProvider: 'Asset', count: details?.assets?.length ?? -1 });
 	}
 
 	async deployAnyScriptUi(contexts) {

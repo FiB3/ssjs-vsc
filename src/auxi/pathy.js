@@ -94,6 +94,21 @@ class Pathy {
   static extname(filePath) {
     return path.extname(filePath);
   }
+
+  /**
+   * Remove the suffix from the file path.
+   * @param {string} filePath - Path to the file.
+   * @returns {string} File path without the suffix.
+   */
+  static removeSuffix(filePath) {
+    let extname = this.extname(filePath);
+    if (extname) {
+      let splitPath = filePath.split(extname);
+      splitPath.pop();
+      return splitPath.join(extname);
+    }
+    return filePath;
+  }
 }
 
 module.exports = Pathy;

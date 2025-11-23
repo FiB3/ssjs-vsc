@@ -176,6 +176,15 @@ class Metafile {
 		return Pathy.join(path.dirname(filePath), `.${this.getBlockName(filePath)}.json`);
 	}
 
+	/**
+	 * Check if the file is a metadata file.
+	 * @param {string} filePath - whatever file this is - script or metadata
+	 * @returns {boolean} true if the file is a metadata file, false if not.
+	 */
+	static isMetafile(filePath) {
+		return filePath.endsWith('-ssjs-vsc.json');
+	}
+
   /**
 	 * Get linked script path from metadata.
 	 * NOTE: use .getMetadataFileName() to get metadata file path from script file path.

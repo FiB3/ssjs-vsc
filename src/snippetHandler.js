@@ -1,6 +1,10 @@
 const vscode = require('vscode');
 const Metafile = require('./code/metafile');
 const SourceCode = require('./code/sourceCode');
+const CodeFolders = require('./code/codeFolders');
+const Pathy = require('./auxi/pathy');
+const file = require('./auxi/file');
+const folder = require('./auxi/folder');
 
 const dialogs = require('./ui/dialogs');
 const { template } = require('./template');
@@ -191,6 +195,81 @@ class SnippetHandler {
 			logger.error('Error deleting asset:', err);
 			let errorMessage = this.mc.parseRestError(err);			
 			vscode.window.showErrorMessage(`Error deleting asset from SFMC: ${errorMessage}`);
+		}
+	}
+
+	async fetchAllSfmcSnippets() {
+		const codeFolders = new CodeFolders('asset', this.mc);
+
+		// snapshot the current folder structure and files:
+		const initialSnapshot = codeFolders.snapshot();
+		logger.log('initialSnapshot:', initialSnapshot);
+
+		// fetch folders:
+		const currentFolders = await codeFolders.upsertFolders();
+		logger.log('folders:', currentFolders);
+
+		// fetch assets:
+		const assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
+		logger.log('assets:', assets);
+		const currentFiles = [];
+
+		assets.forEach(asset => {
+			// TODO: currently supports only assets with .content (not other nested types of content)
+			let content = '';
+			let suffix = '';
+			let setMetadata = false;
+
+			if (asset.content) {
+				setMetadata = true;
+				content = asset.content;
+				suffix = this.estimateSuffix(content);
+			} else {
+				suffix = '.md';
+				content = '# Content Builder assets with content outside of .content are not yet supported:\n```json\n' + JSON.stringify(asset, null, 2) + '\n```';
+			}
+			let folderId = asset.category.id;
+
+			let folderPath = codeFolders.findFolderPath(folderId);
+			if (!folderPath) {
+				logger.warn(`Folder not found for asset: ${asset.name} - asset not in Content Builder`);
+				return;
+			}
+			if ([205].includes(asset.assetType.id)) {
+				logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is not valid here`);
+				return;
+			}
+			let filePath = `${folderPath}/${asset.name}${suffix}`;
+			currentFiles.push(Pathy.joinToRoot(filePath));
+			logger.log(`Asset: ${asset.name} => ${filePath}`);
+
+			SourceCode.save(filePath, content, false);
+			if (setMetadata) {
+				Metafile.upsert(filePath, asset);
+			}
+		});
+
+		// compare the initial snapshot with the current snapshot:
+		let newSnapshot = {
+			folders: currentFolders,
+			files: currentFiles
+		};
+		logger.log('newSnapshot:', newSnapshot);
+
+		// compare the folders:
+		let changes = codeFolders.compareSnapshots(initialSnapshot, newSnapshot);
+		logger.log('snapshot changes:', changes);
+
+		changes.deletedFiles.forEach(filePath => {
+			this._deleteFetchedFile(filePath);
+		});
+
+		changes.deletedFolders.forEach(folderPath => {
+			folder.remove(folderPath);
+		});
+
+		return {
+			assets: assets
 		}
 	}
 
@@ -423,6 +502,15 @@ class SnippetHandler {
 		}
 		
 		return asset;
+	}
+
+	/**
+	 * Deletes the fetched file from the local file system.
+	 * @param {string} filePath - path to the file to delete.
+	 */
+	_deleteFetchedFile(filePath) {
+		file.delete(filePath);
+		Metafile.delete(filePath);
 	}
 }
 

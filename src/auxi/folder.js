@@ -58,9 +58,37 @@ function remove(directoryPath) {
 	}
 }
 
+/**
+ * Recursively list all folders (folders only) in the given folder.
+ * @param {string} folderPath
+ * @returns {array} list of folder paths from the initial folder path
+ */
+function listAll(folderPath) {
+	if (!exists(folderPath)) {
+		return [];
+	}
+
+	const folders = [];
+	const items = fs.readdirSync(folderPath);
+	
+	for (const item of items) {
+		const itemPath = path.join(folderPath, item);
+		if (exists(itemPath)) {
+			// Add the current folder path
+			folders.push(itemPath);
+			// Recursively get subfolders
+			const subfolders = listAll(itemPath);
+			folders.push(...subfolders);
+		}
+	}
+	
+	return folders;
+}
+
 module.exports = {
 	exists,
 	create,
 	clear,
-	remove
+	remove,
+	listAll
 };
