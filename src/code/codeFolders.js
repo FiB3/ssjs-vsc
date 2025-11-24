@@ -17,7 +17,7 @@ module.exports = class CodeFolders {
 
 	/**
 	 * 
-	 * @param {string} objectType `asset` for Content Builder, `script` for SSJS scripts (future)
+	 * @param {string} objectType `asset` for Content Builder, `script` for SSJS scripts (future), `cloudPage` for Cloud Pages (future)
 	 * @param {McClient} mcClient SFMC client instance
 	 */
 	constructor(objectType, mcClient) {
@@ -78,8 +78,36 @@ module.exports = class CodeFolders {
 			currentFolder = this.folders.find(folderObj => folderObj[this.ID_KEY] === currentFolder[this.PARENT_ID_KEY]);
 		}
 
-		path = path.length > 0 ? [CodeFolders.BASE_FOLDER_NAME, ...path].join('/') : false;
+		path = path.length > 0 ? Pathy.joinSimple([CodeFolders.BASE_FOLDER_NAME, ...path]) : false;
 		return path;
+	}
+
+	/**
+	 * Find the folder ID for a given folder path.
+	 * @param {string} folderPath - Path to the folder.
+	 * @returns {number|false} Folder ID, or false if folder not found.
+	 */
+	findFolderId(folderPath) {
+		let relativePath = Pathy.getRelativePathToRoot(folderPath);
+		let parts = Pathy.split(Pathy.getFolder(relativePath));
+		if (parts.length < 1 || parts[0] !== CodeFolders.BASE_FOLDER_NAME) {
+			return false;
+		}
+		parts.shift();
+		let folderId = false;
+
+		// find the folder ID by traversing the folder structure (from root to the target folder):
+		let parentFolderId = 0;
+		for (let i = 0; i < parts.length; i++) {
+			let currentFolder = this.folders[i];
+			let sfmcFolder = this.folders.find(folderObj => folderObj[this.NAME_KEY] === parts[i] && folderObj[this.PARENT_ID_KEY] === parentFolderId);
+			if (!sfmcFolder) {
+				return false;
+			}
+			folderId = sfmcFolder[this.ID_KEY];
+			parentFolderId = folderId;
+		}
+		return folderId;
 	}
 
 	/**
@@ -95,7 +123,7 @@ module.exports = class CodeFolders {
 			return false;
 		}
 
-		// TODO: store to ./.vscode/
+		// store to ./.vscode/ folder
 		json.save(this._getFoldersFilePath(), folders);
 		return folders;
 	}
@@ -172,5 +200,36 @@ module.exports = class CodeFolders {
 	_getBaseFolder() {
 		let folderName = this.objectType === 'asset' ? 'Content Builder' : 'TODO:!'
 		return Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME, folderName);
+	}
+
+	/**
+	 * Check if the file path is in the base folder.
+	 * @param {string} filePath - Path to the file.
+	 * @returns {boolean} True if the file path is in the base folder, false otherwise.
+	 */
+	static isInBaseSfmcFolder(filePath) {
+		return Pathy.hasDirectSubfolder(filePath, CodeFolders.BASE_FOLDER_NAME);
+	}
+
+	/**
+	 * Get the object type from the file path.
+	 * @param {string} filePath - Path to the file.
+	 * @returns {string|false} Object type, or false if not found.
+	 */
+	static getObjectTypeFromPath(filePath) {
+		let relativePath = Pathy.getRelativePathToRoot(filePath);
+		let parts = Pathy.split(relativePath);
+		if (parts.length < 1 || parts[0] !== CodeFolders.BASE_FOLDER_NAME) {
+			return false;
+		}
+
+		if (parts[1] === 'Content Builder') {
+			return 'asset';
+		} else if (parts[1] === 'Cloud Pages') { // TODO: check later
+			return 'cloudPage';
+		} else if (parts[1] === 'Scripts') { // TODO: check later
+			return 'script';
+		}
+		return false;
 	}
 }

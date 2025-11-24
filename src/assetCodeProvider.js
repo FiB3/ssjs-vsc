@@ -75,6 +75,38 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 	}
 
+	async uploadToProduction() {
+		const filePath = vsc.getActiveEditor();
+		if (!Config.isFileTypeAllowed(filePath, false)) {
+			vscode.window.showWarningMessage(`File type not allowed for production upload.`);
+			return;
+		}
+
+		if (!this.isFetchedFile(filePath)) {
+			vscode.window.showWarningMessage(`For now, only files placed in _sfmc folder can be uploaded to production.`);
+			return;
+		}
+
+		let scriptText = this.buildScriptText('prod');
+			if (scriptText) {
+				// decide where to upload based on the folder placement:
+				let objectType = CodeFolders.getObjectTypeFromPath(filePath);
+				let codeFolders = new CodeFolders(objectType, this.mcClient);
+				let folderId = codeFolders.findFolderId(filePath);
+				logger.log(`Folder ID: ${folderId}.`);
+
+				if (objectType === 'asset') {
+
+				} else {
+					// TODO: support other object types
+					vscode.window.showWarningMessage(`For now, only Content Builder assets can be uploaded to production.`);
+					return;
+				}
+		} else {
+			vscode.window.showWarningMessage(`Script cannot be built for Production! Maybe it's the file format?`);
+		}
+	}
+
 	/**
 	 * Delete asset from SFMC and it's metadata.
 	 * @param {string} fileOverride to target a specific file instead of the active one.
@@ -108,7 +140,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	 */
 	async fetchAllBlocks() {
 		// warn user about the operation:
-		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './Content Builder' will be overwritten to match SFMC.`);
+		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './_sfmc/Content Builder' will be overwritten to match SFMC.`);
 		if (!confirm) {
 			vscode.window.showInformationMessage('Fetch all blocks cancelled.');
 			return;
@@ -123,7 +155,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			details = await this.snippets.fetchAllSfmcSnippets();
 		});
 
-		vscode.window.showInformationMessage('Blocks are not up to date with SFMC.');
+		vscode.window.showInformationMessage('Blocks are now up to date with SFMC.');
 		telemetry.log('fetchAllBlocks', { codeProvider: 'Asset', count: details?.assets?.length ?? -1 });
 	}
 
