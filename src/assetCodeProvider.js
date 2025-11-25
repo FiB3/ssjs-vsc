@@ -92,11 +92,17 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 				// decide where to upload based on the folder placement:
 				let objectType = CodeFolders.getObjectTypeFromPath(filePath);
 				let codeFolders = new CodeFolders(objectType, this.mcClient);
-				let folderId = codeFolders.findFolderId(filePath);
-				logger.log(`Folder ID: ${folderId}.`);
 
 				if (objectType === 'asset') {
-
+					if (!Metafile.exists(filePath)) {
+						// ask user for name (default - file name) and customer key:
+						let folderId = codeFolders.findFolderId(filePath);
+						logger.log(`Folder ID: ${folderId}.`);
+						this.createNewBlock(filePath, folderId);
+					} else {
+						// just update the asset:
+						await this.updateCode(filePath);
+					}
 				} else {
 					// TODO: support other object types
 					vscode.window.showWarningMessage(`For now, only Content Builder assets can be uploaded to production.`);
@@ -232,8 +238,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 	/**
 	 * Create New Dev Asset Block based on File.
 	 * @param {string} filePath path of the ssjs file.
+	 * @param {number} folderId optional folder ID to use for the asset.
 	 */
-	async createNewBlock(filePath) {
+	async createNewBlock(filePath, folderId = false) {
 		
 		// Get default name from file
 		let defaultName = Metafile.getBlockName(filePath);
@@ -249,6 +256,9 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		asset.name = assetDetails.name;
 		if (assetDetails.customerKey) {
 			asset.customerKey = assetDetails.customerKey;
+		}
+		if (folderId) {
+			asset.category.id = folderId;
 		}
 		
 		return await this.snippets.createSfmcSnippet(asset, false, filePath);
