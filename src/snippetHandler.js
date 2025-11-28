@@ -446,11 +446,23 @@ class SnippetHandler {
 	 * Estimate the suffix for the asset name based on the content.
 	 * Estimation is based on the number of opening tags for AMPscript or SSJS.
 	 * @param {string} content 
-	 * @returns {string} suffix - `.amp`, `.ssjs` or `.html`
+	 * @returns {string} suffix - `.amp`, `.ssjs`, `.html`, or `.js`
 	 */
 	estimateSuffix(content) {
-		let ampCount = (content.match(/%%\[/g) || []).length;
-		let amp2Count = (content.match(/%%=/g) || []).length;
+		// to exclude matches that are inside quotes (and JS comments)
+		function countCodeMatches(content, pattern) {
+			let count = 0;
+			let match;
+			while ((match = pattern.exec(content)) !== null) {
+				let matchIndex = match.index;
+				if (matchIndex > 0 && content[matchIndex - 1] !== "'" && content[matchIndex - 1] !== '"') {
+					count++;
+				}
+			}
+			return count;
+		}
+		let ampCount = countCodeMatches(content, /%%\[/g);
+		let amp2Count = countCodeMatches(content, /%%=/g);
 		ampCount += amp2Count;
 		let ssjsCount = (content.match(/<script\s.*?runat=["']*server["']*/g) || []).length;
 
@@ -460,7 +472,17 @@ class SnippetHandler {
 			return '.ssjs';
 		}
 
-		return '.html';
+		// is this HTML or JS?
+		let htmlCount = (content.match(/(<div|<table|<ul|<ol|<li|<p|<span|<h1|<h2|<h3|<h4|<h5|<h6|<img|<a|<button|<input|<textarea|<form|<\/html>|<\/body>|<\/head>|<\/div>|<\/p>|<\/span>)/g) || []).length;
+		let jsCount = (content.match(/\s+(function\s*\(|var\s+\w+|let|const|\$\(|for|catch|try|return)/g) || []).length;
+		logger.log(content.substring(0, 30) + `... => jsCount: ${jsCount}, ssjsCount: ${ssjsCount}, htmlCount: ${htmlCount}`);
+		if (jsCount > 0 && (ssjsCount === 0)) {
+			return '.js';
+		} else if (htmlCount > 0) {
+			return '.html';
+		}
+
+		return '.ssjs'; // best overall extension support
 	}
 
 	/**
