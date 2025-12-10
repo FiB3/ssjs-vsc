@@ -20,4 +20,6 @@ analyticsQueries.md
 
 src/auxi/helpers.js
 
+.cursor/
+
 .env
