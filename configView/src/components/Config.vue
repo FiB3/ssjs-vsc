@@ -5,7 +5,6 @@ import AccordionSection from './Accordion/AccordionSection.vue'
 import Button from './form/Button.vue'
 import Input from './form/Input.vue'
 import Select from './form/Select.vue'
-import Checkbox from './form/Checkbox.vue'
 import Status from './form/Status.vue'
 
 const vscode = inject('vscode');
@@ -334,8 +333,8 @@ function emptyfy(value) {
 								The minimum required scopes (currently) are:
 							</p>
 							<ul>
-								<li>Email: write</li>
-								<li>Saved Content: write</li>
+								<li>Email: read & write</li>
+								<li>Saved Content: read & write</li>
 								<li>Documents and Images: read & write</li>
 							</ul>
 

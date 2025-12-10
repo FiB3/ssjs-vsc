@@ -213,7 +213,7 @@ class SnippetHandler {
 		}
 
 		logger.log('folders:', currentFolders);
-
+		let assets = [];
 		try {
 			// fetch assets:
 			assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }

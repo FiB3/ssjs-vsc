@@ -11,8 +11,10 @@ const stats = require('../auxi/stats');
 			- documents_and_images_write, documents_and_images_read
 */
 const REQUIRED_SCOPES = [
-	'saved_content_write', 
+	'saved_content_write',
+	'saved_content_read',
 	'email_write',
+	'email_read',
 	'documents_and_images_read',
 	'documents_and_images_write'
 ];
