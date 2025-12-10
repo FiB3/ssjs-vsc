@@ -207,11 +207,24 @@ class SnippetHandler {
 
 		// fetch folders:
 		const currentFolders = await codeFolders.upsertFolders();
+		logger.log('currentFolders:', currentFolders);
+		if (!currentFolders) {
+			return false;
+		}
+
 		logger.log('folders:', currentFolders);
 
-		// fetch assets:
-		const assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
-		logger.log('assets:', assets);
+		try {
+			// fetch assets:
+			assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
+			logger.log('assets:', assets);
+		} catch (err) {
+			logger.error('Error fetching assets:', err);
+			const errorMessage = this.mc.parseRestError(err);
+			vscode.window.showErrorMessage(`Error fetching assets from SFMC: ${err.statusCode} ${errorMessage}`);
+			throw err;
+		}
+
 		const currentFiles = [];
 
 		assets.forEach(asset => {

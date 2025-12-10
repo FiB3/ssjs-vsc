@@ -161,6 +161,12 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			details = await this.snippets.fetchAllSfmcSnippets();
 		});
 
+		if (!details) {
+			vscode.window.showErrorMessage('Error fetching all Content Builder assets from SFMC.');
+			telemetry.error('fetchAllBlocks', { codeProvider: 'Asset', count: -1, error: 'Error fetching all Content Builder assets from SFMC.' });
+			return;
+		}
+
 		vscode.window.showInformationMessage('Blocks are now up to date with SFMC.');
 		telemetry.log('fetchAllBlocks', { codeProvider: 'Asset', count: details?.assets?.length ?? -1 });
 	}

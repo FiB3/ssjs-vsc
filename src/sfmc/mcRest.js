@@ -69,7 +69,7 @@ class McRest {
 
 				if (r.statusCode !== 200) {
 					logger.error(`getAll ${endpoint} (${page}): ${r.statusCode}:`, r);
-					break;
+					throw new Error(r);
 				}
 				const result = r.body;
 				if (!result || result.items?.length === 0) {
@@ -88,7 +88,7 @@ class McRest {
 			} catch (error) {
 				// Handle errors, e.g., network errors or other exceptions
 				logger.error(`getAll ${endpoint} (${page}): Error retrieving items:`, error);
-				break; // Exit the loop on error
+				throw error; // Exit the loop on error
 			}
     }
     return allItems;

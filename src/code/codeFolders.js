@@ -1,3 +1,5 @@
+const vscode = require('vscode');
+
 const logger = require('../auxi/logger');
 const file = require('../auxi/file');
 const json = require('../auxi/json');
@@ -117,7 +119,15 @@ module.exports = class CodeFolders {
 	async fetchAll() {
 		let folders = [];
 		if (this.objectType === 'asset') {
-			folders = await this.mcClient.getAssetFolders();
+			try {
+				folders = await this.mcClient.getAssetFolders();
+				logger.log('folders:', folders);
+			} catch (err) {
+				logger.error('Error fetching folders:', err);
+				const errorMessage = this.mcClient.parseRestError(err);
+				vscode.window.showErrorMessage(`Error fetching folders from SFMC: ${err?.statusCode ?? ''} ${errorMessage}`);
+				return false;
+			}
 		} else {
 			logger.error(`Unsupported object type: ${this.objectType}`);
 			return false;
