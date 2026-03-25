@@ -2,6 +2,16 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.9.1] - 2026-03-25
+
+### Added:
+- Delete Asset command - removes the asset from SFMC
+- Allow setting custom name and customer key on first deployment of a new asset
+
+### Fixed:
+- securit updates
+- bug fixes
+
 ## [0.8.5] - 2025-11-06
 
 ### Added:
