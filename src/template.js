@@ -41,11 +41,13 @@ exports.template = {
 		let tokens = config.getTemplatingView(env);
 
 		// loop through tokens, for each that starts with: `file://` replace value with loaded file's value
+		var fileSourcedTokens = [];
 		for (let [token, value] of Object.entries(tokens)) {
 			if (value.startsWith('file://')) {
 				let libPath = Pathy.joinToRoot(value.substring(7));
 				let fileContent = textFile.load(libPath);
 				tokens[token] = fileContent;
+				fileSourcedTokens.push(token);
 			}
 		}
 
@@ -53,7 +55,13 @@ exports.template = {
 			VERSION: this.getScriptVersion(),
 			...tokens
 		};
-			
+
+		// apply templating to file-sourced token values so included files can use tags
+		for (var i = 0; i < fileSourcedTokens.length; i++) {
+			var token = fileSourcedTokens[i];
+			view[token] = Mustache.render(view[token], view, {}, customTags);
+		}
+
 		var html = Mustache.render(htmlTemplate, view, {}, customTags);
 		
 		// Apply client script transformation rule
