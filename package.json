@@ -2,7 +2,7 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "publisher": "FiB",
   "author": {
     "name": "filipbostik"
@@ -36,6 +36,8 @@
     "exacttarget",
     "sfmc",
     "mc",
+    "mce",
+    "sfmce",
     "content builder",
     "cloud pages",
     "landing pages",
@@ -162,7 +164,7 @@
       "commandPalette": [
         {
           "command": "ssjs-vsc.upload-to-prod",
-          "when": "ssjs-vsc.codeProvider != 'None'"
+          "when": "ssjs-vsc.codeProvider != 'None' && ssjs-vsc.experimentalFeaturesAllowed"
         },
         {
           "command": "ssjs-vsc.upload-script",
@@ -214,11 +216,11 @@
         },
         {
           "command": "ssjs-vsc.fetch-asset",
-          "when": "ssjs-vsc.codeProvider == 'Asset'"
+          "when": "ssjs-vsc.codeProvider == 'Asset' && ssjs-vsc.experimentalFeaturesAllowed"
         },
         {
           "command": "ssjs-vsc.fetch-all-blocks",
-          "when": "ssjs-vsc.codeProvider == 'Asset'"
+          "when": "ssjs-vsc.codeProvider == 'Asset' && ssjs-vsc.experimentalFeaturesAllowed"
         }
       ],
       "editor/title": [

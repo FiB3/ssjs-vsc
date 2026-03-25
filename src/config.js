@@ -1,3 +1,4 @@
+const vscode = require('vscode');
 const generator = require('generate-password');
 
 const Preferences = require('./config/preferences');
@@ -5,6 +6,7 @@ const ContextHolder = require('./config/contextHolder');
 const checks = require('./checks');
 const logger = require('./auxi/logger');
 const Pathy = require('./auxi/pathy');
+const telemetry = require('./telemetry');
 
 module.exports = class Config extends Preferences {
 
@@ -437,6 +439,20 @@ module.exports = class Config extends Preferences {
 			hook['success-handling'] = 'incorrect';	
 		}
 		return hook;
+	}
+
+	/**
+	 * If Experimental Features are allowed, 
+	 * @returns {boolean}
+	 */
+	allowExperimental() {
+		let experimentalAllowed = this.config['allow-experimental'] || false;
+		logger.log(`Experimental Features allowed: ${experimentalAllowed}.`);
+		vscode.commands.executeCommand('setContext', 'ssjs-vsc.experimentalFeaturesAllowed', experimentalAllowed);
+		if (experimentalAllowed) {
+			telemetry.log('experimentalFeaturesAllowed', { experimentalAllowed });
+		}
+		return experimentalAllowed;
 	}
 
 	/**

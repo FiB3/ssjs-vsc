@@ -28,6 +28,7 @@ async function activate(context) {
 	stats.init();
 
 	registerFormatters();
+	
 
 	registerCommands([
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
@@ -72,6 +73,7 @@ async function activate(context) {
 		await ext.checkDevPageVersion();
 		telemetry.log(`extensionActivated`, { codeProvider: Config.getCodeProvider(), allSet: true });
 	}
+	ext.config.allowExperimental();
 
 	watchForConfigurationChanges();
 	registerFileActions();
@@ -128,6 +130,7 @@ async function registerFileActions() {
 		
 		if (Config.isConfigFile(filePath)) {
 			ext.config.loadConfig();
+			ext.config.allowExperimental();
 		} else if (Config.isFileInWorkspace(filePath)) {
 			let lintResult = 0; // 0 means no problems or not linted
 			if (Config.isLintOnSaveEnabled()) {
