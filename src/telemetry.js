@@ -1,5 +1,5 @@
 const vscode = require('vscode');
-const TelemetryReporter = require('@vscode/extension-telemetry').default;
+const { TelemetryReporter } = require('@vscode/extension-telemetry');
 const ContextHolder = require('./config/contextHolder');
 const logger = require('./auxi/logger');
 const path = require('path');

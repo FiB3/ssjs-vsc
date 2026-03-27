@@ -21,10 +21,12 @@ export default defineConfig({
         entryFileNames: `main.js`,
         chunkFileNames: `main.js`,
 				assetFileNames: (assetInfo) => {
-					if (assetInfo.name.endsWith('.css')) {
-						return `main.css`;
+					// Vite/Rollup may provide a partially-populated assetInfo during CSS processing.
+					var name = (assetInfo && (assetInfo.name || assetInfo.fileName)) || ''
+					if (name && name.endsWith('.css')) {
+						return `main.css`
 					}
-					return `assets/[name].[ext]`;
+					return `assets/[name].[ext]`
 				}
       }
     },
