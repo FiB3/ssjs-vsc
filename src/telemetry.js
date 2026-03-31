@@ -3,17 +3,16 @@ const { TelemetryReporter } = require('@vscode/extension-telemetry');
 const ContextHolder = require('./config/contextHolder');
 const logger = require('./auxi/logger');
 const path = require('path');
-require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
 
-// Connection string for Application Insights - only used in development
-const CONNECTION_STRING = process.env.SSJS_VSC_TELEMETRY;
+// Connection string for Application Insights:
+const CONNECTION_STRING = '8c0a3736-8ee0-423d-9c4f-e207ae935339';
 const TELEMETRY_DEV_OFF = true; // disables telemetry in dev mode - logs via logger instead
 
 class TelemetryHandler {
 	constructor() {
 		this.reporter = CONNECTION_STRING ? new TelemetryReporter(CONNECTION_STRING) : null;
 		if (!this.reporter) {
-			logger.warn('No telemetry reporter found. Please check your .env file.');
+			logger.warn('No telemetry reporter found. Please check your telemetry connection string.');
 		}
 	}
 

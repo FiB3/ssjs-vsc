@@ -26,3 +26,5 @@ node_modules/monaco-editor
 # Custom webview source:
 configView/**
 !configView/dist/**
+
+.env

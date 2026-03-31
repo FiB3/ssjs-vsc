@@ -2,7 +2,7 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
-## [0.9.1] - 2026-03-25
+## [0.9.2] - 2026-03-31
 
 ### Added:
 - Delete Asset command - removes the asset from SFMC

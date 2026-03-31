@@ -96,11 +96,11 @@ const telemetryMock = {
 
 
 // Create mock for dotenv
-const dotenvMock = {
-	config: function(options) {
-		process.env.SSJS_VSC_TELEMETRY = 'test-connection-string';
-	}
-};
+// const dotenvMock = {
+// 	config: function(options) {
+// 		process.env.SSJS_VSC_TELEMETRY = 'test-connection-string';
+// 	}
+// };
 
 // Helper function to set up the mock
 function setupVSCodeMock({ env = 'Development' }) {
@@ -119,9 +119,9 @@ function setupVSCodeMock({ env = 'Development' }) {
 		if (request === '@vscode/extension-telemetry') {
 			return telemetryMock;
 		}
-    if (request === 'dotenv') {
-			return dotenvMock;
-		}
+    // if (request === 'dotenv') {
+		// 	return dotenvMock;
+		// }
 		return originalLoad(request, parent, isMain);
 	};
 }
