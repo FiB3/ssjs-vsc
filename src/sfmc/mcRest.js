@@ -1,4 +1,3 @@
-const axios = require('axios');
 const logger = require('../auxi/logger');
 
 class McRest {
@@ -35,16 +34,23 @@ class McRest {
 		this.onApiCall('POST', `/v2/token`);
 
     return new Promise((resolve, reject) => {
-      axios.post(this.authUrl, {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
-        account_id: this.accountId,
-        grant_type: 'client_credentials'
+      fetch(this.authUrl, {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					client_id: this.clientId,
+					client_secret: this.clientSecret,
+					account_id: this.accountId,
+					grant_type: 'client_credentials'
+				})
       })
-				.then(response => {
-					this.accessToken = response.data.access_token;
-					this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
-					resolve(response.data);
+				.then(async response => {
+					let data = await response.json();
+					this.accessToken = data.access_token;
+					this.tokenExpiry = Date.now() + data.expires_in * 1000;
+					resolve(data);
 				})
 				.catch(error => {
           reject({
@@ -119,9 +125,9 @@ class McRest {
 
     const config = {
       method,
-      url,
+      // url,
       headers: {
-        Authorization: `Bearer ${this.accessToken}`,
+        // Authorization: `Bearer ${this.accessToken}`,
         'Content-Type': 'application/json'
       },
       params: query,
@@ -131,16 +137,17 @@ class McRest {
     this.onApiCall(method, endpoint); // Notify about API call
 
 		return new Promise((resolve, reject) => {
-			axios(config)
-					.then(response => {
+			fetch(url, config)
+					.then(async response => {
+						let data = await response.json();
 						let r = {
 							statusCode: response.status,
-							statusMessage: response.statusText,
-							body: response.data
+							statusMessage: response.statusText || 'Unknown result',
+							body: data
 						};
 						logger.info(`MC._request ${method} ${endpoint}:`, r);
 
-						if ([ 200, 201, 202 ].includes(response.status)) {
+						if ([ 200, 201, 202 ].includes(r.statusCode)) {
 							resolve(r);
 						} else {
 							reject(r);
@@ -153,7 +160,7 @@ class McRest {
 							statusMessage: error.message || 'JS Error',
 							body: error.response?.data || JSON.stringify(error)
 						};
-						logger.error(`MC._request ${method} ${endpoint}: ${JSON.stringify(r)}`);
+						logger.error(`MC._request ${method} ${endpoint}:`, r);
 						reject(r);
 					});
 		});

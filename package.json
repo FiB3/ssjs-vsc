@@ -487,7 +487,6 @@
   },
   "dependencies": {
     "@vscode/extension-telemetry": "1.5.1",
-    "axios": "1.13.6",
     "beauty-amp-core2": "^0.4.10",
     "date-fns": "4.1.0",
     "eslint": "9.39.3",
