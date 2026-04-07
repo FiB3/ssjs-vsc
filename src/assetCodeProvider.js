@@ -153,7 +153,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 
 		let details;
-		vscode.window.withProgress({
+		await vscode.window.withProgress({
 			location: vscode.ProgressLocation.Notification,
 			title: `Fetching all Content Builder assets from SFMC...`,
 			cancellable: false
@@ -161,6 +161,7 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 			details = await this.snippets.fetchAllSfmcSnippets();
 		});
 
+		logger.log('fetchAllBlocks - details:', details);
 		if (!details) {
 			vscode.window.showErrorMessage('Error fetching all Content Builder assets from SFMC.');
 			telemetry.error('fetchAllBlocks', { codeProvider: 'Asset', count: -1, error: 'Error fetching all Content Builder assets from SFMC.' });

@@ -125,16 +125,16 @@ class McRest {
 
     const config = {
       method,
-      // url,
       headers: {
-        // Authorization: `Bearer ${this.accessToken}`,
+        Authorization: `Bearer ${this.accessToken}`,
         'Content-Type': 'application/json'
       },
-      params: query,
-      data: body
+      params: query
     };
+		if (method !== 'GET' && method !== 'HEAD') config.body = JSON.stringify(body);
 
     this.onApiCall(method, endpoint); // Notify about API call
+		logger.log('MC._request:', url, config);
 
 		return new Promise((resolve, reject) => {
 			fetch(url, config)

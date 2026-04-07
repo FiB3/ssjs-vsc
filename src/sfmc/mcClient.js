@@ -33,53 +33,8 @@ module.exports = class McClient {
 		this.folders = false;
 	}
 
-	/*
-		assetTypeId: webpage (205), json (182) ?
-	*/
-	async createAsset(name, content, assetTypeId) {
-		logger.log('CREATE ASSET');
-		let body = {
-			"name": name,
-			// "content": content,
-			"assetType": {
-					"id": assetTypeId
-			},
-			"version": 1,
-			"contentType": "text/html",
-			// "category": {
-			// 	"name": "Content Builder", // by default
-			// },
-			"meta": {
-				"globalStyles": {
-						"isLocked": false,
-						"body": {
-								"max-width": "1280px"
-						}
-				}
-			},
-			"views": {
-					"html": {
-							"thumbnail": {},
-							"content": content,
-							"meta": {},
-							"slots": {
-									"col1": {
-											"design": "<p style=\"font-family:arial;color:#ccc;font-size:11px;text-align:center;vertical-align:middle;font-weight:bold;padding:10px;margin:0;border:#ccc dashed 1px;\">Drop blocks or content here</p>",
-											"modelVersion": 2
-									}
-							},
-							"modelVersion": 2
-					}
-			},
-			"availableViews": [
-					"html"
-			]
-		};
-		logger.log('BODY:', body);
-		return this._post(`/asset/v1/content/assets`, body);
-	}
-
 	async createAsset(assetData) {
+		logger.log('MC-Client: createAsset(2):', assetData);
 		return this._post(`/asset/v1/assets/`, assetData);
 	}
 
