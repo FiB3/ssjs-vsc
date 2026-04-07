@@ -488,13 +488,11 @@
   "dependencies": {
     "@vscode/extension-telemetry": "1.5.1",
     "beauty-amp-core2": "^0.4.10",
-    "date-fns": "4.1.0",
     "eslint": "9.39.3",
     "express": "5.2.1",
     "generate-password": "1.7.1",
     "marked": "17.0.4",
     "md5": "2.3.0",
-    "moment": "2.30.1",
     "monaco-editor": "0.55.1",
     "morgan": "1.10.1",
     "mustache": "4.2.0",

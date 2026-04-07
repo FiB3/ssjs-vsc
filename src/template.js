@@ -3,8 +3,6 @@ const Pathy = require('./auxi/pathy');
 const textFile = require('./auxi/file');
 const Config = require('./config');
 
-const { format } = require('date-fns');
-
 // no HTML escaping:
 Mustache.escape = function(text) {return text;};
 
@@ -89,7 +87,9 @@ exports.template = {
 	},
 
 	getScriptVersion: function() {
-		return 'V.' + format(new Date(), 'yyyy-MM-dd.HH:mm:ss');
+		const formatNumber = (n) => n.toString().padStart(2, '0');
+		let d = new Date();
+		return `V.${formatNumber(d.getFullYear())}-${formatNumber(d.getMonth() + 1)}-${formatNumber(d.getDate())}.${formatNumber(d.getHours())}:${formatNumber(d.getMinutes())}:${formatNumber(d.getSeconds())}`;
 	},
 
 	/**
