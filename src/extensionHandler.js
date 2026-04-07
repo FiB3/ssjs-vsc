@@ -1,5 +1,4 @@
 const vscode = require('vscode');
-const axios = require('axios');
 let md5 = require('md5');
 
 const Config = require('./config');
@@ -267,20 +266,20 @@ class ExtensionHandler {
 		}
 
 		return await Promise.all([
-			axios.get(devPageInfo.devPageUrl),
-			axios.get(devResourceInfo.devPageUrl)
+			fetch(devPageInfo.devPageUrl),
+			fetch(devResourceInfo.devPageUrl)
 		])
 				.then((responses) => {
-					let pageOk = responses[0]?.status === 200
-							&& !!responses[0]?.headers?.['ssjs-http-status']
-							&& md5(this.config.getMid() + '') === responses[0]?.headers?.['ssjs-origin'];
-					let resourceOk = responses[1]?.status === 200
-							&& !!responses[1]?.headers?.['ssjs-http-status']
-							&& md5(this.config.getMid() + '') === responses[1]?.headers?.['ssjs-origin'];
+					let pageOk = responses[0]?.ok
+							&& responses[0]?.headers?.get('ssjs-http-status')
+							&& md5(this.config.getMid() + '') === responses[0]?.headers?.get('ssjs-origin');
+					let resourceOk = responses[1]?.ok
+							&& responses[1]?.headers?.get('ssjs-http-status')
+							&& md5(this.config.getMid() + '') === responses[1]?.headers?.get('ssjs-origin');
 
 					// let dm = `Dev Page OK: ${pageOk}, Dev Resource OK: ${resourceOk}.`
-					// dm += `(${responses[0]?.status} && ${responses[0]?.headers?.['ssjs-http-status']} && ${responses[0]?.headers?.['ssjs-origin']} === page:${md5(this.config.getMid() + '')} (${this.config.getMid()})),`;
-					// dm += `(${responses[1]?.status} && ${responses[1]?.headers?.['ssjs-http-status']} && ${responses[1]?.headers?.['ssjs-origin']} === resource:${md5(this.config.getMid() + '')} (${this.config.getMid()}))`;
+					// dm += `\n(${responses[0]?.status} && ${responses[0]?.headers?.get('ssjs-http-status')} && ${responses[0]?.headers?.get('ssjs-origin')} === page:${md5(this.config.getMid() + '')} (${this.config.getMid()})),`;
+					// dm += `\n(${responses[1]?.status} && ${responses[1]?.headers?.get('ssjs-http-status')} && ${responses[1]?.headers?.get('ssjs-origin')} === resource:${md5(this.config.getMid() + '')} (${this.config.getMid()}))`;
 					// logger.log(dm);
 
 					if (pageOk && resourceOk) {

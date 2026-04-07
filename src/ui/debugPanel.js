@@ -1,7 +1,6 @@
 const vscode = require('vscode');
 let path = require('path');
 let md5 = require('md5');
-let axios = require('axios');
 
 let { template } = require('../template');
 const Config = require('../config');
@@ -147,35 +146,32 @@ async function loadScriptOutput(pageData, method = 'GET', options = { params: {}
 	postMessage(panel, { command: 'startTimer', timeout: Config.getTextPreviewTimeout() });
 
 	let t0 = new Date();
-	let result;
-	try {
-		result = await axios({
-			method,
-			url,
-			responseType: 'text',
-			headers: headersToUse,
-			withCredentials: true,
-			timeout: Config.getTextPreviewTimeout()
-		});
-	} catch (e) {
-		logger.warn('loadScriptOutput:', e);
-		if (e.code === 'ECONNABORTED' && e.message.includes('timeout')) {
-			vscode.window.showErrorMessage('Timeout on loading script output.');
-			result = {
-				status: 408,
-				headers: {},
-				data: 'Preview panel timeout.'
-			}
-		} else {
-			// Ensure result has a valid structure even if e.response is undefined
-			vscode.window.showErrorMessage('Error on loading script output.');
-			result = {
-				status: e.response?.status || 500,
-				headers: e.response?.headers || {},
-				data: e.response?.data || e.message || 'Unknown error occurred'
-			};
-		}
-	}
+	
+	let result = {
+		status: 500,
+		headers: {},
+		data: 'Unknown error occurred'
+	};
+
+	await fetch(url, {
+		method,
+		headers: headersToUse,
+		credentials: 'include'
+	})
+			.then(async response => {
+				result.status = response.status;
+				result.data = await response.text();
+				for (const pair of response.headers.entries()) {
+					result.headers[pair[0]] = pair[1];
+				}
+			})
+			.catch(e => {
+				// not important to set details - cloud pages fail with status 500
+				logger.warn('loadScriptOutput:', e);
+				vscode.window.showErrorMessage('Error on loading script output.');
+
+			});
+
 	let t1 = new Date();
 	logger.log('loadScriptOutput - postMessage:', result);
 

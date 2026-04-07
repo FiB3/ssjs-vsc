@@ -2,7 +2,7 @@
   "name": "ssjs-vsc",
   "displayName": "SSJS Manager",
   "description": "Provides dev tools, syntax highlighting and prettifier for SSJS files.",
-  "version": "0.9.2",
+  "version": "0.9.3",
   "publisher": "FiB",
   "author": {
     "name": "filipbostik"
@@ -496,7 +496,7 @@
     "marked": "17.0.4",
     "md5": "2.3.0",
     "moment": "2.30.1",
-    "monaco-editor": "0.53.0",
+    "monaco-editor": "0.55.1",
     "morgan": "1.10.1",
     "mustache": "4.2.0",
     "ws": "8.19.0"
