@@ -503,7 +503,6 @@
     "@types/node": "16.x",
     "@types/vscode": "1.77.0",
     "@vscode/test-electron": "2.5.2",
-    "chai": "6.2.2",
     "mocha": "11.7.5"
   }
 }
