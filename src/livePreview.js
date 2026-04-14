@@ -79,7 +79,7 @@ class LivePreview {
 
 				// Setup main route - now using path parameter
 				logger.log(`Live Preview Server starting...`);
-				this.app.use('/*',
+				this.app.use('/',
 					this._authenticate.bind(this), 
 					this._checkResourcePath.bind(this),
 					this._sendResource.bind(this)
