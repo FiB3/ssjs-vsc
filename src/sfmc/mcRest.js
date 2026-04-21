@@ -1,3 +1,4 @@
+const axios = require('axios');
 const logger = require('../auxi/logger');
 
 class McRest {
@@ -34,23 +35,16 @@ class McRest {
 		this.onApiCall('POST', `/v2/token`);
 
     return new Promise((resolve, reject) => {
-      fetch(this.authUrl, {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify({
+      axios.post(this.authUrl, {
 					client_id: this.clientId,
 					client_secret: this.clientSecret,
 					account_id: this.accountId,
 					grant_type: 'client_credentials'
 				})
-      })
-				.then(async response => {
-					let data = await response.json();
-					this.accessToken = data.access_token;
-					this.tokenExpiry = Date.now() + data.expires_in * 1000;
-					resolve(data);
+				.then(response => {
+					this.accessToken = response.data.access_token;
+					this.tokenExpiry = Date.now() + response.data.expires_in * 1000;
+					resolve(response.data);
 				})
 				.catch(error => {
           reject({
@@ -125,29 +119,30 @@ class McRest {
 
     const config = {
       method,
+      url,
       headers: {
         Authorization: `Bearer ${this.accessToken}`,
         'Content-Type': 'application/json'
       },
       params: query
     };
-		if (method !== 'GET' && method !== 'HEAD') config.body = JSON.stringify(body);
+		// Axios expects the request payload in `data` (not `body`)
+		if (method !== 'GET' && method !== 'HEAD') config.data = body;
+		logger.log(`MC._request ${method} ${endpoint}:`, config);
 
     this.onApiCall(method, endpoint); // Notify about API call
-		logger.log('MC._request:', url, config);
 
 		return new Promise((resolve, reject) => {
-			fetch(url, config)
-					.then(async response => {
-						let data = await response.json();
+			axios(config)
+					.then(response => {
 						let r = {
 							statusCode: response.status,
-							statusMessage: response.statusText || 'Unknown result',
-							body: data
+							statusMessage: response.statusText,
+							body: response.data
 						};
 						logger.info(`MC._request ${method} ${endpoint}:`, r);
 
-						if ([ 200, 201, 202 ].includes(r.statusCode)) {
+						if ([ 200, 201, 202 ].includes(response.status)) {
 							resolve(r);
 						} else {
 							reject(r);
@@ -156,7 +151,7 @@ class McRest {
 					.catch(error => {
 						logger.error(error);
 						let r = {
-							statusCode: error.status || 0,
+							statusCode: error.response?.status || 0,
 							statusMessage: error.message || 'JS Error',
 							body: error.response?.data || JSON.stringify(error)
 						};
