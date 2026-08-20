@@ -79,12 +79,12 @@ describe('Pathy', () => {
 		it('should handle VSCode URI objects', () => {
 			const uri = vscode.Uri.file('/base/path');
 			const result = Pathy.join(uri, 'to', 'file');
-			assert.strictEqual(result, '/base/path/to/file');
+			assert.strictEqual(result, path.join(path.sep, 'base', 'path', 'to', 'file'));
 		});
 
 		it('should handle absolute paths', () => {
 			const result = Pathy.join('/absolute/path', 'to', 'file');
-			assert.strictEqual(result, '/absolute/path/to/file');
+			assert.strictEqual(result, path.join(path.sep, 'absolute', 'path', 'to', 'file'));
 		});
 
 		it('should throw error for invalid first argument', () => {
