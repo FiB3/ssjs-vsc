@@ -5,6 +5,10 @@ const ContextHolder = require('./src/config/contextHolder');
 const logger = require('./src/auxi/logger');
 const telemetry = require('./src/telemetry');
 const stats = require('./src/auxi/stats');
+const Pathy = require('./src/auxi/pathy');
+const file = require('./src/auxi/file');
+const jsonHandler = require('./src/auxi/json');
+const { mergePrettierConfig } = require('./src/auxi/prettierConfig');
 
 const dialogs = require('./src/ui/dialogs');
 const { showConfigPanel } = require('./src/ui/configPanel');
@@ -31,6 +35,8 @@ async function activate(context) {
 	await setSfmcSsjsFileMode();
 	// Clear stale editor.defaultFormatter values that pointed at our removed formatter.
 	await cleanStaleFormatterSettings();
+	// Preserve migrating users' historic UPPERCASE AMPscript keyword look via Prettier config.
+	await amendPrettierConfig();
 
 	registerCommands([
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
@@ -204,6 +210,132 @@ async function clearDefaultFormatter(languageId, onlyIfValue) {
 			logger.debug(`clearDefaultFormatter WorkspaceFolder [${languageId}]: ${err?.message}`);
 		}
 	}
+}
+
+/**
+ * One-time key in workspaceState gating the manual-edit hint for non-editable configs.
+ */
+const PRETTIER_AMEND_HINT_KEY = 'ssjs-vsc.prettierAmendHintShown';
+
+/**
+ * JSON-editable prettier config file names, checked in priority order.
+ */
+const JSON_PRETTIER_FILES = ['.prettierrc.json'];
+
+/**
+ * Non-editable prettier config file names (JS/YAML/TOML) - hint only, never written.
+ */
+const NON_EDITABLE_PRETTIER_FILES = [
+	'.prettierrc.js', '.prettierrc.cjs', '.prettierrc.mjs',
+	'prettier.config.js', 'prettier.config.cjs', 'prettier.config.mjs',
+	'.prettierrc.yaml', '.prettierrc.yml', '.prettierrc.toml'
+];
+
+/**
+ * Preserve the user's historic UPPERCASE AMPscript keyword look by ensuring the
+ * workspace Prettier config carries `ampscriptKeywordCase: "upper"`. The SFMC
+ * Language Service always injects its bundled `prettier-plugin-sfmc` and merges
+ * this option on top, so only the option (not a `plugins` entry) is needed.
+ *
+ * Only acts for users who were on uppercase: the raw persisted (now-undeclared)
+ * `ssjs-vsc.language.ampscript.capitalizeKeywords` setting must not be `false`.
+ * JSON configs are edited/created silently; JS/YAML configs get a one-time hint.
+ * Idempotent: never overrides an explicit `ampscriptKeywordCase` and re-runs cleanly.
+ */
+async function amendPrettierConfig() {
+	if (!vscode.workspace.workspaceFolders?.length) {
+		return;
+	}
+	// Decide upper vs. no-op from the raw persisted (now-undeclared) setting.
+	const cap = vscode.workspace.getConfiguration('ssjs-vsc.language.ampscript').get('capitalizeKeywords');
+	if (cap === false) {
+		// User opted out of uppercase; our lowercase default already matches.
+		return;
+	}
+	try {
+		// Detect existing config (first hit wins): JSON-editable, then non-editable, then none.
+		// .prettierrc may hold JSON or YAML - only editable when it parses as JSON.
+		const rcPath = Pathy.joinToRoot('.prettierrc');
+		if (file.exists(rcPath)) {
+			const parsed = jsonHandler.load(rcPath);
+			if (parsed && parsed.error) {
+				// .prettierrc is YAML (or unreadable) - treat as non-editable.
+				await showPrettierAmendHint();
+				return;
+			}
+			amendJsonPrettierFile(rcPath, parsed);
+			return;
+		}
+		for (const name of JSON_PRETTIER_FILES) {
+			const p = Pathy.joinToRoot(name);
+			if (file.exists(p)) {
+				const parsed = jsonHandler.load(p);
+				if (parsed && parsed.error) {
+					await showPrettierAmendHint();
+					return;
+				}
+				amendJsonPrettierFile(p, parsed);
+				return;
+			}
+		}
+		// package.json with a `prettier` key.
+		const pkgPath = Pathy.joinToRoot('package.json');
+		if (file.exists(pkgPath)) {
+			const pkg = jsonHandler.load(pkgPath);
+			if (pkg && pkg.error) {
+				await showPrettierAmendHint();
+				return;
+			}
+			if (pkg && Object.prototype.hasOwnProperty.call(pkg, 'prettier') && typeof pkg.prettier === 'object') {
+				const { config, changed } = mergePrettierConfig(pkg.prettier);
+				if (changed) {
+					pkg.prettier = config;
+					jsonHandler.save(pkgPath, pkg);
+				}
+				return;
+			}
+		}
+		// Non-editable configs: hint only.
+		for (const name of NON_EDITABLE_PRETTIER_FILES) {
+			if (file.exists(Pathy.joinToRoot(name))) {
+				await showPrettierAmendHint();
+				return;
+			}
+		}
+		// None found: create a JSON .prettierrc at root.
+		jsonHandler.save(rcPath, { ampscriptKeywordCase: 'upper' });
+	} catch (err) {
+		logger.debug(`amendPrettierConfig(): ${err?.message}`);
+	}
+}
+
+/**
+ * Merge `ampscriptKeywordCase: "upper"` into a parsed JSON prettier config and
+ * save it back only when something changed.
+ * @param {string} absPath - absolute path to the JSON config file.
+ * @param {object} parsed - parsed config object.
+ */
+function amendJsonPrettierFile(absPath, parsed) {
+	const { config, changed } = mergePrettierConfig(parsed);
+	if (changed) {
+		jsonHandler.save(absPath, config);
+	}
+}
+
+/**
+ * Show a one-time info hint telling the user to add the option manually to a
+ * non-editable (JS/YAML/TOML) Prettier config. Gated so it shows at most once
+ * per workspace.
+ */
+async function showPrettierAmendHint() {
+	const state = ContextHolder.getContext()?.workspaceState;
+	if (state?.get?.(PRETTIER_AMEND_HINT_KEY)) {
+		return;
+	}
+	await state?.update?.(PRETTIER_AMEND_HINT_KEY, true);
+	vscode.window.showInformationMessage(
+		`SSJS Manager: to keep AMPscript keywords uppercase, add "ampscriptKeywordCase": "upper" to your Prettier config.`
+	);
 }
 
 function showWalkthrough() {

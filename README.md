@@ -34,6 +34,8 @@ SSJS Manager's previously bundled SSJS ESLint linter and `beauty-amp-core2` form
 
 On activation, SSJS Manager sets the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` setting to `sfmc` (Workspace scope). Because SSJS Manager's `.ssjs` files are HTML that wrap their code in `<script runat="server">...</script>`, every `.ssjs` file is treated as SFMC content — so the embedded SSJS is linted (and AMPscript/HTML handled) correctly — with no per-file content scan.
 
+SSJS Manager historically formatted AMPscript keywords in **UPPERCASE**, while the SFMC Language Service's formatter defaults to lowercase. To keep migrating users' casing, on activation SSJS Manager adds `"ampscriptKeywordCase": "upper"` to the workspace Prettier config (the SFMC Language Service supplies `prettier-plugin-sfmc` itself, so no `plugins` entry is needed). JSON configs are updated silently or created if missing; JS/YAML/TOML configs get a one-time hint with the line to add. An explicit `ampscriptKeywordCase` you already set is never changed, and if you had turned uppercase off nothing is written.
+
 If you also have the separate `FiB.beautyAmp` extension installed, it is independent of SSJS Manager; you may disable it to avoid a duplicate AMPscript formatter (the SFMC Language Service surfaces a coexistence prompt when both claim AMPscript formatting).
 
 ## Settings
