@@ -2,6 +2,20 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [Unreleased]
+
+### Changed:
+- Language intelligence for `.ssjs`, `.amp` and `.ampscript` (syntax highlighting, IntelliSense, diagnostics and formatting) is now provided by the required [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension (`joernberkefeld.sfmc-language`), added as an extension dependency.
+- On activation, the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` is set to `auto` (Workspace scope) so script-wrapped `.ssjs` files are linted as SFMC content while plain-JS `.ssjs` files stay server-side JavaScript.
+
+### Removed:
+- Bundled SSJS ESLint linter (including the `SSJS: Lint Current SSJS File` command and `Lint on save` setting) - now provided by the SFMC Language Service.
+- Bundled `beauty-amp-core2` formatter and the SSJS Manager grammars / language ids - now provided by the SFMC Language Service.
+
+### Notes:
+- Snippets, deploy, run, live preview and configuration features are unchanged.
+- The separate `FiB.beautyAmp` extension (if installed) is independent; you may disable it to avoid a duplicate AMPscript formatter.
+
 ## [0.9.2] - 2026-03-31
 
 ### Added:

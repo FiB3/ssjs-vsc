@@ -1,6 +1,5 @@
 const vscode = require('vscode');
 
-const LanguageFormatter = require("./src/languageFormatters");
 const Config = require('./src/config');
 const ContextHolder = require('./src/config/contextHolder');
 const logger = require('./src/auxi/logger');
@@ -27,8 +26,11 @@ async function activate(context) {
 	telemetry.init();
 	stats.init();
 
-	registerFormatters();
-	
+	// Hand language intelligence to the SFMC Language Service: treat .ssjs files as
+	// script-wrapped SFMC content when they wrap code in <script runat="server">.
+	await setSfmcSsjsFileMode();
+	// Clear stale editor.defaultFormatter values that pointed at our removed formatter.
+	await cleanStaleFormatterSettings();
 
 	registerCommands([
 		{ name: 'ssjs-vsc.upload-to-prod', callback: async () => await ext.provider.uploadToProduction() },
@@ -45,7 +47,6 @@ async function activate(context) {
 		{ name: 'ssjs-vsc.stop', callback: async () => await ext.provider.stopServer() },
 		{ name: 'ssjs-vsc.get-live-preview-url', callback: async () => await ext.provider.getLivePreviewUrl() },
 		{ name: 'ssjs-vsc.show-walkthrough', callback: showWalkthrough },
-		{ name: 'ssjs-vsc.lint-current-file', callback: async () => await ext.lintCurrentFile('command') },
 		{ name: 'ssjs-vsc.delete-asset', callback: async () => await ext.provider.deleteAsset() },
 		{ name: 'ssjs-vsc.fetch-asset', callback: async () => await ext.provider.fetchAsset() },
 		{ name: 'ssjs-vsc.fetch-all-blocks', callback: async () => await ext.provider.fetchAllBlocks() }
@@ -132,16 +133,8 @@ async function registerFileActions() {
 			ext.config.loadConfig();
 			ext.config.allowExperimental();
 		} else if (Config.isFileInWorkspace(filePath)) {
-			let lintResult = 0; // 0 means no problems or not linted
-			if (Config.isLintOnSaveEnabled()) {
-				lintResult = await ext.lintCurrentFile('auto-save', true);
-			}
-
-			if (Config.isAutoSaveEnabled() && (lintResult < 1 || !Config.isLintOnSaveStrict())) {
+			if (Config.isAutoSaveEnabled()) {
 				await ext.uploadScript(true);
-			} else if (Config.isAutoSaveEnabled()) {
-				logger.info(`registerFileActions() called for: ${filePath}, lintResult: ${lintResult}.`);
-				vscode.window.showWarningMessage(`Cannot auto-save file with linting errors. Please, fix the errors first.`);
 			}
 		} else {
 			if (!filePath.endsWith('settings.json')) {
@@ -152,13 +145,64 @@ async function registerFileActions() {
 	ContextHolder.getContext().subscriptions.push(onSaveFile);
 }
 
-function registerFormatters() {
-	const formatters = new LanguageFormatter();
-	const formatterRegistrations = vscode.languages.registerDocumentFormattingEditProvider(
-			formatters.getSelectors(),
-			formatters
-	);
-	vscode.Disposable.from(formatterRegistrations);
+/**
+ * Ask the SFMC Language Service to auto-detect script-wrapped .ssjs files so its
+ * region-based SSJS intelligence lints the embedded code. Only writes when a
+ * workspace is open and the mode is not already 'auto'.
+ */
+async function setSfmcSsjsFileMode() {
+	if (!vscode.workspace.workspaceFolders?.length) {
+		return;
+	}
+	const sfmcCfg = vscode.workspace.getConfiguration('sfmcLanguageServer');
+	if (sfmcCfg.get('ssjsFileMode') !== 'auto') {
+		await sfmcCfg.update('ssjsFileMode', 'auto', vscode.ConfigurationTarget.Workspace);
+	}
+}
+
+/**
+ * Remove stale editor.defaultFormatter settings left behind by the removed
+ * SSJS Manager formatter. Runs once on activation, only writing when a value is
+ * actually present in Workspace/WorkspaceFolder scope (idempotent).
+ */
+async function cleanStaleFormatterSettings() {
+	if (!vscode.workspace.workspaceFolders?.length) {
+		return;
+	}
+	// The capital '[AMPscript]' language id no longer exists, so any defaultFormatter under it is dead config.
+	await clearDefaultFormatter('AMPscript');
+	// For our live ids, only clear when the value points at the removed SSJS Manager formatter.
+	await clearDefaultFormatter('ampscript', 'FiB.ssjs-vsc');
+	await clearDefaultFormatter('ssjs', 'FiB.ssjs-vsc');
+}
+
+/**
+ * Clear editor.defaultFormatter for a language id from Workspace/WorkspaceFolder scope.
+ * @param {string} languageId - the language id whose override is inspected.
+ * @param {string} [onlyIfValue] - when set, only clear if the current scope value equals this.
+ */
+async function clearDefaultFormatter(languageId, onlyIfValue) {
+	const cfg = vscode.workspace.getConfiguration('editor', { languageId });
+	const info = cfg.inspect('defaultFormatter');
+	if (!info) {
+		return;
+	}
+	// Workspace scope.
+	if (info.workspaceValue !== undefined && (onlyIfValue === undefined || info.workspaceValue === onlyIfValue)) {
+		try {
+			await cfg.update('defaultFormatter', undefined, vscode.ConfigurationTarget.Workspace, true);
+		} catch (err) {
+			logger.debug(`clearDefaultFormatter Workspace [${languageId}]: ${err?.message}`);
+		}
+	}
+	// WorkspaceFolder scope (throws in single-folder windows).
+	if (info.workspaceFolderValue !== undefined && (onlyIfValue === undefined || info.workspaceFolderValue === onlyIfValue)) {
+		try {
+			await cfg.update('defaultFormatter', undefined, vscode.ConfigurationTarget.WorkspaceFolder, true);
+		} catch (err) {
+			logger.debug(`clearDefaultFormatter WorkspaceFolder [${languageId}]: ${err?.message}`);
+		}
+	}
 }
 
 function showWalkthrough() {

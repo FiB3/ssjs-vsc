@@ -19,8 +19,6 @@
   },
   "categories": [
     "Programming Languages",
-    "Formatters",
-    "Linters",
     "Snippets",
     "Other"
   ],
@@ -44,11 +42,6 @@
     "code resources",
     "text resource",
     "live preview",
-    "linting",
-    "lint",
-    "linter",
-    "formatting",
-    "format",
     "templating"
   ],
   "repository": {
@@ -60,11 +53,14 @@
   "activationEvents": [
     "onCommand:expressServer.start",
     "onLanguage:ssjs",
-    "onLanguage:AMPscript",
     "onLanguage:ampscript",
-    "onLanguage:html"
+    "onLanguage:html",
+    "onLanguage:sfmc"
   ],
   "main": "./extension.js",
+  "extensionDependencies": [
+    "joernberkefeld.sfmc-language"
+  ],
   "contributes": {
     "commands": [
       {
@@ -140,11 +136,6 @@
         "category": "SSJS"
       },
       {
-        "command": "ssjs-vsc.lint-current-file",
-        "title": "Lint Current SSJS File",
-        "category": "SSJS"
-      },
-      {
         "command": "ssjs-vsc.delete-asset",
         "title": "Delete Asset from SFMC",
         "category": "SSJS"
@@ -205,10 +196,6 @@
         },
         {
           "command": "ssjs-vsc.get-live-preview-url"
-        },
-        {
-          "command": "ssjs-vsc.lint-current-file",
-          "when": "editorLangId == ssjs || resourceExtname in ssjs-vsc.allowedFileTypes"
         },
         {
           "command": "ssjs-vsc.delete-asset",
@@ -332,36 +319,6 @@
           "type": "boolean",
           "default": true,
           "description": "Reload the live preview when the script is saved. Restart the Live Preview to apply this setting."
-        },
-        "ssjs-vsc.language.ampscript.capitalizeKeywords": {
-          "type": "boolean",
-          "default": true,
-          "description": "Use upper case characters for most keywords like (false for lowercase)."
-        },
-        "ssjs-vsc.language.ampscript.capitalizeAndOrNot": {
-          "type": "boolean",
-          "default": true,
-          "description": "Use upper case characters for 'AND', 'OR', 'NOT' keywords (false for lowercase)."
-        },
-        "ssjs-vsc.language.ampscript.maxParametersPerLine": {
-          "type": "number",
-          "default": 4,
-          "description": "How many method parameters can be located on one line (creates new lines if overflown)."
-        },
-        "ssjs-vsc.language.ssjs.lintOnSave": {
-          "type": "string",
-          "default": "on-strict",
-          "enum": [
-            "on-strict",
-            "on",
-            "off"
-          ],
-          "enumDescriptions": [
-            "on-strict - lint on save, but block Auto Save if errors found - Deploy manually or fix the errors.",
-            "on - lint on save, but allow Auto Save even with errors.",
-            "off - do not lint on save."
-          ],
-          "description": "Lint the current SSJS file on save. If errors are found, the auto-save may be stopped. Only .ssjs files are linted automatically."
         }
       }
     },
@@ -428,50 +385,13 @@
         ]
       }
     ],
-    "languages": [
-      {
-        "id": "ssjs",
-        "aliases": [
-          "SSJS",
-          "ssjs"
-        ],
-        "extensions": [
-          ".ssjs"
-        ],
-        "configuration": "./syntaxes/languageConfiguration.ssjs.json"
-      },
-      {
-        "id": "AMPscript",
-        "aliases": [
-          "AMPscript",
-          "ampscript"
-        ],
-        "extensions": [
-          ".amp",
-          ".ampscript"
-        ],
-        "configuration": "./syntaxes/languageConfiguration.amp.json"
-      }
-    ],
-    "grammars": [
-      {
-        "language": "ssjs",
-        "scopeName": "source.ssjs",
-        "path": "./syntaxes/tmLanguage.ssjs.json"
-      },
-      {
-        "language": "AMPscript",
-        "scopeName": "source.AMPscript",
-        "path": "./syntaxes/tmLanguage.amp.json"
-      }
-    ],
     "snippets": [
       {
         "language": "ssjs",
         "path": "./syntaxes/snippets.ssjs.json"
       },
       {
-        "language": "AMPscript",
+        "language": "ampscript",
         "path": "./syntaxes/snippets.amp.json"
       }
     ]
@@ -487,8 +407,6 @@
   },
   "dependencies": {
     "@vscode/extension-telemetry": "1.5.1",
-    "beauty-amp-core2": "^0.4.10",
-    "eslint": "9.39.3",
     "express": "5.2.1",
     "generate-password": "1.7.1",
     "marked": "17.0.4",
@@ -502,6 +420,7 @@
     "@types/mocha": "10.0.10",
     "@types/node": "16.x",
     "@types/vscode": "1.77.0",
+    "eslint": "9.39.3",
     "@vscode/test-electron": "2.5.2",
     "chai": "6.2.2",
     "mocha": "11.7.5"

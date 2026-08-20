@@ -9,19 +9,32 @@ From syntax highlight through rapid testing and preview in VS Code and Cursor.
 
 - Support rapid code development of SSJS scripts via SFMC's Cloud Pages.
 - Preview within VSCode / Cursor - with a WYSIWYG for Cloud Pages and more information rich preview for scripts.
-- Syntax highlight & formatting.
-- SSJS Linting - finding syntax issues.
 - SSJS Snippets.
 - Mustache templating of scripts and pages to ensure your env security when using repositories.
 - Live Previvew feature for pure HTML files that includes templating.
 - Configuration Wizard UI.
 
-All baked in for your convenience - no additional installs needed!
+Syntax highlighting, IntelliSense, diagnostics and formatting for `.ssjs`, `.amp` and `.ampscript` are provided by the required [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension (see [Language Support](#language-support) below).
 
 Start saving time now...
 
 ### [Complete Guide](https://fibworks.com/ssjs-vsc)
 [Issue Reporting on GitHub](https://github.com/FiB3/ssjs-vsc/issues)
+
+## Language Support
+
+SSJS Manager **requires** the [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension (`joernberkefeld.sfmc-language`), which is installed automatically as an extension dependency. It provides all language intelligence for `.ssjs`, `.amp` and `.ampscript` files:
+
+- Syntax highlighting (grammars).
+- IntelliSense (completions, hover, signature help).
+- Diagnostics (SSJS + AMPscript linting).
+- Formatting.
+
+SSJS Manager's previously bundled SSJS ESLint linter and `beauty-amp-core2` formatter (together with its own grammars and language ids) have been **removed** in favor of the SFMC Language Service, so there is a single provider of language intelligence and no duplicate/conflicting diagnostics. SSJS Manager keeps its own snippets, deploy, run, live-preview and configuration features.
+
+On activation, SSJS Manager sets the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` setting to `auto` (Workspace scope). In `auto`, a `.ssjs` file that wraps its code in `<script runat="server">...</script>` (or contains AMPscript) is treated as SFMC content so the embedded SSJS is linted correctly, while a plain-JS `.ssjs` file stays server-side JavaScript.
+
+If you also have the separate `FiB.beautyAmp` extension installed, it is independent of SSJS Manager; you may disable it to avoid a duplicate AMPscript formatter (the SFMC Language Service surfaces a coexistence prompt when both claim AMPscript formatting).
 
 ## Settings
 
@@ -51,17 +64,9 @@ Once your SSJS Manager is Active and Cloud Page published, all you need to do is
 To be run using `Ctrl` + `Shift` + `P` (Win) / `CMD` + `Shift` + `P` (Mac) / F1.
 The list of all commands can be seen in the `Extensions > SSJS Manager > Features > Comnands`.
 
-### Linting
+### Linting & Formatting
 
-Finding mistakes and typos in your SSJS code has never been easier!  
-
-SSJS files are auto-checked automatically on save, if you wish so.  
-Control this via VSCode Preference: `SSJS: Lint on save`.
-
-![Linting](https://raw.githubusercontent.com/FiB3/ssjs-vsc/main/images/linting2.gif)
-
-Use `SSJS: Lint Current SSJS File` to lint SSJS within `AMPscript` and `HTML` files.  
-The linter also supports `JavaScript` files (without ssjs script tags). To enable this, add `.js` to `Additional file types ` in SSJS Manager Preferences. Then lint via command.
+Finding mistakes and typos in your SSJS and AMPscript code, syntax highlighting and formatting are provided by the required [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension - see [Language Support](#language-support). SSJS Manager no longer bundles its own linter or formatter.
 
 ### Live Preview
 

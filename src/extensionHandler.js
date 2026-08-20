@@ -10,8 +10,6 @@ const vsc = require('./vsc');
 const Hooks = require('./hooks');
 const stats = require('./auxi/stats');
 
-const ssjsLinter = require('./language/ssjsLinter');
-
 const statusBar = require('./ui/statusBar');
 const serverStatusBar = require('./ui/serverStatusBar');
 const McClient = require('./sfmc/mcClient');
@@ -144,19 +142,6 @@ class ExtensionHandler {
 			logger.warn(`Hook result unknown: ${hookResult}.`);
 			telemetry.error('upload-script', { 'location': 'extensionHandler.uploadScript', 'hookResult': hookResult });
 		}
-	}
-
-	async lintCurrentFile(trigger = 'command', silent = false) {
-		let lintErrors = 0;
-		if (ssjsLinter.isLintable() || trigger === 'command') {
-			lintErrors = await ssjsLinter.lintCurrentFile(silent);
-			logger.log(`Lint errors: ${lintErrors}`);
-			telemetry.log(`lint`,
-				{ trigger: trigger, lintMode: Config.getLintMode() },
-				{ lintResult: lintErrors }
-			);
-		}
-		return lintErrors;
 	}
 
 	/**

@@ -127,32 +127,6 @@ module.exports = class Preferences extends BaseConfig {
 		return stp.split(',');
 	}
 
-	static getBeautyfierSetup() {
-		const settings = vscode.workspace.getConfiguration('ssjs-vsc.language.ampscript');
-		logger.log(`Settings`, settings);
-		const s = {
-			capitalizeSet: settings.get('capitalizeKeywords'),
-			capitalizeVar: settings.get('capitalizeKeywords'),
-			capitalizeIfFor: settings.get('capitalizeKeywords'),
-			capitalizeAndOrNot: settings.get('capitalizeAndOrNot'),
-			maxParametersPerLine: settings.get('maxParametersPerLine')
-		};
-		return s;
-	}
-
-	static isLintOnSaveEnabled() {
-		return Preferences.getLintMode() !== 'off';
-	}
-
-	static isLintOnSaveStrict() {
-		return Preferences.getLintMode() === 'on-strict';
-	}
-
-	static getLintMode() {
-		let lintMode = vscode.workspace.getConfiguration('ssjs-vsc.language.ssjs').get('lintOnSave') ?? 'on-strict';
-		return lintMode;
-	}
-
 	static isEditorFlashEnabled() {
 		return vscode.workspace.getConfiguration('ssjs-vsc.editor').get('flashEditorEnabled') ?? true;
 	}
