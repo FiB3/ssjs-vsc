@@ -8,6 +8,7 @@ All notable changes to the "ssjs-vsc" extension will be documented here:
 - Language intelligence for `.ssjs`, `.amp` and `.ampscript` (syntax highlighting, IntelliSense, diagnostics and formatting) is now provided by the required [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension (`joernberkefeld.sfmc-language`), added as an extension dependency.
 - On activation, the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` is set to `sfmc` (Workspace scope) so every script-wrapped `.ssjs` file is forced to SFMC content and its embedded SSJS is linted.
 - On activation, for users who kept the historic UPPERCASE AMPscript keyword style, the workspace Prettier config is given `"ampscriptKeywordCase": "upper"` so migrating users keep their casing (the SFMC Language Service injects `prettier-plugin-sfmc` itself, so no `plugins` entry is added). JSON configs (`.prettierrc`, `.prettierrc.json`, `package.json` `prettier` key) are updated silently or created if missing; JS/YAML/TOML configs show a one-time hint. An explicit `ampscriptKeywordCase` is never overridden, and users who had opted out of uppercase are left untouched.
+- The Prettier-config amend now runs only once per workspace (a successful pass is persisted in workspace state) to avoid re-reading or rewriting the Prettier config on every activation.
 
 ### Removed:
 - Bundled SSJS ESLint linter (including the `SSJS: Lint Current SSJS File` command and `Lint on save` setting) - now provided by the SFMC Language Service.

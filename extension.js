@@ -218,6 +218,12 @@ async function clearDefaultFormatter(languageId, onlyIfValue) {
 const PRETTIER_AMEND_HINT_KEY = 'ssjs-vsc.prettierAmendHintShown';
 
 /**
+ * One-time key in workspaceState marking a successful amendPrettierConfig() pass.
+ * Once set, activation skips all Prettier-config file I/O in this workspace.
+ */
+const PRETTIER_AMEND_DONE_KEY = 'ssjs-vsc.prettierAmendDone';
+
+/**
  * JSON-editable prettier config file names, checked in priority order.
  */
 const JSON_PRETTIER_FILES = ['.prettierrc.json'];
@@ -241,6 +247,11 @@ const NON_EDITABLE_PRETTIER_FILES = [
  * `ssjs-vsc.language.ampscript.capitalizeKeywords` setting must not be `false`.
  * JSON configs are edited/created silently; JS/YAML configs get a one-time hint.
  * Idempotent: never overrides an explicit `ampscriptKeywordCase` and re-runs cleanly.
+ *
+ * Persisted one-shot: after a successful pass a workspace-state flag is set so
+ * activation skips all Prettier-config file I/O in this workspace from then on.
+ * The opt-out (`capitalizeKeywords === false`) early-return stays a cheap check
+ * that does not set the flag, so a user who opts back in is still handled.
  */
 async function amendPrettierConfig() {
 	if (!vscode.workspace.workspaceFolders?.length) {
@@ -252,6 +263,11 @@ async function amendPrettierConfig() {
 		// User opted out of uppercase; our lowercase default already matches.
 		return;
 	}
+	// Persisted one-shot: once a pass succeeded in this workspace, never re-read/write config again.
+	const state = ContextHolder.getContext()?.workspaceState;
+	if (state?.get?.(PRETTIER_AMEND_DONE_KEY)) {
+		return;
+	}
 	try {
 		// Detect existing config (first hit wins): JSON-editable, then non-editable, then none.
 		// .prettierrc may hold JSON or YAML - only editable when it parses as JSON.
@@ -261,9 +277,10 @@ async function amendPrettierConfig() {
 			if (parsed && parsed.error) {
 				// .prettierrc is YAML (or unreadable) - treat as non-editable.
 				await showPrettierAmendHint();
-				return;
+			} else {
+				amendJsonPrettierFile(rcPath, parsed);
 			}
-			amendJsonPrettierFile(rcPath, parsed);
+			await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 			return;
 		}
 		for (const name of JSON_PRETTIER_FILES) {
@@ -272,9 +289,10 @@ async function amendPrettierConfig() {
 				const parsed = jsonHandler.load(p);
 				if (parsed && parsed.error) {
 					await showPrettierAmendHint();
-					return;
+				} else {
+					amendJsonPrettierFile(p, parsed);
 				}
-				amendJsonPrettierFile(p, parsed);
+				await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 				return;
 			}
 		}
@@ -284,6 +302,7 @@ async function amendPrettierConfig() {
 			const pkg = jsonHandler.load(pkgPath);
 			if (pkg && pkg.error) {
 				await showPrettierAmendHint();
+				await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 				return;
 			}
 			if (pkg && Object.prototype.hasOwnProperty.call(pkg, 'prettier') && typeof pkg.prettier === 'object') {
@@ -292,6 +311,7 @@ async function amendPrettierConfig() {
 					pkg.prettier = config;
 					jsonHandler.save(pkgPath, pkg);
 				}
+				await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 				return;
 			}
 		}
@@ -299,11 +319,13 @@ async function amendPrettierConfig() {
 		for (const name of NON_EDITABLE_PRETTIER_FILES) {
 			if (file.exists(Pathy.joinToRoot(name))) {
 				await showPrettierAmendHint();
+				await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 				return;
 			}
 		}
 		// None found: create a JSON .prettierrc at root.
 		jsonHandler.save(rcPath, { ampscriptKeywordCase: 'upper' });
+		await state?.update?.(PRETTIER_AMEND_DONE_KEY, true);
 	} catch (err) {
 		logger.debug(`amendPrettierConfig(): ${err?.message}`);
 	}
