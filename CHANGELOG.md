@@ -6,7 +6,7 @@ All notable changes to the "ssjs-vsc" extension will be documented here:
 
 ### Changed:
 - Language intelligence for `.ssjs`, `.amp` and `.ampscript` (syntax highlighting, IntelliSense, diagnostics and formatting) is now provided by the required [SFMC Language Service](https://marketplace.visualstudio.com/items?itemName=joernberkefeld.sfmc-language) extension (`joernberkefeld.sfmc-language`), added as an extension dependency.
-- On activation, the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` is set to `auto` (Workspace scope) so script-wrapped `.ssjs` files are linted as SFMC content while plain-JS `.ssjs` files stay server-side JavaScript.
+- On activation, the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` is set to `sfmc` (Workspace scope) so every script-wrapped `.ssjs` file is forced to SFMC content and its embedded SSJS is linted.
 
 ### Removed:
 - Bundled SSJS ESLint linter (including the `SSJS: Lint Current SSJS File` command and `Lint on save` setting) - now provided by the SFMC Language Service.

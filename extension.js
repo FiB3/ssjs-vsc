@@ -146,17 +146,18 @@ async function registerFileActions() {
 }
 
 /**
- * Ask the SFMC Language Service to auto-detect script-wrapped .ssjs files so its
- * region-based SSJS intelligence lints the embedded code. Only writes when a
- * workspace is open and the mode is not already 'auto'.
+ * Force the SFMC Language Service to treat every .ssjs file as SFMC content so its
+ * region-based SSJS intelligence lints the embedded code. SSJS Manager's .ssjs files
+ * are always script-wrapped HTML, so 'sfmc' (force-all, no per-file content scan) is
+ * correct. Only writes when a workspace is open and the mode is not already 'sfmc'.
  */
 async function setSfmcSsjsFileMode() {
 	if (!vscode.workspace.workspaceFolders?.length) {
 		return;
 	}
 	const sfmcCfg = vscode.workspace.getConfiguration('sfmcLanguageServer');
-	if (sfmcCfg.get('ssjsFileMode') !== 'auto') {
-		await sfmcCfg.update('ssjsFileMode', 'auto', vscode.ConfigurationTarget.Workspace);
+	if (sfmcCfg.get('ssjsFileMode') !== 'sfmc') {
+		await sfmcCfg.update('ssjsFileMode', 'sfmc', vscode.ConfigurationTarget.Workspace);
 	}
 }
 

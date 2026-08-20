@@ -32,7 +32,7 @@ SSJS Manager **requires** the [SFMC Language Service](https://marketplace.visual
 
 SSJS Manager's previously bundled SSJS ESLint linter and `beauty-amp-core2` formatter (together with its own grammars and language ids) have been **removed** in favor of the SFMC Language Service, so there is a single provider of language intelligence and no duplicate/conflicting diagnostics. SSJS Manager keeps its own snippets, deploy, run, live-preview and configuration features.
 
-On activation, SSJS Manager sets the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` setting to `auto` (Workspace scope). In `auto`, a `.ssjs` file that wraps its code in `<script runat="server">...</script>` (or contains AMPscript) is treated as SFMC content so the embedded SSJS is linted correctly, while a plain-JS `.ssjs` file stays server-side JavaScript.
+On activation, SSJS Manager sets the SFMC Language Service's `sfmcLanguageServer.ssjsFileMode` setting to `sfmc` (Workspace scope). Because SSJS Manager's `.ssjs` files are HTML that wrap their code in `<script runat="server">...</script>`, every `.ssjs` file is treated as SFMC content — so the embedded SSJS is linted (and AMPscript/HTML handled) correctly — with no per-file content scan.
 
 If you also have the separate `FiB.beautyAmp` extension installed, it is independent of SSJS Manager; you may disable it to avoid a duplicate AMPscript formatter (the SFMC Language Service surfaces a coexistence prompt when both claim AMPscript formatting).
 
