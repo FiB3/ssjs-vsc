@@ -71,27 +71,33 @@ const vscode = {
 };
 
 // Create mock for telemetry
-const telemetryMock = {
-	default: class TelemetryReporter {
-		constructor(connectionString) {
-			this.connectionString = connectionString;
-			this.events = [];
-			this.errors = [];
-		}
-
-		sendTelemetryEvent(eventName, properties, measurements) {
-			this.events.push({ eventName, properties, measurements });
-		}
-
-		sendTelemetryErrorEvent(errorName, properties, measurements) {
-			this.errors.push({ errorName, properties, measurements });
-		}
-
-		dispose() {
-			this.events = [];
-			this.errors = [];
-		}
+// @vscode/extension-telemetry exposes TelemetryReporter as a NAMED export,
+// so the mock must provide it as `TelemetryReporter` (a `default` alias is kept
+// for callers that use the default import).
+class TelemetryReporter {
+	constructor(connectionString) {
+		this.connectionString = connectionString;
+		this.events = [];
+		this.errors = [];
 	}
+
+	sendTelemetryEvent(eventName, properties, measurements) {
+		this.events.push({ eventName, properties, measurements });
+	}
+
+	sendTelemetryErrorEvent(errorName, properties, measurements) {
+		this.errors.push({ errorName, properties, measurements });
+	}
+
+	dispose() {
+		this.events = [];
+		this.errors = [];
+	}
+}
+
+const telemetryMock = {
+	TelemetryReporter,
+	default: TelemetryReporter
 };
 
 
