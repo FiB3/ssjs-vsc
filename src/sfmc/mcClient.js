@@ -59,6 +59,57 @@ module.exports = class McClient {
 		return this.client.getAll(`/asset/v1/assets`, query);
 	}
 
+	/**
+	 * Get all assets from SFMC - with custom (more complex) query.
+	 * Uses POST `/asset/v1/content/assets/query` and pages through all results.
+	 * @param {object} query - Asset query object (`property`/`simpleOperator`/`value` or a logical group).
+	 * @returns {array} Array of assets.
+	 */
+	async getAssetsWithQuery(query = {}) {
+		const allItems = [];
+		let page = 1;
+		const pageSize = 100;
+
+		while (page < 100) {
+			try {
+				const r = await this._post('/asset/v1/content/assets/query', {
+					page: {
+						page: page,
+						pageSize: pageSize
+					},
+					query: query,
+					sort: [
+						{
+							property: 'id',
+							direction: 'DESC'
+						}
+					]
+				});
+
+				if (r.statusCode !== 200) {
+					logger.error(`getAssetsWithQuery (${page}): ${r.statusCode}:`, r);
+					throw new Error(r);
+				}
+
+				const result = r.body;
+				if (!result || result.items?.length === 0) {
+					logger.log(`getAssetsWithQuery (${page}): No Result!`);
+					break;
+				}
+				allItems.push(...result.items);
+				if (result.page >= Math.ceil(result.count / result.pageSize)) {
+					logger.log(`getAssetsWithQuery (${page}): Last Page: ${result.count} total items.`);
+					break;
+				}
+				page++;
+			} catch (error) {
+				logger.error(`getAssetsWithQuery (${page}): Error retrieving items:`, error);
+				throw error;
+			}
+		}
+		return allItems;
+	}
+
 	async createAssetFolder(name, parentId = 0) {
 		let b = {
 			name: name,

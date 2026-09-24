@@ -16,10 +16,11 @@ const ContextHolder = require('../config/contextHolder');
 module.exports = class CodeFolders {
 
 	static BASE_FOLDER_NAME = '_sfmc';
+	static UNSORTED_FOLDER_NAME = '_unsorted';
 
 	/**
 	 * 
-	 * @param {string} objectType `asset` for Content Builder, `script` for SSJS scripts (future), `cloudPage` for Cloud Pages (future)
+	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages, `script` for SSJS scripts (future)
 	 * @param {McClient} mcClient SFMC client instance
 	 */
 	constructor(objectType, mcClient) {
@@ -51,18 +52,32 @@ module.exports = class CodeFolders {
 
 		if (!Array.isArray(this.folders) || this.folders.length === 0) {
 			logger.error(`No folders found`);
-			vscode.window.showWarningMessage(`No folders found`);
+			this.folders = [  { id: -1, parentId: 0, name: 'Content Builder' } ];
 			return false;
 		}
+		// NOTE: we do not have a call for Cloud Pages folder (yet), so let's use this:
+		this.folders.push({ id: -2, parentId: 0, name: 'Cloud Pages' });
+		// NOTE: we do not have a call for Scripts folder (yet), so let's use this:
+		this.folders.push({ id: -3, parentId: 0, name: 'Scripts' });
+		// add unsorted folders:
+		this.folders.forEach(folderObj => {
+			if ((folderObj.name === 'Content Builder' || folderObj.name === 'Cloud Pages') && folderObj.parentId === 0) {
+				let id = folderObj.name === 'Content Builder' ? -99 : -100;
+				if (folderObj.name === 'Cloud Pages') id = -101; // cloud pages: -101, assets: -100
+
+				this.folders.push({ id: id, parentId: folderObj.id, name: CodeFolders.UNSORTED_FOLDER_NAME });
+			}
+		});
 
 		// build the folder structure:
 		this.folders.forEach(folderObj => {
 			let folderPath = this.findFolderPath(folderObj[this.ID_KEY]);
 			let folderFullPath = Pathy.joinToRoot(folderPath);
-			logger.log(`Folder: ${folderObj[this.NAME_KEY]} => ${folderFullPath}`);
+			logger.log(`Folder: ${folderObj[this.NAME_KEY]} => ${folderFullPath} (id: ${folderObj[this.ID_KEY]}, parentId: ${folderObj[this.PARENT_ID_KEY]})`);
 			folder.create(folderFullPath, true);
 			this.folderPaths.push(folderFullPath);
 		});
+
 		return this.folderPaths;
 	}
 
@@ -118,7 +133,7 @@ module.exports = class CodeFolders {
 	 */
 	async fetchAll() {
 		let folders = [];
-		if (this.objectType === 'asset') {
+		if (this.objectType === 'asset' || this.objectType === 'cloudPage') {
 			try {
 				folders = await this.mcClient.getAssetFolders();
 				logger.log('folders:', folders);
@@ -193,7 +208,7 @@ module.exports = class CodeFolders {
 
 	// Set key names used in API response / folder json file.
 	_setApiNames() {
-		if (this.objectType === 'asset') {
+		if (this.objectType === 'asset' || this.objectType === 'cloudPage') {
 			this.ID_KEY = 'id';
 			this.NAME_KEY = 'name';
 			this.PARENT_ID_KEY = 'parentId';
@@ -207,9 +222,20 @@ module.exports = class CodeFolders {
 		return Pathy.joinToRoot(`.vscode/${this.objectType}Folders.json`);
 	}
 
+
+	_getRootFolderName() {
+		return this.objectType === 'asset' ? 'Content Builder'
+				: this.objectType === 'cloudPage' ? 'Cloud Pages'
+				: this.objectType === 'script' ? 'Scripts'
+				: 'TODO:!';
+	}
+
 	_getBaseFolder() {
-		let folderName = this.objectType === 'asset' ? 'Content Builder' : 'TODO:!'
-		return Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME, folderName);
+		return Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME, this._getRootFolderName());
+	}
+
+	getUnsortedFolderPath() {
+		return Pathy.joinToRoot(CodeFolders.BASE_FOLDER_NAME, this._getRootFolderName(), CodeFolders.UNSORTED_FOLDER_NAME);
 	}
 
 	/**
@@ -235,9 +261,9 @@ module.exports = class CodeFolders {
 
 		if (parts[1] === 'Content Builder') {
 			return 'asset';
-		} else if (parts[1] === 'Cloud Pages') { // TODO: check later
+		} else if (parts[1] === 'Cloud Pages') {
 			return 'cloudPage';
-		} else if (parts[1] === 'Scripts') { // TODO: check later
+		} else if (parts[1] === 'Scripts') {
 			return 'script';
 		}
 		return false;

@@ -14,6 +14,8 @@ const telemetry = require('./telemetry');
 const logger = require('./auxi/logger');
 const Config = require('./config');
 
+const CLOUD_PAGE_ASSET_TYPES = [ 205, 206, 240, 241, 242, 243, 244, 245, 247, 248, 249 ];
+
 /**
  * Helper class to handle SFMC Code Snippets - creation in SFMC & storage within VSCode.
  */
@@ -198,8 +200,13 @@ class SnippetHandler {
 		}
 	}
 
-	async fetchAllSfmcSnippets() {
-		const codeFolders = new CodeFolders('asset', this.mc);
+	/**
+	 * Fetch all assets of the given object type from SFMC and sync local files.
+	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages
+	 * @returns {object|false} `{ assets }` on success, false if folders could not be fetched
+	 */
+	async fetchAllSfmcSnippets(objectType = 'asset') {
+		const codeFolders = new CodeFolders(objectType, this.mc);
 
 		// snapshot the current folder structure and files:
 		const initialSnapshot = codeFolders.snapshot();
@@ -216,7 +223,15 @@ class SnippetHandler {
 		let assets = [];
 		try {
 			// fetch assets:
-			assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
+			if (objectType === 'asset') {
+				assets = await this.mc.getAssets(); // { '$filter': 'assetType.id eq 220' }
+			} else if (objectType === 'cloudPage') {
+				assets = await this.mc.getAssetsWithQuery({
+					"property": "assetType.id",
+					"simpleOperator": "in",
+					"values": CLOUD_PAGE_ASSET_TYPES
+				});
+			}
 			logger.log('assets:', assets);
 		} catch (err) {
 			logger.error('Error fetching assets:', err);
@@ -232,24 +247,27 @@ class SnippetHandler {
 			let content = '';
 			let suffix = '';
 			let setMetadata = false;
+			let rawContent = asset.content || asset.views?.html?.content;
 
-			if (asset.content) {
+			if (objectType == 'asset' && rawContent) {
 				setMetadata = true;
-				content = asset.content;
+				content = rawContent;
 				suffix = this.estimateSuffix(content);
+			} else if (objectType === 'script') {
+				// TODO: finish me:
 			} else {
 				suffix = '.md';
 				content = '# Content Builder assets with content outside of .content are not yet supported:\n```json\n' + JSON.stringify(asset, null, 2) + '\n```';
 			}
-			let folderId = asset.category.id;
-
-			let folderPath = codeFolders.findFolderPath(folderId);
+			let folderId = asset.category?.id;
+			let folderPath = folderId ? codeFolders.findFolderPath(folderId) : false;
 			if (!folderPath) {
-				logger.warn(`Folder not found for asset: ${asset.name} - asset not in Content Builder`);
-				return;
+				folderPath = codeFolders.getUnsortedFolderPath(objectType);
+				logger.warn(`Folder not found for asset: ${asset.name} - storing in _unsorted`);
 			}
-			if ([205].includes(asset.assetType.id)) {
-				logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is not valid here`);
+
+			if (objectType === 'asset' && !CLOUD_PAGE_ASSET_TYPES.includes(asset.assetType.id)) {
+				// logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is not valid here`);
 				return;
 			}
 			let filePath = `${folderPath}/${asset.name}${suffix}`;

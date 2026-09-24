@@ -158,6 +158,11 @@
         "command": "ssjs-vsc.fetch-all-blocks",
         "title": "Fetch All Blocks from SFMC",
         "category": "SSJS"
+      },
+      {
+        "command": "ssjs-vsc.fetch-all-cloud-pages",
+        "title": "Fetch All Cloud Pages from SFMC",
+        "category": "SSJS"
       }
     ],
     "menus": {
@@ -220,6 +225,10 @@
         },
         {
           "command": "ssjs-vsc.fetch-all-blocks",
+          "when": "ssjs-vsc.codeProvider == 'Asset' && ssjs-vsc.experimentalFeaturesAllowed"
+        },
+        {
+          "command": "ssjs-vsc.fetch-all-cloud-pages",
           "when": "ssjs-vsc.codeProvider == 'Asset' && ssjs-vsc.experimentalFeaturesAllowed"
         }
       ],

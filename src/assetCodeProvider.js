@@ -172,6 +172,37 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		telemetry.log('fetchAllBlocks', { codeProvider: 'Asset', count: details?.assets?.length ?? -1 });
 	}
 
+	/**
+	 * Fetch all Cloud Pages from SFMC and update the files.
+	 */
+	async fetchAllCloudPages() {
+		// warn user about the operation:
+		const confirm = await dialogs.yesNoConfirm(`Continue? The local content under './_sfmc/Cloud Pages' will be overwritten to match SFMC.`);
+		if (!confirm) {
+			vscode.window.showInformationMessage('Fetch all Cloud Pages cancelled.');
+			return;
+		}
+
+		let details;
+		await vscode.window.withProgress({
+			location: vscode.ProgressLocation.Notification,
+			title: `Fetching all Cloud Pages from SFMC...`,
+			cancellable: false
+		}, async (progress) => {
+			details = await this.snippets.fetchAllSfmcSnippets('cloudPage');
+		});
+
+		logger.log('fetchAllCloudPages - details:', details);
+		if (!details) {
+			vscode.window.showErrorMessage('Error fetching all Cloud Pages from SFMC.');
+			telemetry.error('fetchAllCloudPages', { codeProvider: 'Asset', count: -1, error: 'Error fetching all Cloud Pages from SFMC.' });
+			return;
+		}
+
+		vscode.window.showInformationMessage('Cloud Pages are now up to date with SFMC.');
+		telemetry.log('fetchAllCloudPages', { codeProvider: 'Asset', count: details?.assets?.length ?? -1 });
+	}
+
 	async deployAnyScriptUi(contexts) {
 		let res = { ok: true, message: '' };
 		let deployments = this._getContextInfoForDeployment(contexts, DEPLOYMENT_TOKEN_TEMPLATE, DEPLOYMENT_BASIC_AUTH_TEMPLATE);
