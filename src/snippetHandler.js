@@ -202,7 +202,7 @@ class SnippetHandler {
 
 	/**
 	 * Fetch all assets of the given object type from SFMC and sync local files.
-	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages
+	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages, `script` for Scripts
 	 * @returns {object|false} `{ assets }` on success, false if folders could not be fetched
 	 */
 	async fetchAllSfmcSnippets(objectType = 'asset') {
@@ -231,6 +231,8 @@ class SnippetHandler {
 					"simpleOperator": "in",
 					"values": CLOUD_PAGE_ASSET_TYPES
 				});
+			} else if (objectType === 'script') {
+				assets = await this.mc.getScripts();
 			}
 			logger.log('assets:', assets);
 		} catch (err) {
@@ -254,12 +256,14 @@ class SnippetHandler {
 				content = rawContent;
 				suffix = this.estimateSuffix(content);
 			} else if (objectType === 'script') {
-				// TODO: finish me:
+				setMetadata = true;
+				content = asset.script || '';
+				suffix = '.ssjs';
 			} else {
 				suffix = '.md';
 				content = '# Content Builder assets with content outside of .content are not yet supported:\n```json\n' + JSON.stringify(asset, null, 2) + '\n```';
 			}
-			let folderId = asset.category?.id;
+			let folderId = asset.category?.id || asset.categoryId;
 			let folderPath = folderId ? codeFolders.findFolderPath(folderId) : false;
 			if (!folderPath) {
 				folderPath = codeFolders.getUnsortedFolderPath(objectType);

@@ -110,6 +110,16 @@ module.exports = class McClient {
 		return allItems;
 	}
 
+	/**
+	 * Get all scripts from SFMC - simple filter only.
+	 * @param {object} query - query parameters.
+	 * @returns {array} Array of scripts.
+	 */
+	async getScripts(query = {}) {
+		return this.client.getAll(`/automation/v1/scripts`, query);
+	}
+
+
 	async createAssetFolder(name, parentId = 0) {
 		let b = {
 			name: name,

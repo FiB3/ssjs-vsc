@@ -20,7 +20,7 @@ module.exports = class CodeFolders {
 
 	/**
 	 * 
-	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages, `script` for SSJS scripts (future)
+	 * @param {string} objectType `asset` for Content Builder, `cloudPage` for Cloud Pages, `script` for Scripts
 	 * @param {McClient} mcClient SFMC client instance
 	 */
 	constructor(objectType, mcClient) {
@@ -52,8 +52,11 @@ module.exports = class CodeFolders {
 
 		if (!Array.isArray(this.folders) || this.folders.length === 0) {
 			logger.error(`No folders found`);
-			this.folders = [  { id: -1, parentId: 0, name: 'Content Builder' } ];
-			return false;
+			this.folders = [];
+			if (this.objectType !== 'script') {
+				this.folders = [  { id: -1, parentId: 0, name: 'Content Builder' } ];
+				return false;
+			}
 		}
 		// NOTE: we do not have a call for Cloud Pages folder (yet), so let's use this:
 		this.folders.push({ id: -2, parentId: 0, name: 'Cloud Pages' });
@@ -61,9 +64,10 @@ module.exports = class CodeFolders {
 		this.folders.push({ id: -3, parentId: 0, name: 'Scripts' });
 		// add unsorted folders:
 		this.folders.forEach(folderObj => {
-			if ((folderObj.name === 'Content Builder' || folderObj.name === 'Cloud Pages') && folderObj.parentId === 0) {
+			if ((folderObj.name === 'Content Builder' || folderObj.name === 'Cloud Pages' || folderObj.name === 'Scripts') && folderObj.parentId === 0) {
 				let id = folderObj.name === 'Content Builder' ? -99 : -100;
 				if (folderObj.name === 'Cloud Pages') id = -101; // cloud pages: -101, assets: -100
+				if (folderObj.name === 'Scripts') id = -102;
 
 				this.folders.push({ id: id, parentId: folderObj.id, name: CodeFolders.UNSORTED_FOLDER_NAME });
 			}
@@ -143,6 +147,9 @@ module.exports = class CodeFolders {
 				vscode.window.showErrorMessage(`Error fetching folders from SFMC: ${err?.statusCode ?? ''} ${errorMessage}`);
 				return false;
 			}
+		} else if (this.objectType === 'script') {
+			// NOTE: no Scripts folder API yet - synthetic root is added in upsertFolders()
+			folders = [];
 		} else {
 			logger.error(`Unsupported object type: ${this.objectType}`);
 			return false;
@@ -208,7 +215,7 @@ module.exports = class CodeFolders {
 
 	// Set key names used in API response / folder json file.
 	_setApiNames() {
-		if (this.objectType === 'asset' || this.objectType === 'cloudPage') {
+		if (this.objectType === 'asset' || this.objectType === 'cloudPage' || this.objectType === 'script') {
 			this.ID_KEY = 'id';
 			this.NAME_KEY = 'name';
 			this.PARENT_ID_KEY = 'parentId';
