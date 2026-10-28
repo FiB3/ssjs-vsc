@@ -238,8 +238,8 @@ class SnippetHandler {
 		} catch (err) {
 			logger.error('Error fetching assets:', err);
 			const errorMessage = this.mc.parseRestError(err);
-			vscode.window.showErrorMessage(`Error fetching assets from SFMC: ${err.statusCode} ${errorMessage}`);
-			throw err;
+			vscode.window.showErrorMessage(`Error fetching assets from SFMC: ${err.statusCode || '-'} ${errorMessage}`);
+			return false;
 		}
 
 		const currentFiles = [];

@@ -215,18 +215,25 @@ module.exports = class AssetCodeProvider extends BaseCodeProvider {
 		}
 
 		let details;
-		await vscode.window.withProgress({
-			location: vscode.ProgressLocation.Notification,
-			title: `Fetching all Scripts from SFMC...`,
-			cancellable: false
-		}, async (progress) => {
-			details = await this.snippets.fetchAllSfmcSnippets('script');
-		});
+		try {
+			await vscode.window.withProgress({
+				location: vscode.ProgressLocation.Notification,
+				title: `Fetching all Scripts from SFMC...`,
+				cancellable: false
+			}, async (progress) => {
+				details = await this.snippets.fetchAllSfmcSnippets('script');
+			});
+		} catch (err) {
+			const errorMessage = this.mc?.parseRestError?.(err) || err?.message || 'Error fetching all Scripts from SFMC.';
+			vscode.window.showErrorMessage(`Error fetching all Scripts from SFMC: ${errorMessage}`);
+			telemetry.error('fetchAllScripts', { codeProvider: 'Asset', error: String(errorMessage) });
+			return;
+		}
 
 		logger.log('fetchAllScripts - details:', details);
 		if (!details) {
 			vscode.window.showErrorMessage('Error fetching all Scripts from SFMC.');
-			telemetry.error('fetchAllScripts', { codeProvider: 'Asset', count: -1, error: 'Error fetching all Scripts from SFMC.' });
+			telemetry.error('fetchAllScripts', { codeProvider: 'Asset', error: 'Error fetching all Scripts from SFMC.' });
 			return;
 		}
 
