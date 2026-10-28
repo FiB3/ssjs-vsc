@@ -245,6 +245,11 @@ class SnippetHandler {
 		const currentFiles = [];
 
 		assets.forEach(asset => {
+			if (objectType === 'asset' && CLOUD_PAGE_ASSET_TYPES.includes(asset.assetType?.id)) {
+				logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is a Cloud Page - skipping`);
+				return;
+			}
+
 			// TODO: currently supports only assets with .content (not other nested types of content)
 			let content = '';
 			let suffix = '';
@@ -270,10 +275,6 @@ class SnippetHandler {
 				logger.warn(`Folder not found for asset: ${asset.name} - storing in _unsorted`);
 			}
 
-			if (objectType === 'asset' && !CLOUD_PAGE_ASSET_TYPES.includes(asset.assetType.id)) {
-				// logger.warn(`Asset: ${asset.name} (${asset.assetType.id} / ${asset.assetType.name}) is not valid here`);
-				return;
-			}
 			let filePath = `${folderPath}/${asset.name}${suffix}`;
 			currentFiles.push(Pathy.joinToRoot(filePath));
 			logger.log(`Asset: ${asset.name} => ${filePath}`);
