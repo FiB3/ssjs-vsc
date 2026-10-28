@@ -62,11 +62,13 @@ async function activate(context) {
 	// IF WORKSPACE EXISTS:
 	let configOk = await ext.loadConfiguration();
 	if (!configOk) {
+		logger.debug(`Config is not ok, launching config panel.`);
 		await launchConfigPanel();
 	}
 	
 	await ext.pickCodeProvider(true, true);
 	if (configOk) {
+		logger.debug(`Config is ok, rotating dev page tokens.`);
 		const tokensRotated = await ext.rotateDevPageTokens();
 		if (tokensRotated) {
 			vscode.window.showInformationMessage(`Dev Page tokens were rotated.`);
@@ -75,6 +77,7 @@ async function activate(context) {
 		await ext.checkDevPageVersion();
 		telemetry.log(`extensionActivated`, { codeProvider: Config.getCodeProvider(), allSet: true });
 	}
+	
 	ext.config.allowExperimental();
 
 	watchForConfigurationChanges();

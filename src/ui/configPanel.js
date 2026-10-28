@@ -117,6 +117,8 @@ async function reloadConfig(panel, message, getViewFunc) {
 		...conf
 	});
 	getTemplatingTags(panel, message, true);
+
+	ext.config.allowExperimental();
 }
 
 async function testConfigurations(panel) {
