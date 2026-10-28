@@ -2,6 +2,15 @@
 
 All notable changes to the "ssjs-vsc" extension will be documented here:
 
+## [0.9.5] - 2026-10-28
+
+### Added:
+- something secret & useful - if you have found it, let me know!
+
+### Fixed:
+- securit updates
+- bug fixes
+
 ## [0.9.2] - 2026-03-31
 
 ### Added:
